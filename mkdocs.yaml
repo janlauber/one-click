@@ -17,6 +17,7 @@ nav:
   - Home: index.md
   - Research:
     - research/index.md
+    - State of Research: research/state-of-research.md
   - Decisions:
     - decisions/index.md
     - 0000-template: decisions/0001-template.md
