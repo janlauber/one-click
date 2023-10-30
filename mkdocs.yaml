@@ -16,7 +16,7 @@ copyright: Copyright &copy; 2023 Jan Lauber
 nav:
   - Home: index.md
   - Decisions:
-    - decisions/index.md
+    - decisions/
 
 # Configuration
 theme:
