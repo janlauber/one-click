@@ -1,0 +1,91 @@
+# Project information
+site_name: One-Click Deployment
+site_author: Jan Lauber
+site_description: >-
+  Documentation and guides for the One-Click Deployment project.
+
+# Repository
+repo_url: https://github.com/janlauber/one-click
+repo_name: janlauber/one-click
+edit_uri: ""
+
+# Copyright
+copyright: Copyright &copy; 2023 Jan Lauber
+
+# Page tree
+nav:
+  - Home: index.md
+  - Decisions:
+    - decisions/index.md
+
+# Configuration
+theme:
+  favicon: assets/images/favicon.png
+  logo: assets/images/favicon.png
+  name: material
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - content.code.annotate
+    - navigation.indexes
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - navigation.prune
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+# Plugins
+plugins:
+  - search:
+      lang: en
+
+# Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/janlauber
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/jan-lauber/
+
+
+
+# Markdown extensions
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - attr_list
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - footnotes
