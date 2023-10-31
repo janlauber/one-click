@@ -18,6 +18,13 @@ nav:
   - Research:
     - research/index.md
     - State of Research: research/state-of-research.md
+    # - Requirements: research/requirements.md
+    # - Use Cases: research/use-cases.md
+    # - User Stories: research/user-stories.md
+    # - Personas: research/personas.md
+    # - User Journey: research/user-journey.md
+    # - User Flow: research/user-flow.md
+    - Sources: research/sources.md
   - Docs:
     - docs/index.md
     - Frontend: docs/frontend.md
