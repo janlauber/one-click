@@ -18,6 +18,11 @@ nav:
   - Research:
     - research/index.md
     - State of Research: research/state-of-research.md
+  - Docs:
+    - docs/index.md
+    - Frontend: docs/frontend.md
+    - Backend: docs/backend.md
+    - Infrastructure: docs/infrastructure.md
   - Meetings:
     - meetings/index.md
     - 2023-10-23: meetings/2023-10-23.md
