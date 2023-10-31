@@ -20,9 +20,9 @@ nav:
     - State of Research: research/state-of-research.md
   - Decisions:
     - decisions/index.md
-    - 0000-template: decisions/0001-template.md
-    - 0001-record-architecture-decision: decisions/0002-record-architecture-decision.md
-    - 0002-mkdocs-for-documentation: decisions/0003-mkdocs-for-documentation.md
+    - 0000-template: decisions/0000-template.md
+    - 0001-record-architecture-decision: decisions/0001-record-architecture-decision.md
+    - 0002-mkdocs-for-documentation: decisions/0002-mkdocs-for-documentation.md
 
 # Configuration
 theme:
