@@ -18,6 +18,7 @@ We will use the following tech stack:
   - The reason for using Figma is that you can create and iterate on mockups very quickly. Also you can share the mockups with other people and get feedback.
 - Sveltekit (Frontend): <https://kit.svelte.dev/>
   - We will use Sveltekit for the frontend, because it we got good experiences and boilerplate laying around. Also it is very easy to use and has a lot of features.
+  - We will use TailwindCSS and Flowbite-Svelte for the styling of the application.
 - Pocketbase / Golang (Backend): <https://pocketbase.io>
   - For the backend we will use Pocketbase and extend it with hooks written in Golang. Pocketbase can function as a standalone backend with a database and authentication.
 - Github (Version Control): <https://github.com>
