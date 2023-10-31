@@ -21,3 +21,17 @@ As for standards, our research abides by the principles defined by the 12-factor
 ## Application of Current Research
 
 The intent of our work is not just to echo the previous research but to advance it by addressing the noted gaps and specific nuances of deploying open-source software. Our research will synthesize the lessons from the state of research, mould these insights into a cohesive system, and ultimately present a novel solution to simplify OSS deployment.
+
+## Findings
+
+### Plural
+
+Reference: [Plural](../sources.md)
+
+Plural is a startup that aims to simplify the deployment of open-source software. It is a platform that offers a catalog of open-source software that can be deployed with a single click. It also offers a dashboard to manage the deployed software. The software is deployed on Kubernetes and can be deployed on any Kubernetes cluster.
+
+The pricing model is based on the following plans:
+
+- **Open Source**: Free
+- **Pro**: $399 per cluster per month AND $49 per user per month
+- **Enterprise**: Custom
