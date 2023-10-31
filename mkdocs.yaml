@@ -35,8 +35,8 @@ nav:
 
 # Configuration
 theme:
-  favicon: assets/images/favicon.png
-  logo: assets/images/favicon.png
+  favicon: assets/images/logo/primary_logo.png
+  logo: assets/images/logo/primary_logo.png
   name: material
   language: en
   font:
