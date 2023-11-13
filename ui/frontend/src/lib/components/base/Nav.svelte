@@ -10,7 +10,7 @@
 
 <Navbar class="bg-primary dark:bg-primary">
   <NavBrand href="/app">
-    <img src="/images/logo_background_typo.png" class="mr-3 h-10 sm:h-16" alt="Flowbite Logo" />
+    <img src="/images/logo_background_typo.png" class="mr-3 h-16" alt="Flowbite Logo" />
   </NavBrand>
   <div class="flex items-center md:order-2 cursor-pointer active:scale-105">
     <Avatar id="avatar-menu" src={avatarUrlString} />

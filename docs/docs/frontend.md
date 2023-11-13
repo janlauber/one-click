@@ -12,3 +12,17 @@ For the mockups we used Figma, which is a tool for creating mockups and prototyp
 !!! note "Figma"
     You can find the mockups here:  
     [Figma Design File](https://www.figma.com/file/Bi4OKCqGSgPXN1tvFzVV6Q/Untitled?type=design&mode=design&t=Sv1KYLH6X63M3oaV-1)
+
+### Mockups
+
+#### Login Page
+
+![Login Page](../assets/images/mockups/login.png)
+
+#### Register Page
+
+#### Dashboard
+
+#### Profile Page
+
+#### Settings Page

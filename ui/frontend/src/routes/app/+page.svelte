@@ -1,13 +1,15 @@
 <script>
-  import Stats from "$lib/components/dashboard/Stats.svelte";
-  import { Badge, Button, Heading, Input } from "flowbite-svelte";
-  import { ArrowUpRightFromSquareOutline, SearchOutline } from "flowbite-svelte-icons";
+  import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
+  import { projects } from "$lib/stores/data";
+  import { Badge, Heading } from "flowbite-svelte";
+  import { ArrowUpRightFromSquareOutline } from "flowbite-svelte-icons";
 </script>
 
 <div class="bg-primary h-auto p-10 relative pb-20">
   <div class="text-center flex justify-center items-center flex-col space-y-4">
     <Heading tag="h3" class="flex text-background font-extralight items-center w-auto">
-      Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge color="dark"
+      Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge
+        color="dark"
         class="text-xl font-semibold ml-2">prototype</Badge
       >
     </Heading>
@@ -20,7 +22,7 @@
   </div> -->
 </div>
 
-<div class="max-w-4xl mx-auto py-10 flex flex-col space-y-6 mt-20">
+<div class="max-w-5xl mx-auto py-10 flex flex-col space-y-6 mt-20">
   <div>
     <Heading tag="h5" class="flex font-normal items-center w-auto mb-5">
       <span class="border-r border-primary pr-2"> Latest Projects </span>&nbsp;
@@ -29,5 +31,10 @@
         <ArrowUpRightFromSquareOutline class="w-3 h-3 ml-2.5" />
       </a>
     </Heading>
+  </div>
+  <div class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+    {#each $projects as project (project.id)}
+      <ProjectCard {project} />
+    {/each}
   </div>
 </div>
