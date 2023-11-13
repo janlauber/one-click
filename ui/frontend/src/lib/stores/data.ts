@@ -2,7 +2,6 @@ import { client } from "$lib/pocketbase";
 import type {
     DeploymentsResponse,
     ProjectsResponse,
-    TagsResponse,
     TechnologiesResponse
 } from "$lib/pocketbase/generated-types";
 import { writable, type Writable } from "svelte/store";
@@ -11,12 +10,10 @@ export const technologies: Writable<TechnologiesResponse[]> = writable<Technolog
 export type Pexpand = {
     technology: TechnologiesResponse;
     deployments: DeploymentsResponse[];
-    tags: TagsResponse[];
 };
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
-
 export enum UpdateFilterEnum {
     ALL = "all"
 }
@@ -50,8 +47,8 @@ export async function updateProjects() {
     await client
         .collection("projects")
         .getFullList<ProjectsResponse<Pexpand>>({
-            sort: "name",
-            expand: "technology,deployments,tags"
+            sort: "-created",
+            expand: "technology,deployments"
         })
         .then((response: unknown) => {
             projects.set(response as ProjectsResponse<Pexpand>[]);
@@ -72,6 +69,5 @@ export async function updateProjects() {
             });
         })
         .catch((error) => {
-            console.error(error);
         });
 }

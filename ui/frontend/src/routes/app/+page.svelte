@@ -1,8 +1,11 @@
 <script>
+  import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
   import { projects } from "$lib/stores/data";
-  import { Badge, Heading } from "flowbite-svelte";
-  import { ArrowUpRightFromSquareOutline } from "flowbite-svelte-icons";
+  import { Badge, Button, Heading, Modal } from "flowbite-svelte";
+  import { Plus } from "lucide-svelte";
+
+  let projectModal = true;
 </script>
 
 <div class="bg-primary h-auto p-10 relative pb-20">
@@ -22,15 +25,24 @@
   </div> -->
 </div>
 
-<div class="max-w-5xl mx-auto py-10 flex flex-col space-y-6 mt-20">
-  <div>
-    <Heading tag="h5" class="flex font-normal items-center w-auto mb-5">
-      <span class="border-r border-primary pr-2"> Latest Projects </span>&nbsp;
-      <a href="/app/projects" class="inline-flex items-center text-primary hover:underline">
-        View more
-        <ArrowUpRightFromSquareOutline class="w-3 h-3 ml-2.5" />
-      </a>
-    </Heading>
+<Modal bind:open={projectModal} size="xs" autoclose={false} class="w-full">
+  <NewProject />
+</Modal>
+
+<div class="max-w-6xl mx-auto px-5 pb-5 py-10 flex flex-col space-y-6 mt-10">
+  <div class="flex">
+    <Heading tag="h5" class="flex font-normal items-center w-auto">Your Projects</Heading>
+    <Button
+      color="alternative"
+      class="justify-self-end ml-auto"
+      size="sm"
+      on:click={() => {
+        projectModal = true;
+      }}
+    >
+      <Plus class="w-4 h-4 mr-2 inline-block" />
+      Create Project
+    </Button>
   </div>
   <div class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
     {#each $projects as project (project.id)}
