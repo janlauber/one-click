@@ -1,11 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import { selectedProjectId, type Pexpand } from "$lib/stores/data";
+  import type { Pexpand } from "$lib/stores/data";
+  import selectedProjectId from "$lib/stores/project";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { technologyLogoUrl } from "$lib/utils/technology.utils";
-  import { Badge, Button, Dropdown, DropdownItem, Indicator, Tooltip } from "flowbite-svelte";
-  import { ChevronRight, MoreHorizontal, Pencil, Rocket, Tag, Trash, Trash2 } from "lucide-svelte";
+  import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
+  import { ChevronRight, Tag } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();

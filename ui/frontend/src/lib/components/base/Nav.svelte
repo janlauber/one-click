@@ -2,7 +2,8 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { client, logout } from "$lib/pocketbase";
-  import { projects, selectedProjectId } from "$lib/stores/data";
+  import { projects } from "$lib/stores/data";
+  import selectedProjectId from "$lib/stores/project";
   import { avatarUrl } from "$lib/utils/user.utils";
   import {
     Navbar,

@@ -5,6 +5,7 @@ import type {
     TechnologiesResponse
 } from "$lib/pocketbase/generated-types";
 import { writable, type Writable } from "svelte/store";
+import selectedProjectId from "./project";
 
 export const technologies: Writable<TechnologiesResponse[]> = writable<TechnologiesResponse[]>([]);
 export type Pexpand = {
@@ -14,9 +15,7 @@ export type Pexpand = {
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
-export const selectedProjectId: Writable<string | undefined> = writable<string | undefined>(
-    undefined
-);
+
 export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
     ProjectsResponse<Pexpand> | undefined
 >(undefined);
