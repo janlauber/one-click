@@ -32,10 +32,12 @@
 
   // on change of selectedProjectId, update the url
   if ($page.url.pathname.startsWith("/app/projects/")) {
+    // get the slug after the id (e.g. /app/projects/123/overview -> overview)
+    const slug = $page.url.pathname.split("/")[4];
     if ($selectedProjectId) {
       selectedProjectId.subscribe((value) => {
         if (value) {
-          goto(`/app/projects/${value}`);
+          goto(`/app/projects/${value}/${slug}`);
         }
       });
     }

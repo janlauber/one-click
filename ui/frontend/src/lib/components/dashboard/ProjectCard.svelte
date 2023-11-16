@@ -39,7 +39,7 @@
           color="alternative"
           on:click={() => {
             $selectedProjectId = project.id;
-            goto(`/app/projects/${project.id}`);
+            goto(`/app/projects/${project.id}/overview`);
           }}
         >
           <ChevronRight class="w-5 h-5" />
