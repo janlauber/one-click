@@ -35,7 +35,7 @@
   });
 </script>
 
-<div class="flex flex-col gap-y-4 p-2" role="group" aria-labelledby="projects-headline">
+<div class="flex flex-col gap-y-4 " role="group" aria-labelledby="projects-headline">
   {#each items as item}
     <a
       href={item.href}
