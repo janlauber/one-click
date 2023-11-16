@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import type { Pexpand } from "$lib/stores/data";
+  import { selectedProjectId, type Pexpand } from "$lib/stores/data";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { technologyLogoUrl } from "$lib/utils/technology.utils";
   import { Badge, Button, Dropdown, DropdownItem, Indicator, Tooltip } from "flowbite-svelte";
-  import { MoreHorizontal, Pencil, Rocket, Tag, Trash, Trash2 } from "lucide-svelte";
+  import { ChevronRight, MoreHorizontal, Pencil, Rocket, Tag, Trash, Trash2 } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();
@@ -33,23 +34,15 @@
     <div class="text-sm font-medium leading-6">{project.name}</div>
     <div class="relative ml-auto">
       <div class="flex justify-end">
-        <Button color="alternative">
-          <MoreHorizontal class="w-4 h-4" />
+        <Button
+          color="alternative"
+          on:click={() => {
+            $selectedProjectId = project.id;
+            goto(`/app/projects/${project.id}`);
+          }}
+        >
+          <ChevronRight class="w-5 h-5" />
         </Button>
-        <Dropdown class="p-0">
-          <DropdownItem>
-            <Rocket class="w-4 h-4 mr-2 inline-block" />
-            Deploy</DropdownItem
-          >
-          <DropdownItem>
-            <Pencil class="w-4 h-4 mr-2 inline-block" />
-            Edit</DropdownItem
-          >
-          <DropdownItem>
-            <Trash2 class="w-4 h-4 mr-2 inline-block" />
-            Delete</DropdownItem
-          >
-        </Dropdown>
       </div>
     </div>
   </div>

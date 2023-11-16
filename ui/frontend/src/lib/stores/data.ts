@@ -14,18 +14,26 @@ export type Pexpand = {
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
+export const selectedProjectId: Writable<string | undefined> = writable<string | undefined>(
+    undefined
+);
+export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
+    ProjectsResponse<Pexpand> | undefined
+>(undefined);
+
 export enum UpdateFilterEnum {
-    ALL = "all"
+    ALL = "all",
 }
 
 export interface UpdateFilter {
     filter: UpdateFilterEnum;
+    projectId?: string;
 }
 
 export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
     if (filter.filter === UpdateFilterEnum.ALL) {
         await updateTechnologies();
-        await updateProjects();
+        await updateProjects(filter.projectId);
     }
 }
 
@@ -43,31 +51,44 @@ export async function updateTechnologies() {
         });
 }
 
-export async function updateProjects() {
-    await client
-        .collection("projects")
-        .getFullList<ProjectsResponse<Pexpand>>({
-            sort: "-created",
-            expand: "technology,deployments"
-        })
-        .then((response: unknown) => {
-            projects.set(response as ProjectsResponse<Pexpand>[]);
-            // sort projects.expand?.deployments by startDate descending
-            projects.update((projects) => {
-                projects.forEach((project) => {
-                    project.expand?.deployments.sort((a, b) => {
-                        if (a.startDate > b.startDate) {
-                            return -1;
-                        }
-                        if (a.startDate < b.startDate) {
-                            return 1;
-                        }
-                        return 0;
-                    });
-                });
-                return projects;
+export async function updateProjects(projectId?: string) {
+    try {
+        const response = await fetchProjects();
+        if (projectId) {
+            // set selected project
+            selectedProjectId.set(projectId);
+            selectedProject.set(response.find((project) => project.id === projectId));
+        }
+        projects.set(response);
+
+        sortProjectsDeployments();
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "technology,deployments"
+    };
+
+    return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
+}
+
+function sortProjectsDeployments() {
+    projects.update((projects) => {
+        projects.forEach((project) => {
+            project.expand?.deployments.sort((a, b) => {
+                if (a.startDate > b.startDate) {
+                    return -1;
+                }
+                if (a.startDate < b.startDate) {
+                    return 1;
+                }
+                return 0;
             });
-        })
-        .catch((error) => {
         });
+        return projects;
+    });
 }

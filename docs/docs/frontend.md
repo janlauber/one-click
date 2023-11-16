@@ -19,9 +19,9 @@ For the mockups we used Figma, which is a tool for creating mockups and prototyp
 
 ![Login Page](../assets/images/mockups/login.png)
 
-#### Register Page
+#### Overview Page
 
-#### Dashboard
+#### Project Page
 
 #### Profile Page
 

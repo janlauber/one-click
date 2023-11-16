@@ -25,7 +25,7 @@
 </script>
 
 <div
-  class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-r from-primary to-secondary dark:to-secondarydark"
+  class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-r from-primary-600 to-secondary dark:to-secondarydark"
 >
   <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
     <div class="bg-background dark:bg-gray-800 px-6 py-12 shadow sm:rounded-lg sm:px-12">

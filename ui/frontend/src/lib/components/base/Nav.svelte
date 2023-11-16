@@ -1,35 +1,79 @@
 <script lang="ts">
-  import { client, logout } from '$lib/pocketbase';
-  import { avatarUrl } from '$lib/utils/user.utils';
-  import { Navbar, NavBrand, NavLi, NavUl, NavHamburger, Avatar, Dropdown, DropdownItem, DropdownHeader, DropdownDivider } from 'flowbite-svelte';
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { client, logout } from "$lib/pocketbase";
+  import { projects, selectedProjectId } from "$lib/stores/data";
+  import { avatarUrl } from "$lib/utils/user.utils";
+  import {
+    Navbar,
+    NavBrand,
+    Avatar,
+    Dropdown,
+    DropdownItem,
+    DropdownHeader,
+    DropdownDivider,
+    Select,
+    type SelectOptionType
+  } from "flowbite-svelte";
+  import { ChevronsUpDown } from "lucide-svelte";
 
   let avatarUrlString: any = avatarUrl();
+  let projectsChoices: SelectOptionType<any>[] | undefined;
 
+  projects.subscribe((value) => {
+    projectsChoices = value.map((project) => {
+      return {
+        name: project.name,
+        value: project.id
+      };
+    });
+  });
 
+  // on change of selectedProjectId, update the url
+  if ($page.url.pathname.startsWith("/app/projects/")) {
+    if ($selectedProjectId) {
+      selectedProjectId.subscribe((value) => {
+        if (value) {
+          goto(`/app/projects/${value}`);
+        }
+      });
+    }
+  }
 </script>
 
-<Navbar class="bg-primary dark:bg-primary">
-  <NavBrand href="/app">
-    <img src="/images/logo_background_typo.png" class="mr-3 h-16" alt="Flowbite Logo" />
+<Navbar class="bg-primary-600 dark:bg-primary-600">
+  <NavBrand href="/app" class="justify-start">
+    <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
   </NavBrand>
+  <!-- display only when under /app/projects/{id} -->
+  {#if $page.url.pathname.startsWith("/app/projects/")}
+    <div class="flex items-center justify-center md:order-1 cursor-pointer active:scale-105">
+      <Select
+        placeholder="Choose Project"
+        size="sm"
+        items={projectsChoices}
+        bind:value={$selectedProjectId}
+      ></Select>
+    </div>
+  {/if}
   <div class="flex items-center md:order-2 cursor-pointer active:scale-105">
     <Avatar id="avatar-menu" src={avatarUrlString} />
-    <NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
   </div>
-  <Dropdown placement="bottom" triggeredBy="#avatar-menu">
+  <Dropdown placement="bottom" triggeredBy="#avatar-menu" class="p-0">
     <DropdownHeader>
       <span class="block text-sm">{client.authStore.model?.name}</span>
       <span class="block truncate text-sm font-medium">{client.authStore.model?.email}</span>
     </DropdownHeader>
-    <DropdownItem>Dashboard</DropdownItem>
-    <DropdownItem>Settings</DropdownItem>
+    <DropdownItem
+      on:click={() => {
+        goto("/app/profile");
+      }}>Settings</DropdownItem
+    >
     <DropdownDivider />
     <DropdownItem
-      on:click={
-        () => {
-          logout();
-        }
-      }
-    >Sign out</DropdownItem>
+      on:click={() => {
+        logout();
+      }}>Sign out</DropdownItem
+    >
   </Dropdown>
 </Navbar>

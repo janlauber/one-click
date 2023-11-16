@@ -3,11 +3,11 @@
 </script>
 
 <div>
-  <div class="h-20">
+  <div class="">
     <Nav />
   </div>
   <div
-    class="absolute top-20 left-0 right-0 bottom-0"
+    class="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto scrollbar-none"
   >
     <slot />
   </div>

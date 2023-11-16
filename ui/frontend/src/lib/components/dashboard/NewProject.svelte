@@ -1,12 +1,14 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
   import type { ProjectsRecord, TechnologiesResponse } from "$lib/pocketbase/generated-types";
-  import { technologies } from "$lib/stores/data";
+  import { technologies, updateDataStores } from "$lib/stores/data";
   import { technologyLogoUrl } from "$lib/utils/technology.utils";
 
   import { Button, Input, Label } from "flowbite-svelte";
   import { ArrowRight, ExternalLink, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
+
+  export let projectModal: boolean;
 
   let name: string = "";
   let selectedTechnology: TechnologiesResponse = $technologies[0];
@@ -26,6 +28,16 @@
   async function handleCreateProject(event: Event) {
     event.preventDefault();
 
+    if (!name) {
+      toast.error("Please enter a name");
+      return;
+    }
+
+    if (!selectedTechnology) {
+      toast.error("Please select a technology");
+      return;
+    }
+
     const project: ProjectsRecord = {
       name: name,
       technology: selectedTechnology.id,
@@ -39,6 +51,9 @@
       .create(project)
       .then((response) => {
         toast.success("Project created");
+        localTags = new Set();
+        updateDataStores();
+        projectModal = false;
       })
       .catch((error) => {
         toast.error(error.message);
@@ -46,7 +61,6 @@
       .finally(() => {
         name = "";
         selectedTechnology = $technologies[0];
-        localTags = new Set();
       });
   }
 </script>
@@ -75,7 +89,7 @@
         <span
           class="cursor-pointer w-full rounded-lg px-6 py-4 sm:flex sm:justify-between border-2
           {selectedTechnology?.id === technology?.id
-            ? 'border-primary bg-blue-50 dark:bg-transparent'
+            ? 'border-primary-600 bg-blue-50 dark:bg-transparent'
             : ' border-gray-200'}
           "
           on:click={() => {

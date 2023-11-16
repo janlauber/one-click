@@ -25,7 +25,7 @@
 <div class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden">
   <Toaster position="top-center" />
   <!-- only display nav when not on /login -->
-  <main class="absolute top-0 left-0 right-0 bottom-0 overflow-y-auto">
+  <main class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden scrollbar-none">
     <slot />
   </main>
   <button class="absolute bottom-2 right-2"
