@@ -1,13 +1,5 @@
 # Research
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Competitive Analysis](#competitive-analysis)
-3. [Evaluation Model for OSS Technologies](#evaluation-model-for-oss-technologies)
-4. [Target OSS Technologies for Prototype](#target-oss-technologies-for-prototype)
-5. [Research Questions](#research-questions)
-
 ## Introduction
 
 In our One-Click Deployment project, we aim to gain a thorough understanding of the OSS deployment and management landscape. This encompasses assessing current challenges and exploring how existing solutions address these issues.
