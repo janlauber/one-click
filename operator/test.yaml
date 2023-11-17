@@ -1,7 +1,7 @@
 apiVersion: one-click.io/v1
 kind: Framework
 metadata:
-  name: example-framework
+  name: nginx
 spec:
   image:
     registry: "docker.io"
@@ -34,4 +34,4 @@ spec:
         - host: "reflex.oneclickapps.dev"
           path: "/"
           tls: true
-  serviceAccountName: "reflex-application"
+  serviceAccountName: "nginx"

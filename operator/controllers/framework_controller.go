@@ -45,15 +45,6 @@ type FrameworkReconciler struct {
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Framework object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
@@ -65,16 +56,47 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Log.Error(err, "unable to fetch Framework")
 
 		// Handle the case where the Framework resource no longer exists
+		// Remove all resources associated with the Framework
+
 		// If it's not a not-found error, requeue the request
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// At this point, you have the Framework instance and can work with it
-	// Your logic to handle the Framework resource goes here
+	// Define the ServiceAccount you expect to exist
+	expectedSa := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      framework.Spec.ServiceAccountName,
+			Namespace: req.Namespace,
+		},
+	}
+
+	// Set Framework instance as the owner of the ServiceAccount
+	if err := ctrl.SetControllerReference(&framework, expectedSa, r.Scheme); err != nil {
+		// handle error
+		return ctrl.Result{}, err
+	}
+
+	// Try to get the ServiceAccount
+	foundSa := &corev1.ServiceAccount{}
+	err := r.Get(ctx, types.NamespacedName{Name: framework.Spec.ServiceAccountName, Namespace: req.Namespace}, foundSa)
+	if err != nil && errors.IsNotFound(err) {
+		// ServiceAccount doesn't exist - create it
+		log.Log.Info("Creating a new ServiceAccount", "Namespace", req.Namespace, "Name", framework.Spec.ServiceAccountName)
+		err = r.Create(ctx, expectedSa)
+		if err != nil {
+			// handle error
+			return ctrl.Result{}, err
+		}
+		// ServiceAccount created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		// handle error
+		return ctrl.Result{}, err
+	}
 
 	// Check if the Deployment already exists
 	deployment := &appsv1.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: framework.Name, Namespace: framework.Namespace}, deployment)
+	err = r.Get(ctx, types.NamespacedName{Name: framework.Name, Namespace: framework.Namespace}, deployment)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new Deployment
 		dep := r.deploymentForFramework(&framework)
