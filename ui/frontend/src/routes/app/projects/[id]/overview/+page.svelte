@@ -3,7 +3,7 @@
   import { Button, Card, Heading, Indicator } from "flowbite-svelte";
   import { ArrowRight } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
-    import CpuChart from "$lib/components/projects/CPUChart.svelte";
+    import CpuChart from "$lib/components/projects/CpuChart.svelte";
 </script>
 
 <div class="flex items-center justify-between">
