@@ -43,6 +43,7 @@ nav:
     - 0004-supported-technologies: decisions/0004-supported-technologies.md
     - 0005-use-of-generative-ai: decisions/0005-use-of-generative-ai.md
     - 0006-applications-exclusion: decisions/0006-applications-exclusion.md
+    - 0007 Kubernetes Operator: decisions/0007-kubernetes-operator.md
   - Feedback Loop:
     - feedback-loop/index.md
   - About:

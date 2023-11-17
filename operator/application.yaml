@@ -1,0 +1,31 @@
+apiVersion: one-click.io/v1
+kind: Framework
+metadata:
+  name: reflex-application
+spec:
+  image: 
+    registry: "docker.io"
+    repository: "oneclickapps/reflex"
+    tag: "latest"
+  horizontalScale:
+    minReplicas: 1
+    maxReplicas: 1
+    targetCPUUtilizationPercentage: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  env:
+  - name: "REFLEX_USERNAME"
+    value: "admin"
+  interfaces:
+    - name: http
+      port: 8080
+      ingress:
+        - host: "reflex.oneclickapps.dev"
+          path: "/"
+          tls: false
+  serviceAccountName: "reflex-application"
