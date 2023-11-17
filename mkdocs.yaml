@@ -40,6 +40,9 @@ nav:
     - 0001-record-architecture-decision: decisions/0001-record-architecture-decision.md
     - 0002-mkdocs-for-documentation: decisions/0002-mkdocs-for-documentation.md
     - 0003-tech-stack: decisions/0003-tech-stack.md
+    - 0004-supported-technologies: decisions/0004-supported-technologies.md
+    - 0005-use-of-generative-ai: decisions/0005-use-of-generative-ai.md
+    - 0006-applications-exclusion: decisions/0006-applications-exclusion.md
   - Feedback Loop:
     - feedback-loop/index.md
   - About:
