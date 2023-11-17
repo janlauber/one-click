@@ -18,14 +18,11 @@ package controllers
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -167,6 +164,23 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 	}
 
+	// Reconcile the Service and Ingress for each Interface
+	for _, intf := range framework.Spec.Interfaces {
+		// Handle Service for each interface
+		err := r.reconcileService(ctx, &framework, intf)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		// Handle Ingress for each interface (if defined)
+		if len(intf.Ingress) > 0 {
+			err := r.reconcileIngress(ctx, &framework, intf)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -175,212 +189,4 @@ func (r *FrameworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&oneclickiov1.Framework{}).
 		Complete(r)
-}
-
-func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) *appsv1.Deployment {
-	labels := map[string]string{"app": f.Name}
-	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
-
-	dep := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      f.Name,
-			Namespace: f.Namespace,
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: &replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{{
-						Name:  f.Name,
-						Image: fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag),
-						Resources: corev1.ResourceRequirements{
-							Requests: corev1.ResourceList{
-								corev1.ResourceCPU:    resource.MustParse(f.Spec.Resources.Requests.CPU),
-								corev1.ResourceMemory: resource.MustParse(f.Spec.Resources.Requests.Memory),
-							},
-							Limits: corev1.ResourceList{
-								corev1.ResourceCPU:    resource.MustParse(f.Spec.Resources.Limits.CPU),
-								corev1.ResourceMemory: resource.MustParse(f.Spec.Resources.Limits.Memory),
-							},
-						},
-						Ports: getContainerPorts(f.Spec.Interfaces),
-						Env:   getEnvVars(f.Spec.Env),
-					}},
-					ServiceAccountName: f.Spec.ServiceAccountName,
-				},
-			},
-		},
-	}
-
-	ctrl.SetControllerReference(f, dep, r.Scheme)
-	return dep
-}
-
-func getContainerPorts(interfaces []oneclickiov1.InterfaceSpec) []corev1.ContainerPort {
-	var ports []corev1.ContainerPort
-	for _, i := range interfaces {
-		ports = append(ports, corev1.ContainerPort{
-			ContainerPort: i.Port,
-		})
-	}
-	return ports
-}
-
-func getEnvVars(envVars []oneclickiov1.EnvVar) []corev1.EnvVar {
-	var envs []corev1.EnvVar
-	for _, env := range envVars {
-		envs = append(envs, corev1.EnvVar{
-			Name:  env.Name,
-			Value: env.Value,
-		})
-	}
-	return envs
-}
-
-func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
-	// Check replicas
-	if *current.Spec.Replicas != int32(f.Spec.HorizontalScale.MinReplicas) {
-		return true
-	}
-
-	// Check container image
-	desiredImage := fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag)
-	if current.Spec.Template.Spec.Containers[0].Image != desiredImage {
-		return true
-	}
-
-	// Check environment variables
-	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].Env, getEnvVars(f.Spec.Env)) {
-		return true
-	}
-
-	// Check resource requests and limits
-	desiredResources := createResourceRequirements(f.Spec.Resources)
-	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].Resources, desiredResources) {
-		return true
-	}
-
-	// Check ports
-	if !portsMatch(current.Spec.Template.Spec.Containers[0].Ports, f.Spec.Interfaces) {
-		return true
-	}
-
-	return false
-}
-
-func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1.InterfaceSpec) bool {
-	if len(currentPorts) != len(interfaces) {
-		return false
-	}
-
-	for i, intf := range interfaces {
-		if currentPorts[i].ContainerPort != intf.Port {
-			return false
-		}
-		// Add additional port checks if necessary
-	}
-
-	return true
-}
-
-func createResourceRequirements(resources oneclickiov1.ResourceRequirements) corev1.ResourceRequirements {
-	return corev1.ResourceRequirements{
-		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse(resources.Requests.CPU),
-			corev1.ResourceMemory: resource.MustParse(resources.Requests.Memory),
-		},
-		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse(resources.Limits.CPU),
-			corev1.ResourceMemory: resource.MustParse(resources.Limits.Memory),
-		},
-	}
-}
-
-func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) {
-	// Update replicas
-	deployment.Spec.Replicas = &f.Spec.HorizontalScale.MinReplicas
-
-	// Update container image
-	deployment.Spec.Template.Spec.Containers[0].Image = fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag)
-
-	// Update environment variables
-	deployment.Spec.Template.Spec.Containers[0].Env = getEnvVars(f.Spec.Env)
-
-	// Update resource requests and limits
-	deployment.Spec.Template.Spec.Containers[0].Resources = createResourceRequirements(f.Spec.Resources)
-
-	// Update ports
-	updateContainerPorts(&deployment.Spec.Template.Spec.Containers[0], f.Spec.Interfaces)
-}
-
-func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1.InterfaceSpec) {
-	var ports []corev1.ContainerPort
-	for _, intf := range interfaces {
-		ports = append(ports, corev1.ContainerPort{ContainerPort: intf.Port})
-		// Add additional port configuration if necessary
-	}
-	container.Ports = ports
-}
-
-func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) *autoscalingv2.HorizontalPodAutoscaler {
-	return &autoscalingv2.HorizontalPodAutoscaler{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      f.Name,
-			Namespace: f.Namespace,
-		},
-		Spec: autoscalingv2.HorizontalPodAutoscalerSpec{
-			ScaleTargetRef: autoscalingv2.CrossVersionObjectReference{
-				APIVersion: "apps/v1",
-				Kind:       "Deployment",
-				Name:       f.Name,
-			},
-			MinReplicas: &f.Spec.HorizontalScale.MinReplicas,
-			MaxReplicas: f.Spec.HorizontalScale.MaxReplicas,
-			Metrics: []autoscalingv2.MetricSpec{
-				{
-					Type: autoscalingv2.ResourceMetricSourceType,
-					Resource: &autoscalingv2.ResourceMetricSource{
-						Name:   corev1.ResourceCPU,
-						Target: autoscalingv2.MetricTarget{Type: autoscalingv2.UtilizationMetricType, AverageUtilization: &f.Spec.HorizontalScale.TargetCPUUtilizationPercentage},
-					},
-				},
-			},
-		},
-	}
-}
-
-func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) bool {
-	// Check MinReplicas
-	if *current.Spec.MinReplicas != f.Spec.HorizontalScale.MinReplicas {
-		return true
-	}
-
-	// Check MaxReplicas
-	if current.Spec.MaxReplicas != f.Spec.HorizontalScale.MaxReplicas {
-		return true
-	}
-
-	// Check TargetCPUUtilizationPercentage
-	if *current.Spec.Metrics[0].Resource.Target.AverageUtilization != f.Spec.HorizontalScale.TargetCPUUtilizationPercentage {
-		return true
-	}
-
-	return false
-}
-
-func updateHpa(hpa *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) {
-	// Update MinReplicas
-	hpa.Spec.MinReplicas = &f.Spec.HorizontalScale.MinReplicas
-
-	// Update MaxReplicas
-	hpa.Spec.MaxReplicas = f.Spec.HorizontalScale.MaxReplicas
-
-	// Update TargetCPUUtilizationPercentage
-	hpa.Spec.Metrics[0].Resource.Target.AverageUtilization = &f.Spec.HorizontalScale.TargetCPUUtilizationPercentage
 }
