@@ -17,3 +17,7 @@ As defined in the [meeting notes](../meetings/2023-10-23.md), we want to answer 
 - Which options do customers have?
   - Do they solve the problem?
   - How can we improve the current status quo?
+
+??? question "What is the today's pain of customers who want to deploy and manage OSS?"
+
+    - Customers have to manage the infrastructure and the deployment of the OSS themselves.

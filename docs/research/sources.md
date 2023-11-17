@@ -7,3 +7,7 @@
 ## [3] [Manage Open Source Sprawl with Plural](https://signalfire.com/plural-investor/)
 
 ## [4] [Plural](https://www.plural.sh/)
+
+## [5] [Streamlit Cloud Hosting](https://streamlit.io/cloud)
+
+## [6] [Reflex Hosting](https://reflex-dev.notion.site/Reflex-Hosting-Documentation-57a4dd55d6234858bbae0be75be79ce7)
