@@ -5,7 +5,7 @@ metadata:
 spec:
   image:
     registry: "docker.io"
-    repository: "oneclickapps/reflex"
+    repository: "nginx"
     tag: "latest"
   horizontalScale:
     minReplicas: 1
@@ -28,4 +28,10 @@ spec:
         - host: "reflex.oneclickapps.dev"
           path: "/"
           tls: false
+    - name: "https"
+      port: 8443
+      ingress:
+        - host: "reflex.oneclickapps.dev"
+          path: "/"
+          tls: true
   serviceAccountName: "reflex-application"
