@@ -2,52 +2,51 @@
 
 ## Introduction
 
-In our One-Click Deployment project, we aim to gain a thorough understanding of the OSS deployment and management landscape. This encompasses assessing current challenges and exploring how existing solutions address these issues.
+In our One-Click Deployment project, we aim to thoroughly understand the OSS deployment and management landscape, focusing on both OSS frameworks and pre-built applications.
 
 ## Competitive Analysis
 
-Our competitive analysis provides insights into both direct competitors and hosted solutions in the OSS deployment space.
+Our competitive analysis explores the landscape of OSS deployment, distinguishing between frameworks and applications.
 
-### Direct Competitors
+### OSS Frameworks
 
-- Analyzing solutions like `plural.sh`, focusing on their technological approach and user experience. [More in Competitive Analysis](research/competitive-analysis.md)
+- Examining solutions like `reflex.dev` and `streamlit.io`, focusing on their use as frameworks to build applications. [Reflex Analysis](./competitive-analysis/reflex-hosting.md) | [Streamlit.io Analysis](./competitive-analysis/streamlit-cloud.md)
 
-### Hosted Solutions
+### Pre-Built Applications
 
-- Evaluating platforms such as `reflex.dev` and `streamlit.io`, understanding their service models and user support mechanisms. [Detailed in Hosted Solutions Analysis](research/competitive-analysis.md#hosted-solutions)
+- Evaluating pre-built applications like `Node-RED`, which offer ready-to-use functionality. [Application Analysis](./competitive-analysis/kaa-node-red-hosting.md)
 
-### Key Differentiators
+### Hyperscalers
 
-- Identifying unique aspects of our One-Click Deployment solution compared to these existing services. [See Benefits and Drawbacks](research/state-of-research.md#benefits-and-drawbacks)
+- Analyzing how hyperscalers like AWS, Azure, and GCP provide managed OSS services and comparing their offerings to our solution. [Hyperscaler Analysis](./competitive-analysis/hyperscalers.md)
 
 ## Evaluation Model for OSS Technologies
 
-We follow a structured model to determine which OSS technologies to support, ensuring they align with our platform's capabilities and user needs.
+Our model distinguishes between frameworks and applications in terms of their deployment and management needs.
 
-### Criteria for Selection
+### Selection Criteria
 
-- Assessing technical compatibility, community support, and maintenance practices. [Criteria Details](research/requirements.md#criteria-for-selection)
+- Criteria specific to frameworks and applications, considering their unique deployment and operational requirements. [Criteria Details](./requirements.md)
 
 ### Onboarding Process
 
-- Outlining the process for integrating new OSS technologies into our platform. [Onboarding Steps](research/requirements.md#onboarding-process)
+- Steps for integrating frameworks and applications into our platform, taking into account their different natures. [Onboarding Steps](./requirements.md)
 
 ## Target OSS Technologies for Prototype
 
-In "Project 2", we aim to integrate and thoroughly analyze primarly `reflex.dev`.
-As we outlined in our [Supported Technologies](../decisions/0004-supported-technologies.md) decision, we will probably also integrate `streamlit.io` and `node-red` if we have time left.
+"Project 2" focuses on integrating technologies that represent both OSS frameworks and applications.
 
 ### Reflex.dev
 
-- Investigating its architecture and deployment intricacies. [Reflex.dev Analysis](research/user-stories.md#reflex-dev)
+- A deep dive into deploying and managing Reflex.dev as a framework. [Reflex.dev Analysis](research/user-stories.md#reflex-dev)
 
-### Streamlit.io (*if time permits*)
+### Streamlit.io
 
-- Assessing usability and customization capabilities. [Streamlit.io Insights](research/personas.md#streamlit-io)
+- Understanding Streamlit.io's deployment process as a framework. [Streamlit.io Insights](research/personas.md#streamlit-io)
 
-### Node-RED (*if time permits*)
+### Node-RED
 
-- Examining scalability and integration capabilities. [Node-RED Evaluation](research/use-cases.md#node-red)
+- Evaluating Node-RED's use case as a pre-built application. [Node-RED Evaluation](research/use-cases.md#node-red)
 
 ## Research Questions
 
@@ -56,21 +55,19 @@ As outlined in our [meeting notes from October 23, 2023](../meetings/2023-10-23.
 
 ### Current Pain Points in Deploying and Managing OSS
 
-- Understanding the challenges users currently face, as detailed in [User Stories](research/user-stories.md) and [Personas](research/personas.md).
+- Understanding the challenges users currently face, as detailed in [User Stories](./user-stories.md) and [Personas](./personas.md).
 
 ### Offerings of Existing Solutions
 
-- How do current solutions, including hyperscalers and specific platforms like `plural.sh`, address these challenges? [Competitive Analysis](research/competitive-analysis.md)
+- How do current solutions, including hyperscalers and specific platforms like `plural.sh`, address these challenges? [Competitive Analysis](./competitive-analysis/plural.md)
 
 ### Gaps in Current Offerings
 
-- Identifying unaddressed needs and potential areas of improvement. [State of Research](research/state-of-research.md#gaps-in-current-offerings)
+- Identifying unaddressed needs and potential areas of improvement. [State of Research](./state-of-research.md)
 
 ### Differentiation of Our Solution
 
-- Articulating the unique value proposition of our system. [Benefits and Unique Features](docs/backend.md#differentiation)
-
-Our approach includes surveys, case studies, and hands-on testing of various OSS frameworks, ensuring a well-rounded and comprehensive research output.
+- Articulating the unique value proposition of our system. [Benefits and Unique Features](./requirements.md)
 
 ## Methods
 

@@ -10,3 +10,4 @@ This directory contains the decisions made by me for this project. The decisions
 - [0003 Tech Stack](0003-tech-stack.md)
 - [0004 Supported Technologies](0004-supported-technologies.md)
 - [0005 Use of Generative AI](0005-use-of-generative-ai.md)
+- [0006 Applications Exclusion](0006-applications-exclusion.md)

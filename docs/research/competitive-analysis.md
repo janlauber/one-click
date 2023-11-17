@@ -8,3 +8,4 @@ We will use the concept of Strengths, Weaknesses, Opportunities, and Threats (`S
 - [Plural.sh](./competitive-analysis/plural.md)
 - [Streamlit Cloud Hosting](./competitive-analysis/streamlit-cloud.md)
 - [Reflex Hosting](./competitive-analysis/reflex-hosting.md)
+- [Kaa Node-RED Hosting](./competitive-analysis/kaa-node-red.md)
