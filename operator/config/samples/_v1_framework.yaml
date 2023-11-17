@@ -1,0 +1,12 @@
+apiVersion: one-click.io/v1
+kind: Framework
+metadata:
+  labels:
+    app.kubernetes.io/name: framework
+    app.kubernetes.io/instance: framework-sample
+    app.kubernetes.io/part-of: operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: operator
+  name: framework-sample
+spec:
+  # TODO(user): Add fields here
