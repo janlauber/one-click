@@ -71,3 +71,30 @@ As outlined in our [meeting notes from October 23, 2023](../meetings/2023-10-23.
 - Articulating the unique value proposition of our system. [Benefits and Unique Features](docs/backend.md#differentiation)
 
 Our approach includes surveys, case studies, and hands-on testing of various OSS frameworks, ensuring a well-rounded and comprehensive research output.
+
+## Methods
+
+In executing this project, we employ a variety of methodologies and tools to ensure efficiency, accuracy, and innovation.
+
+### Utilizing AI for Project Development
+
+Our project heavily relies on advanced AI tools, namely ChatGPT and Microsoft CoPilot, to streamline various aspects of the development process.
+This decision is detailed in our [Use of Generative AI](../decisions/0005-use-of-generative-ai.md) decision.
+
+#### ChatGPT
+
+- **Content Structuring**: ChatGPT assists in organizing and structuring the vast content of our project, ensuring clarity and coherence in our documentation.
+- **Topic Definition**: We use ChatGPT to define and refine the key topics and questions that our research should address.
+- **Project Guidance**: ChatGPT serves as a virtual collaborator, providing suggestions, answering queries, and offering insights that guide the project's progression.
+
+#### Microsoft CoPilot
+
+- **Prototype Development**: CoPilot is instrumental in the coding process, helping to write, review, and debug code for our prototype.
+- **Efficient Coding**: By leveraging CoPilot’s AI capabilities, we can develop code more efficiently, reducing the time spent on routine coding tasks.
+- **Solution Exploration**: CoPilot aids in exploring various coding solutions and approaches, enhancing the creative process of developing our One-Click Deployment system.
+
+### Traditional Research Methods
+
+Alongside these AI tools, we continue to employ traditional research methods such as surveys, user interviews, and case studies for comprehensive data collection and analysis.
+
+Our approach combines the strengths of advanced AI technology with conventional research methodologies, setting a benchmark for innovative research and development in the field of OSS deployment.
