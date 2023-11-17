@@ -22,6 +22,7 @@ import (
 	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -122,6 +123,47 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 				return ctrl.Result{}, err
 			}
 			log.Log.Info("Updated Deployment", "Namespace", deployment.Namespace, "Name", deployment.Name)
+		}
+	}
+
+	// Define the desired HPA object
+	desiredHpa := r.hpaForFramework(&framework)
+
+	// Check if this HPA already exists
+	foundHpa := &autoscalingv2.HorizontalPodAutoscaler{}
+	err = r.Get(ctx, types.NamespacedName{Name: framework.Name, Namespace: framework.Namespace}, foundHpa)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// HPA not found - create it
+			log.Log.Info("Creating a new HorizontalPodAutoscaler", "Namespace", framework.Namespace, "Name", framework.Name)
+			err = r.Create(ctx, desiredHpa)
+			if err != nil {
+				// handle error
+				return ctrl.Result{}, err
+			}
+			// HPA created successfully - return and requeue
+
+			// After creating the HPA object
+			if err := ctrl.SetControllerReference(&framework, desiredHpa, r.Scheme); err != nil {
+				return ctrl.Result{}, err
+			}
+
+			return ctrl.Result{Requeue: true}, nil
+		} else {
+			// handle error
+			return ctrl.Result{}, err
+		}
+	} else {
+		// HPA exists - check if it needs an update
+		if needsHpaUpdate(foundHpa, &framework) {
+			// Update the found HPA object to match the desired state
+			updateHpa(foundHpa, &framework)
+
+			err = r.Update(ctx, foundHpa)
+			if err != nil {
+				// handle error
+				return ctrl.Result{}, err
+			}
 		}
 	}
 
@@ -284,4 +326,61 @@ func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1
 		// Add additional port configuration if necessary
 	}
 	container.Ports = ports
+}
+
+func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) *autoscalingv2.HorizontalPodAutoscaler {
+	return &autoscalingv2.HorizontalPodAutoscaler{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      f.Name,
+			Namespace: f.Namespace,
+		},
+		Spec: autoscalingv2.HorizontalPodAutoscalerSpec{
+			ScaleTargetRef: autoscalingv2.CrossVersionObjectReference{
+				APIVersion: "apps/v1",
+				Kind:       "Deployment",
+				Name:       f.Name,
+			},
+			MinReplicas: &f.Spec.HorizontalScale.MinReplicas,
+			MaxReplicas: f.Spec.HorizontalScale.MaxReplicas,
+			Metrics: []autoscalingv2.MetricSpec{
+				{
+					Type: autoscalingv2.ResourceMetricSourceType,
+					Resource: &autoscalingv2.ResourceMetricSource{
+						Name:   corev1.ResourceCPU,
+						Target: autoscalingv2.MetricTarget{Type: autoscalingv2.UtilizationMetricType, AverageUtilization: &f.Spec.HorizontalScale.TargetCPUUtilizationPercentage},
+					},
+				},
+			},
+		},
+	}
+}
+
+func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) bool {
+	// Check MinReplicas
+	if *current.Spec.MinReplicas != f.Spec.HorizontalScale.MinReplicas {
+		return true
+	}
+
+	// Check MaxReplicas
+	if current.Spec.MaxReplicas != f.Spec.HorizontalScale.MaxReplicas {
+		return true
+	}
+
+	// Check TargetCPUUtilizationPercentage
+	if *current.Spec.Metrics[0].Resource.Target.AverageUtilization != f.Spec.HorizontalScale.TargetCPUUtilizationPercentage {
+		return true
+	}
+
+	return false
+}
+
+func updateHpa(hpa *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) {
+	// Update MinReplicas
+	hpa.Spec.MinReplicas = &f.Spec.HorizontalScale.MinReplicas
+
+	// Update MaxReplicas
+	hpa.Spec.MaxReplicas = f.Spec.HorizontalScale.MaxReplicas
+
+	// Update TargetCPUUtilizationPercentage
+	hpa.Spec.Metrics[0].Resource.Target.AverageUtilization = &f.Spec.HorizontalScale.TargetCPUUtilizationPercentage
 }

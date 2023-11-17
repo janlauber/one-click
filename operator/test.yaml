@@ -10,7 +10,7 @@ spec:
   horizontalScale:
     minReplicas: 1
     maxReplicas: 3
-    targetCPUUtilizationPercentage: 80
+    targetCPUUtilizationPercentage: 70
   resources:
     requests:
       cpu: "100m"
