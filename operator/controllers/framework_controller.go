@@ -21,6 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -31,7 +32,8 @@ import (
 // FrameworkReconciler reconciles a Framework object
 type FrameworkReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks,verbs=get;list;watch;create;update;patch;delete
@@ -58,6 +60,7 @@ type FrameworkReconciler struct {
 //+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
 func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
@@ -87,6 +90,12 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			log.Error(err, "Failed to reconcile PVCs.")
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Reconcile Secrets
+	if err := r.reconcileSecret(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile Secrets.")
+		return ctrl.Result{}, err
 	}
 
 	// Reconcile Deployment

@@ -29,11 +29,14 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 			err = r.Create(ctx, service)
 			if err != nil {
 				// Handle creation error
+				r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to create Service %s", f.Name)
 				log.Error(err, "Failed to create Service", "Namespace", service.Namespace, "Name", service.Name)
 				return err
 			}
+			r.Recorder.Eventf(f, corev1.EventTypeNormal, "Created", "Created Service %s", f.Name)
 		} else if err != nil {
 			// Handle other errors
+			r.Recorder.Eventf(f, corev1.EventTypeWarning, "GetFailed", "Failed to get Service %s", f.Name)
 			log.Error(err, "Failed to get Service", "Namespace", service.Namespace, "Name", service.Name)
 			return err
 		} else {
@@ -44,9 +47,11 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 				err = r.Update(ctx, foundService)
 				if err != nil {
 					// Handle update error
+					r.Recorder.Eventf(f, corev1.EventTypeWarning, "UpdateFailed", "Failed to update Service %s", foundService.Name)
 					log.Error(err, "Failed to update Service", "Namespace", foundService.Namespace, "Name", foundService.Name)
 					return err
 				}
+				r.Recorder.Eventf(f, corev1.EventTypeNormal, "Updated", "Updated Service %s", foundService.Name)
 			}
 		}
 	}

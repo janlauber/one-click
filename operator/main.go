@@ -89,9 +89,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize the event recorder
+	eventRecorder := mgr.GetEventRecorderFor("framework-controller")
+
 	if err = (&controllers.FrameworkReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: eventRecorder,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Framework")
 		os.Exit(1)

@@ -31,10 +31,13 @@ func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *onecli
 		err = r.Create(ctx, desiredDeployment)
 		if err != nil {
 			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", f.Namespace, "Deployment.Name", f.Name)
+			r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to create Deployment %s", f.Name)
 			return err
 		}
+		r.Recorder.Eventf(f, corev1.EventTypeNormal, "Created", "Created Deployment %s", f.Name)
 	} else if err != nil {
 		log.Error(err, "Failed to get Deployment")
+		r.Recorder.Eventf(f, corev1.EventTypeWarning, "GetFailed", "Failed to get Deployment %s", f.Name)
 		return err
 	} else {
 		// Deployment exists - check if it needs an update
@@ -44,8 +47,10 @@ func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *onecli
 			err = r.Update(ctx, foundDeployment)
 			if err != nil {
 				log.Error(err, "Failed to update Deployment", "Deployment.Namespace", foundDeployment.Namespace, "Deployment.Name", foundDeployment.Name)
+				r.Recorder.Eventf(f, corev1.EventTypeWarning, "UpdateFailed", "Failed to update Deployment %s", foundDeployment.Name)
 				return err
 			}
+			r.Recorder.Eventf(f, corev1.EventTypeNormal, "Updated", "Updated Deployment %s", foundDeployment.Name)
 		}
 	}
 

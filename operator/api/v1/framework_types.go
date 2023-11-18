@@ -20,8 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 type ImageSpec struct {
 	Registry   string `json:"registry"`
 	Repository string `json:"repository"`
@@ -122,10 +120,14 @@ type FrameworkStatus struct {
 	Volumes    []VolumeStatus   `json:"volumes"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Image",type="string",JSONPath=".spec.image.repository"
+//+kubebuilder:printcolumn:name="ImageTag",type="string",JSONPath=".spec.image.tag"
+//+kubebuilder:printcolumn:name="Replicas",type="integer",JSONPath=".spec.horizontalScale.minReplicas"
+//+kubebuilder:printcolumn:name="Deployment Status",type="string",JSONPath=".status.deployment.status"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
-// Framework is the Schema for the frameworks API
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 type Framework struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

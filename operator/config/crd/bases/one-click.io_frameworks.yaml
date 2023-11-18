@@ -15,10 +15,25 @@ spec:
     singular: framework
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.image.repository
+      name: Image
+      type: string
+    - jsonPath: .spec.image.tag
+      name: ImageTag
+      type: string
+    - jsonPath: .spec.horizontalScale.minReplicas
+      name: Replicas
+      type: integer
+    - jsonPath: .status.deployment.status
+      name: Deployment Status
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
-        description: Framework is the Schema for the frameworks API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -64,9 +79,6 @@ spec:
                 - targetCPUUtilizationPercentage
                 type: object
               image:
-                description: 'EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-                  NOTE: json tags are required.  Any new fields you add must have
-                  json tags for the fields to be serialized.'
                 properties:
                   registry:
                     type: string

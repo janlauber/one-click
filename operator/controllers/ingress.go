@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,11 +30,14 @@ func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclicki
 			if err != nil {
 				// Handle creation error
 				log.Error(err, "Failed to create Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
+				r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to create Ingress %s", f.Name)
 				return err
 			}
+			r.Recorder.Eventf(f, "Created", "Created Ingress %s", f.Name)
 		} else if err != nil {
 			// Handle other errors
 			log.Error(err, "Failed to get Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
+			r.Recorder.Eventf(f, corev1.EventTypeWarning, "GetFailed", "Failed to get Ingress %s", f.Name)
 			return err
 		} else {
 			// If the Ingress exists, check if it needs to be updated
@@ -46,8 +50,10 @@ func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclicki
 				if err != nil {
 					// Handle update error
 					log.Error(err, "Failed to update Ingress", "Namespace", foundIngress.Namespace, "Name", foundIngress.Name)
+					r.Recorder.Eventf(f, corev1.EventTypeWarning, "UpdateFailed", "Failed to update Ingress %s", foundIngress.Name)
 					return err
 				}
+				r.Recorder.Eventf(f, corev1.EventTypeNormal, "Updated", "Updated Ingress %s", foundIngress.Name)
 			}
 		}
 	}

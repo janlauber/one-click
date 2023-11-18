@@ -34,15 +34,18 @@ func (r *FrameworkReconciler) reconcileServiceAccount(ctx context.Context, frame
 	err := r.Get(ctx, types.NamespacedName{Name: framework.Spec.ServiceAccountName, Namespace: framework.Namespace}, foundSa)
 	if err != nil && errors.IsNotFound(err) {
 		// ServiceAccount doesn't exist - create it
-		log.Info("Creating a new ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", framework.Spec.ServiceAccountName)
 		err = r.Create(ctx, expectedSa)
 		if err != nil {
+			// Error occurred while trying to create the ServiceAccount
+			r.Recorder.Eventf(framework, corev1.EventTypeWarning, "CreationFailed", "Failed to create ServiceAccount %s", framework.Spec.ServiceAccountName)
 			log.Error(err, "Failed to create new ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", framework.Spec.ServiceAccountName)
 			return err
 		}
+		r.Recorder.Eventf(framework, corev1.EventTypeNormal, "Created", "Created ServiceAccount %s", framework.Spec.ServiceAccountName)
 		// ServiceAccount created successfully
 	} else if err != nil {
 		// Error occurred while trying to get the ServiceAccount
+		r.Recorder.Eventf(framework, corev1.EventTypeWarning, "GetFailed", "Failed to get ServiceAccount %s", framework.Spec.ServiceAccountName)
 		log.Error(err, "Failed to get ServiceAccount")
 		return err
 	}

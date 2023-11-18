@@ -29,15 +29,17 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 			log.Info("Creating a new PVC", "PVC.Namespace", framework.Namespace, "PVC.Name", desiredPvc.Name)
 			err = r.Create(ctx, desiredPvc)
 			if err != nil {
+				r.Recorder.Eventf(framework, corev1.EventTypeWarning, "CreationFailed", "Failed to create PVC %s", desiredPvc.Name)
 				log.Error(err, "Failed to create new PVC", "PVC.Namespace", framework.Namespace, "PVC.Name", desiredPvc.Name)
 				return err
 			}
+			r.Recorder.Eventf(framework, corev1.EventTypeNormal, "Created", "Created PVC %s", desiredPvc.Name)
 		} else if err != nil {
+			r.Recorder.Eventf(framework, corev1.EventTypeWarning, "GetFailed", "Failed to get PVC %s", desiredPvc.Name)
 			log.Error(err, "Failed to get PVC")
 			return err
 		}
-		// Handle updating PVC if necessary
-		// Note: Be cautious with updating PVCs as some properties are immutable and/or dependent on the storage class
+		// TODO: Check if PVC needs to be updated
 	}
 
 	// Clean up PVCs that should no longer exist
