@@ -55,17 +55,30 @@ func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, int
 	labels := map[string]string{"app": f.Name}
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      intf.Name + "-ingress", // Create a unique name for the Ingress
-			Namespace: f.Namespace,
-			Labels:    labels,
+			Name:        intf.Name + "-ingress", // Create a unique name for the Ingress
+			Namespace:   f.Namespace,
+			Labels:      labels,
+			Annotations: make(map[string]string),
 		},
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{},
 		},
 	}
-
 	// Iterate over each ingress path in the InterfaceSpec
 	for _, ingressPath := range intf.Ingress {
+
+		// Add ingress class if defined
+		if ingressPath.IngressClass != "" {
+			ingress.Spec.IngressClassName = &ingressPath.IngressClass
+		}
+
+		// Add annotations if defined
+		if len(ingressPath.Annotations) > 0 {
+			for k, v := range ingressPath.Annotations {
+				ingress.Annotations[k] = v
+			}
+		}
+
 		// Define the ingress rule
 		ingressRule := networkingv1.IngressRule{
 			Host: ingressPath.Host,

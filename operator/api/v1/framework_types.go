@@ -61,9 +61,11 @@ type InterfaceSpec struct {
 }
 
 type IngressSpec struct {
-	Host string `json:"host"`
-	Path string `json:"path"`
-	TLS  bool   `json:"tls"`
+	Host         string            `json:"host"`
+	Path         string            `json:"path"`
+	TLS          bool              `json:"tls"`
+	IngressClass string            `json:"ingressClass,omitempty"`
+	Annotations  map[string]string `json:"annotations,omitempty"`
 }
 
 // FrameworkSpec defines the desired state of Framework

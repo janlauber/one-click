@@ -85,7 +85,13 @@ spec:
                     ingress:
                       items:
                         properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
                           host:
+                            type: string
+                          ingressClass:
                             type: string
                           path:
                             type: string
