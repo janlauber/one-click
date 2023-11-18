@@ -195,7 +195,7 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 
 		// Handle Ingress for each interface (if defined)
-		if len(intf.Ingress) > 0 {
+		if len(intf.Ingress.Rules) > 0 {
 			err := r.reconcileIngress(ctx, &framework, intf)
 			if err != nil {
 				return ctrl.Result{}, err

@@ -62,31 +62,31 @@ func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, int
 		},
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{},
+			TLS:   []networkingv1.IngressTLS{},
 		},
 	}
-	// Iterate over each ingress path in the InterfaceSpec
-	for _, ingressPath := range intf.Ingress {
 
-		// Add ingress class if defined
-		if ingressPath.IngressClass != "" {
-			ingress.Spec.IngressClassName = &ingressPath.IngressClass
+	// Add ingress class if defined
+	if intf.Ingress.IngressClass != "" {
+		ingress.Spec.IngressClassName = &intf.Ingress.IngressClass
+	}
+
+	// Add annotations if defined
+	if len(intf.Ingress.Annotations) > 0 {
+		for k, v := range intf.Ingress.Annotations {
+			ingress.Annotations[k] = v
 		}
+	}
 
-		// Add annotations if defined
-		if len(ingressPath.Annotations) > 0 {
-			for k, v := range ingressPath.Annotations {
-				ingress.Annotations[k] = v
-			}
-		}
-
-		// Define the ingress rule
+	// Define the ingress rules
+	for _, rule := range intf.Ingress.Rules {
 		ingressRule := networkingv1.IngressRule{
-			Host: ingressPath.Host,
+			Host: rule.Host,
 			IngressRuleValue: networkingv1.IngressRuleValue{
 				HTTP: &networkingv1.HTTPIngressRuleValue{
 					Paths: []networkingv1.HTTPIngressPath{
 						{
-							Path: ingressPath.Path,
+							Path: rule.Path,
 							PathType: func() *networkingv1.PathType {
 								pt := networkingv1.PathTypeImplementationSpecific // or PathTypeExact or PathTypePrefix
 								return &pt
@@ -107,9 +107,9 @@ func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, int
 		ingress.Spec.Rules = append(ingress.Spec.Rules, ingressRule)
 
 		// Add TLS configuration if TLS is enabled for this ingress path
-		if ingressPath.TLS {
+		if rule.TLS {
 			tls := networkingv1.IngressTLS{
-				Hosts:      []string{ingressPath.Host},
+				Hosts:      []string{rule.Host},
 				SecretName: intf.Name + "-tls-secret", // Name of the TLS secret
 			}
 			ingress.Spec.TLS = append(ingress.Spec.TLS, tls)
@@ -124,14 +124,14 @@ func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, int
 func getIngressRules(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressRule {
 	var rules []networkingv1.IngressRule
 
-	for _, ingressPath := range intf.Ingress {
-		rule := networkingv1.IngressRule{
-			Host: ingressPath.Host,
+	for _, rule := range intf.Ingress.Rules {
+		ingressRule := networkingv1.IngressRule{
+			Host: rule.Host,
 			IngressRuleValue: networkingv1.IngressRuleValue{
 				HTTP: &networkingv1.HTTPIngressRuleValue{
 					Paths: []networkingv1.HTTPIngressPath{
 						{
-							Path: ingressPath.Path,
+							Path: rule.Path,
 							PathType: func() *networkingv1.PathType {
 								pt := networkingv1.PathTypeImplementationSpecific // or PathTypeExact or PathTypePrefix
 								return &pt
@@ -149,7 +149,7 @@ func getIngressRules(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressRule
 				},
 			},
 		}
-		rules = append(rules, rule)
+		rules = append(rules, ingressRule)
 	}
 
 	return rules
@@ -158,14 +158,15 @@ func getIngressRules(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressRule
 func getIngressTLS(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressTLS {
 	var tlsConfigs []networkingv1.IngressTLS
 
-	// Loop over each ingress path defined in the interface
-	for _, ingressPath := range intf.Ingress {
-		if ingressPath.TLS {
-			tlsConfig := networkingv1.IngressTLS{
-				Hosts:      []string{ingressPath.Host},
+	// Loop over each rule defined in the ingress path
+	for _, rule := range intf.Ingress.Rules {
+		// Add TLS configuration if TLS is enabled for this ingress path
+		if rule.TLS {
+			tls := networkingv1.IngressTLS{
+				Hosts:      []string{rule.Host},
 				SecretName: intf.Name + "-tls-secret", // Name of the TLS secret
 			}
-			tlsConfigs = append(tlsConfigs, tlsConfig)
+			tlsConfigs = append(tlsConfigs, tls)
 		}
 	}
 

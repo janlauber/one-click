@@ -83,26 +83,33 @@ spec:
                 items:
                   properties:
                     ingress:
-                      items:
-                        properties:
-                          annotations:
-                            additionalProperties:
-                              type: string
+                      properties:
+                        annotations:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        ingressClass:
+                          type: string
+                        rules:
+                          items:
+                            properties:
+                              host:
+                                type: string
+                              path:
+                                type: string
+                              tls:
+                                type: boolean
+                            required:
+                            - host
+                            - path
+                            - tls
                             type: object
-                          host:
-                            type: string
-                          ingressClass:
-                            type: string
-                          path:
-                            type: string
-                          tls:
-                            type: boolean
-                        required:
-                        - host
-                        - path
-                        - tls
-                        type: object
-                      type: array
+                          type: array
+                      required:
+                      - annotations
+                      - ingressClass
+                      - rules
+                      type: object
                     name:
                       type: string
                     port:

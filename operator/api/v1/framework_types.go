@@ -55,17 +55,21 @@ type SecretItem struct {
 }
 
 type InterfaceSpec struct {
-	Name    string        `json:"name"`
-	Port    int32         `json:"port"`
-	Ingress []IngressSpec `json:"ingress"`
+	Name    string      `json:"name"`
+	Port    int32       `json:"port"`
+	Ingress IngressSpec `json:"ingress"`
 }
 
 type IngressSpec struct {
-	Host         string            `json:"host"`
-	Path         string            `json:"path"`
-	TLS          bool              `json:"tls"`
-	IngressClass string            `json:"ingressClass,omitempty"`
-	Annotations  map[string]string `json:"annotations,omitempty"`
+	IngressClass string            `json:"ingressClass"`
+	Annotations  map[string]string `json:"annotations"`
+	Rules        []IngressRule     `json:"rules"`
+}
+
+type IngressRule struct {
+	Host string `json:"host"`
+	Path string `json:"path"`
+	TLS  bool   `json:"tls"`
 }
 
 // FrameworkSpec defines the desired state of Framework
