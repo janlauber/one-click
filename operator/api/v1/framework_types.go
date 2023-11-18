@@ -82,10 +82,10 @@ type FrameworkSpec struct {
 	Image              ImageSpec            `json:"image"`
 	HorizontalScale    HorizontalScaleSpec  `json:"horizontalScale"`
 	Resources          ResourceRequirements `json:"resources"`
-	Env                []EnvVar             `json:"env"`
-	Secrets            []SecretItem         `json:"secrets"`
+	Env                []EnvVar             `json:"env,omitempty"`
+	Secrets            []SecretItem         `json:"secrets,omitempty"`
 	Volumes            []VolumeSpec         `json:"volumes,omitempty"`
-	Interfaces         []InterfaceSpec      `json:"interfaces"`
+	Interfaces         []InterfaceSpec      `json:"interfaces,omitempty"`
 	ServiceAccountName string               `json:"serviceAccountName"`
 }
 
@@ -115,9 +115,9 @@ type VolumeStatus struct {
 // FrameworkStatus defines the observed state of Framework
 type FrameworkStatus struct {
 	Deployment DeploymentStatus `json:"deployment"`
-	Services   []ServiceStatus  `json:"services"`
-	Ingresses  []IngressStatus  `json:"ingresses"`
-	Volumes    []VolumeStatus   `json:"volumes"`
+	Services   []ServiceStatus  `json:"services,omitempty"`
+	Ingresses  []IngressStatus  `json:"ingresses,omitempty"`
+	Volumes    []VolumeStatus   `json:"volumes,omitempty"`
 }
 
 //+kubebuilder:printcolumn:name="Image",type="string",JSONPath=".spec.image.repository"

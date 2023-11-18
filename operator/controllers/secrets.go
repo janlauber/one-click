@@ -50,27 +50,40 @@ func (r *FrameworkReconciler) reconcileSecret(ctx context.Context, f *oneclickio
 }
 
 func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1.Framework) bool {
-	if len(foundSecret.StringData) != len(f.Spec.Secrets) {
+	// If no secrets are specified in the Framework spec and the found secret is not empty, it needs to be deleted
+	if len(f.Spec.Secrets) == 0 && len(foundSecret.Data) > 0 {
 		return true
 	}
 
+	// If the number of keys in the secret doesn't match the number of specified secrets, update is needed
+	if len(foundSecret.Data) != len(f.Spec.Secrets) {
+		return true
+	}
+
+	// Check if the content of the secret matches the Framework spec
 	for _, secretItem := range f.Spec.Secrets {
-		// Ensure the secret key is valid
 		key := strings.TrimSpace(secretItem.Name)
-		if foundSecret.StringData[key] != secretItem.Value {
+		if string(foundSecret.Data[key]) != secretItem.Value {
 			return true
 		}
 	}
 
+	// No update needed
 	return false
 }
 
 func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1.Framework) {
-	foundSecret.StringData = make(map[string]string)
+	if len(f.Spec.Secrets) == 0 {
+		// Clear the secret data if no secrets are specified
+		foundSecret.Data = make(map[string][]byte)
+		return
+	}
+
+	// Update or add new data to the secret
+	foundSecret.Data = make(map[string][]byte)
 	for _, secretItem := range f.Spec.Secrets {
-		// Ensure the secret key is valid
 		key := strings.TrimSpace(secretItem.Name)
-		foundSecret.StringData[key] = secretItem.Value
+		foundSecret.Data[key] = []byte(secretItem.Value)
 	}
 }
 

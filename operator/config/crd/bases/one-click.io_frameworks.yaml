@@ -191,12 +191,9 @@ spec:
                   type: object
                 type: array
             required:
-            - env
             - horizontalScale
             - image
-            - interfaces
             - resources
-            - secrets
             - serviceAccountName
             type: object
           status:
@@ -267,9 +264,6 @@ spec:
                 type: array
             required:
             - deployment
-            - ingresses
-            - services
-            - volumes
             type: object
         type: object
     served: true

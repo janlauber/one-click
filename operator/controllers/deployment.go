@@ -170,6 +170,21 @@ func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
 		return true
 	}
 
+	// Check secrets
+	if len(f.Spec.Secrets) > 0 {
+		if len(current.Spec.Template.Spec.Containers[0].EnvFrom) == 0 {
+			return true
+		}
+
+		if current.Spec.Template.Spec.Containers[0].EnvFrom[0].SecretRef.LocalObjectReference.Name != f.Name+"-secrets" {
+			return true
+		}
+	} else {
+		if len(current.Spec.Template.Spec.Containers[0].EnvFrom) > 0 {
+			return true
+		}
+	}
+
 	// Check environment variables
 	desiredEnvVars := getEnvVars(f.Spec.Env)
 	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].Env, desiredEnvVars) {
@@ -255,6 +270,21 @@ func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) 
 
 	// Update container image
 	deployment.Spec.Template.Spec.Containers[0].Image = fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag)
+
+	// Update secrets
+	if len(f.Spec.Secrets) > 0 {
+		deployment.Spec.Template.Spec.Containers[0].EnvFrom = []corev1.EnvFromSource{
+			{
+				SecretRef: &corev1.SecretEnvSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: f.Name + "-secrets",
+					},
+				},
+			},
+		}
+	} else {
+		deployment.Spec.Template.Spec.Containers[0].EnvFrom = nil
+	}
 
 	// Update environment variables
 	deployment.Spec.Template.Spec.Containers[0].Env = getEnvVars(f.Spec.Env)

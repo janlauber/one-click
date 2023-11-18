@@ -18,19 +18,19 @@ spec:
     limits:
       cpu: "200m"
       memory: "256Mi"
-  env:
-    - name: "REFLEX_USERNAME"
-      value: "admin"
+  # env:
+  #   - name: "REFLEX_USERNAME"
+  #     value: "admin"
   secrets:
     - name: "REFLEX_PASSWORD"
       value: "admin"
-    - name: "ANOTHER_SECRET"
-      value: "122"
-  volumes:
-    - name: "data"
-      mountPath: "/data"
-      size: "1Gi"
-      storageClass: "standard"
+    # - name: "ANOTHER_SECRET"
+    #   value: "122"
+  # volumes:
+  #   - name: "data"
+  #     mountPath: "/data"
+  #     size: "1Gi"
+  #     storageClass: "standard"
   interfaces:
     - name: "http"
       port: 80
