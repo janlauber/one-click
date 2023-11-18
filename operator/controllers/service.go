@@ -14,36 +14,40 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) error {
-	// Construct the desired Service object
-	service := r.serviceForFramework(f, intf)
+func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclickiov1.Framework) error {
+	log := log.FromContext(ctx)
 
-	// Try to fetch the existing Service
-	foundService := &corev1.Service{}
-	err := r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: f.Namespace}, foundService)
-	if err != nil && errors.IsNotFound(err) {
-		// If the Service is not found, create a new one
-		log.Log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
-		err = r.Create(ctx, service)
-		if err != nil {
-			// Handle creation error
-			return err
-		}
-		// Service created successfully
-	} else if err != nil {
-		// Handle other errors
-		return err
-	} else {
-		// If the Service exists, check if it needs to be updated
-		desiredPorts := getServicePorts(intf)
-		if !reflect.DeepEqual(foundService.Spec.Ports, desiredPorts) {
-			foundService.Spec.Ports = desiredPorts
-			err = r.Update(ctx, foundService)
+	for _, intf := range f.Spec.Interfaces {
+		// Process each interface
+		service := r.serviceForFramework(f, intf)
+
+		foundService := &corev1.Service{}
+		err := r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: f.Namespace}, foundService)
+		if err != nil && errors.IsNotFound(err) {
+			// If the Service is not found, create a new one
+			log.Info("Creating a new Service", "Namespace", service.Namespace, "Name", service.Name)
+			err = r.Create(ctx, service)
 			if err != nil {
-				// Handle update error
+				// Handle creation error
+				log.Error(err, "Failed to create Service", "Namespace", service.Namespace, "Name", service.Name)
 				return err
 			}
-			// Service updated successfully
+		} else if err != nil {
+			// Handle other errors
+			log.Error(err, "Failed to get Service", "Namespace", service.Namespace, "Name", service.Name)
+			return err
+		} else {
+			// If the Service exists, check if it needs to be updated
+			desiredPorts := getServicePorts(intf)
+			if !reflect.DeepEqual(foundService.Spec.Ports, desiredPorts) {
+				foundService.Spec.Ports = desiredPorts
+				err = r.Update(ctx, foundService)
+				if err != nil {
+					// Handle update error
+					log.Error(err, "Failed to update Service", "Namespace", foundService.Namespace, "Name", foundService.Name)
+					return err
+				}
+			}
 		}
 	}
 
@@ -60,15 +64,8 @@ func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, int
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: labels,
-			Ports: []corev1.ServicePort{
-				{
-					Name:       intf.Name,
-					Port:       intf.Port,
-					TargetPort: intstr.FromInt(int(intf.Port)),
-					Protocol:   corev1.ProtocolTCP, // Assume TCP, adjust as necessary
-				},
-			},
-			Type: corev1.ServiceTypeClusterIP, // Default to ClusterIP, modify if needed
+			Ports:    getServicePorts(intf),
+			Type:     corev1.ServiceTypeClusterIP, // Default to ClusterIP, modify if needed
 		},
 	}
 
@@ -78,19 +75,12 @@ func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, int
 }
 
 func getServicePorts(intf oneclickiov1.InterfaceSpec) []corev1.ServicePort {
-	var ports []corev1.ServicePort
-
-	// Example: Assuming each interface has a single port.
-	// You can modify this logic if your InterfaceSpec allows defining multiple ports.
-	ports = append(ports, corev1.ServicePort{
-		Name:       intf.Name,
-		Port:       intf.Port,
-		TargetPort: intstr.FromInt(int(intf.Port)),
-		Protocol:   corev1.ProtocolTCP, // Defaulting to TCP, change as needed
-	})
-
-	// If your InterfaceSpec has multiple ports, you would iterate over them here
-	// and append each to the ports slice.
-
-	return ports
+	return []corev1.ServicePort{
+		{
+			Name:       intf.Name,
+			Port:       intf.Port,
+			TargetPort: intstr.FromInt(int(intf.Port)),
+			Protocol:   corev1.ProtocolTCP, // Defaulting to TCP, change as needed
+		},
+	}
 }

@@ -161,6 +161,23 @@ spec:
                 type: array
               serviceAccountName:
                 type: string
+              volumes:
+                items:
+                  properties:
+                    mountPath:
+                      type: string
+                    name:
+                      type: string
+                    size:
+                      type: string
+                    storageClass:
+                      type: string
+                  required:
+                  - mountPath
+                  - name
+                  - size
+                  type: object
+                type: array
             required:
             - env
             - horizontalScale
@@ -172,6 +189,75 @@ spec:
             type: object
           status:
             description: FrameworkStatus defines the observed state of Framework
+            properties:
+              deployment:
+                properties:
+                  podNames:
+                    items:
+                      type: string
+                    type: array
+                  replicas:
+                    format: int32
+                    type: integer
+                  status:
+                    type: string
+                required:
+                - podNames
+                - replicas
+                - status
+                type: object
+              ingresses:
+                items:
+                  properties:
+                    hosts:
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - hosts
+                  - name
+                  - status
+                  type: object
+                type: array
+              services:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    ports:
+                      items:
+                        format: int32
+                        type: integer
+                      type: array
+                    status:
+                      type: string
+                  required:
+                  - name
+                  - ports
+                  - status
+                  type: object
+                type: array
+              volumes:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - name
+                  - status
+                  type: object
+                type: array
+            required:
+            - deployment
+            - ingresses
+            - services
+            - volumes
             type: object
         type: object
     served: true

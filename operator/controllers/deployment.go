@@ -1,17 +1,56 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	oneclickiov1 "github.com/janlauber/one-click/api/v1"
 )
+
+func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *oneclickiov1.Framework) error {
+	log := log.FromContext(ctx)
+
+	// Get the desired state of the Deployment from the helper function
+	desiredDeployment := r.deploymentForFramework(f)
+
+	// Check if the Deployment already exists
+	foundDeployment := &appsv1.Deployment{}
+	err := r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, foundDeployment)
+	if err != nil && errors.IsNotFound(err) {
+		log.Info("Creating a new Deployment", "Deployment.Namespace", f.Namespace, "Deployment.Name", f.Name)
+		err = r.Create(ctx, desiredDeployment)
+		if err != nil {
+			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", f.Namespace, "Deployment.Name", f.Name)
+			return err
+		}
+	} else if err != nil {
+		log.Error(err, "Failed to get Deployment")
+		return err
+	} else {
+		// Deployment exists - check if it needs an update
+		if needsUpdate(foundDeployment, f) {
+			log.Info("Updating Deployment", "Deployment.Namespace", foundDeployment.Namespace, "Deployment.Name", foundDeployment.Name)
+			updateDeployment(foundDeployment, f)
+			err = r.Update(ctx, foundDeployment)
+			if err != nil {
+				log.Error(err, "Failed to update Deployment", "Deployment.Namespace", foundDeployment.Namespace, "Deployment.Name", foundDeployment.Name)
+				return err
+			}
+		}
+	}
+
+	return nil
+}
 
 func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) *appsv1.Deployment {
 	labels := map[string]string{"app": f.Name}
@@ -67,6 +106,28 @@ func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) 
 		}
 	}
 
+	// if volumes are defined, add them to the pod
+	if len(f.Spec.Volumes) > 0 {
+		var volumes []corev1.Volume
+		var volumeMounts []corev1.VolumeMount
+		for _, v := range f.Spec.Volumes {
+			volumes = append(volumes, corev1.Volume{
+				Name: v.Name,
+				VolumeSource: corev1.VolumeSource{
+					PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+						ClaimName: v.Name,
+					},
+				},
+			})
+			volumeMounts = append(volumeMounts, corev1.VolumeMount{
+				Name:      v.Name,
+				MountPath: v.MountPath,
+			})
+		}
+		dep.Spec.Template.Spec.Volumes = volumes
+		dep.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+	}
+
 	ctrl.SetControllerReference(f, dep, r.Scheme)
 	return dep
 }
@@ -100,12 +161,13 @@ func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
 
 	// Check container image
 	desiredImage := fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag)
-	if current.Spec.Template.Spec.Containers[0].Image != desiredImage {
+	if len(current.Spec.Template.Spec.Containers) == 0 || current.Spec.Template.Spec.Containers[0].Image != desiredImage {
 		return true
 	}
 
 	// Check environment variables
-	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].Env, getEnvVars(f.Spec.Env)) {
+	desiredEnvVars := getEnvVars(f.Spec.Env)
+	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].Env, desiredEnvVars) {
 		return true
 	}
 
@@ -120,7 +182,34 @@ func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
 		return true
 	}
 
+	// Check volumes
+	if !volumesMatch(current.Spec.Template.Spec.Volumes, f.Spec.Volumes) {
+		return true
+	}
+
+	// Check service account name
+	if current.Spec.Template.Spec.ServiceAccountName != f.Spec.ServiceAccountName {
+		return true
+	}
+
+	// Add more checks as necessary, e.g., labels, annotations, specific configuration, etc.
+
 	return false
+}
+
+func volumesMatch(currentVolumes []corev1.Volume, volumes []oneclickiov1.VolumeSpec) bool {
+	if len(currentVolumes) != len(volumes) {
+		return false
+	}
+
+	for i, vol := range volumes {
+		if currentVolumes[i].Name != vol.Name {
+			return false
+		}
+		// TODO: Add size and storage class checks
+	}
+
+	return true
 }
 
 func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1.InterfaceSpec) bool {
@@ -132,7 +221,11 @@ func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1.I
 		if currentPorts[i].ContainerPort != intf.Port {
 			return false
 		}
-		// Add additional port checks if necessary
+
+		// check for name
+		if currentPorts[i].Name != intf.Name {
+			return false
+		}
 	}
 
 	return true
@@ -166,6 +259,12 @@ func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) 
 
 	// Update ports
 	updateContainerPorts(&deployment.Spec.Template.Spec.Containers[0], f.Spec.Interfaces)
+
+	// Update volumes
+	updateVolumes(&deployment.Spec.Template.Spec.Volumes, f.Spec.Volumes)
+
+	// Update service account name
+	deployment.Spec.Template.Spec.ServiceAccountName = f.Spec.ServiceAccountName
 }
 
 func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1.InterfaceSpec) {
@@ -175,4 +274,20 @@ func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1
 		// Add additional port configuration if necessary
 	}
 	container.Ports = ports
+}
+
+func updateVolumes(currentVolumes *[]corev1.Volume, volumes []oneclickiov1.VolumeSpec) {
+	var newVolumes []corev1.Volume
+	for _, vol := range volumes {
+		newVolumes = append(newVolumes, corev1.Volume{
+			Name: vol.Name,
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: vol.Name,
+				},
+			},
+		})
+		// Add additional volume configuration if necessary
+	}
+	*currentVolumes = newVolumes
 }

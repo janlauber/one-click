@@ -13,38 +13,42 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) error {
-	// Construct the desired Ingress object
-	ingress := r.ingressForFramework(f, intf)
+func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclickiov1.Framework) error {
+	log := log.FromContext(ctx)
 
-	// Try to fetch the existing Ingress
-	foundIngress := &networkingv1.Ingress{}
-	err := r.Get(ctx, types.NamespacedName{Name: ingress.Name, Namespace: f.Namespace}, foundIngress)
-	if err != nil && errors.IsNotFound(err) {
-		// If the Ingress is not found, create a new one
-		log.Log.Info("Creating a new Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
-		err = r.Create(ctx, ingress)
-		if err != nil {
-			// Handle creation error
-			return err
-		}
-		// Ingress created successfully
-	} else if err != nil {
-		// Handle other errors
-		return err
-	} else {
-		// If the Ingress exists, check if it needs to be updated
-		desiredRules := getIngressRules(intf)
-		desiredTLS := getIngressTLS(intf)
-		if !reflect.DeepEqual(foundIngress.Spec.Rules, desiredRules) || !reflect.DeepEqual(foundIngress.Spec.TLS, desiredTLS) {
-			foundIngress.Spec.Rules = desiredRules
-			foundIngress.Spec.TLS = desiredTLS
-			err = r.Update(ctx, foundIngress)
+	for _, intf := range f.Spec.Interfaces {
+		// Process each interface
+		ingress := r.ingressForFramework(f, intf)
+
+		foundIngress := &networkingv1.Ingress{}
+		err := r.Get(ctx, types.NamespacedName{Name: ingress.Name, Namespace: f.Namespace}, foundIngress)
+		if err != nil && errors.IsNotFound(err) {
+			// If the Ingress is not found, create a new one
+			log.Info("Creating a new Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
+			err = r.Create(ctx, ingress)
 			if err != nil {
-				// Handle update error
+				// Handle creation error
+				log.Error(err, "Failed to create Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
 				return err
 			}
-			// Ingress updated successfully
+		} else if err != nil {
+			// Handle other errors
+			log.Error(err, "Failed to get Ingress", "Namespace", ingress.Namespace, "Name", ingress.Name)
+			return err
+		} else {
+			// If the Ingress exists, check if it needs to be updated
+			desiredRules := getIngressRules(intf)
+			desiredTLS := getIngressTLS(intf)
+			if !reflect.DeepEqual(foundIngress.Spec.Rules, desiredRules) || !reflect.DeepEqual(foundIngress.Spec.TLS, desiredTLS) {
+				foundIngress.Spec.Rules = desiredRules
+				foundIngress.Spec.TLS = desiredTLS
+				err = r.Update(ctx, foundIngress)
+				if err != nil {
+					// Handle update error
+					log.Error(err, "Failed to update Ingress", "Namespace", foundIngress.Namespace, "Name", foundIngress.Name)
+					return err
+				}
+			}
 		}
 	}
 

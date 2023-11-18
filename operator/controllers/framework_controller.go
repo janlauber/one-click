@@ -18,15 +18,9 @@ package controllers
 
 import (
 	"context"
-	"reflect"
 
-	appsv1 "k8s.io/api/apps/v1"
-	autoscalingv2 "k8s.io/api/autoscaling/v2"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -43,164 +37,90 @@ type FrameworkReconciler struct {
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=one-click.io,resources=frameworks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=hpa,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=hpa/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=hpa/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=service,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=service/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=service/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=ingress,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=ingress/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=ingress/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=secret,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=secret/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=secret/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=deployment,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=deployment/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=deployment/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/finalizers,verbs=update
 
 func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
-	// Instance to hold the fetched Framework object
+	// Fetch the Framework instance
 	var framework oneclickiov1.Framework
-
-	// Fetch the Framework instance using the namespaced name
 	if err := r.Get(ctx, req.NamespacedName, &framework); err != nil {
-		log.Log.Error(err, "unable to fetch Framework")
-
-		// Handle the case where the Framework resource no longer exists
-		// Remove all resources associated with the Framework
-
-		// If it's not a not-found error, requeue the request
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
-
-	// Define the ServiceAccount you expect to exist
-	expectedSa := &corev1.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      framework.Spec.ServiceAccountName,
-			Namespace: req.Namespace,
-		},
-	}
-
-	// Set Framework instance as the owner of the ServiceAccount
-	if err := ctrl.SetControllerReference(&framework, expectedSa, r.Scheme); err != nil {
-		// handle error
-		return ctrl.Result{}, err
-	}
-
-	// Try to get the ServiceAccount
-	foundSa := &corev1.ServiceAccount{}
-	err := r.Get(ctx, types.NamespacedName{Name: framework.Spec.ServiceAccountName, Namespace: req.Namespace}, foundSa)
-	if err != nil && errors.IsNotFound(err) {
-		// ServiceAccount doesn't exist - create it
-		log.Log.Info("Creating a new ServiceAccount", "Namespace", req.Namespace, "Name", framework.Spec.ServiceAccountName)
-		err = r.Create(ctx, expectedSa)
-		if err != nil {
-			// handle error
-			return ctrl.Result{}, err
-		}
-		// ServiceAccount created successfully - return and requeue
-		return ctrl.Result{Requeue: true}, nil
-	} else if err != nil {
-		// handle error
-		return ctrl.Result{}, err
-	}
-
-	// Handling the aggregated Secret
-	secret := r.secretForFramework(&framework)
-	foundSecret := &corev1.Secret{}
-	err = r.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, foundSecret)
-	if err != nil && errors.IsNotFound(err) {
-		log.Log.Info("Creating a new Secret", "Namespace", secret.Namespace, "Name", secret.Name)
-		err = r.Create(ctx, secret)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-	} else if err != nil {
-		return ctrl.Result{}, err
-	} else if !reflect.DeepEqual(foundSecret.StringData, secret.StringData) {
-		// Update the Secret if it already exists and the data has changed
-		foundSecret.StringData = secret.StringData
-		err = r.Update(ctx, foundSecret)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-	}
-
-	// Check if the Deployment already exists
-	deployment := &appsv1.Deployment{}
-	err = r.Get(ctx, types.NamespacedName{Name: framework.Name, Namespace: framework.Namespace}, deployment)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new Deployment
-		dep := r.deploymentForFramework(&framework)
-		log.Log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-		err = r.Create(ctx, dep)
-		if err != nil {
-			log.Log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-			return ctrl.Result{}, err
-		}
-		// Deployment created successfully - return and requeue
-		return ctrl.Result{Requeue: true}, nil
-	} else if err != nil {
-		log.Log.Error(err, "Failed to get Deployment")
-		return ctrl.Result{}, err
-	} else {
-		// Deployment exists - check if it needs an update
-		if needsUpdate(deployment, &framework) {
-			// Update the Deployment to match the desired state
-			updateDeployment(deployment, &framework)
-			err = r.Update(ctx, deployment)
-			if err != nil {
-				// Handle error
-				return ctrl.Result{}, err
-			}
-			log.Log.Info("Updated Deployment", "Namespace", deployment.Namespace, "Name", deployment.Name)
-		}
-	}
-
-	// Define the desired HPA object
-	desiredHpa := r.hpaForFramework(&framework)
-
-	// Check if this HPA already exists
-	foundHpa := &autoscalingv2.HorizontalPodAutoscaler{}
-	err = r.Get(ctx, types.NamespacedName{Name: framework.Name, Namespace: framework.Namespace}, foundHpa)
-	if err != nil {
 		if errors.IsNotFound(err) {
-			// HPA not found - create it
-			log.Log.Info("Creating a new HorizontalPodAutoscaler", "Namespace", framework.Namespace, "Name", framework.Name)
-			err = r.Create(ctx, desiredHpa)
-			if err != nil {
-				// handle error
-				return ctrl.Result{}, err
-			}
-			// HPA created successfully - return and requeue
-
-			// After creating the HPA object
-			if err := ctrl.SetControllerReference(&framework, desiredHpa, r.Scheme); err != nil {
-				return ctrl.Result{}, err
-			}
-
-			return ctrl.Result{Requeue: true}, nil
-		} else {
-			// handle error
-			return ctrl.Result{}, err
+			// Object not found, could have been deleted after reconcile request, return and don't requeue
+			log.Info("Framework resource not found. Ignoring since object must be deleted.")
+			return ctrl.Result{}, nil
 		}
-	} else {
-		// HPA exists - check if it needs an update
-		if needsHpaUpdate(foundHpa, &framework) {
-			// Update the found HPA object to match the desired state
-			updateHpa(foundHpa, &framework)
+		// Error reading the object - requeue the request.
+		log.Error(err, "Failed to get Framework.")
+		return ctrl.Result{}, err
+	}
 
-			err = r.Update(ctx, foundHpa)
-			if err != nil {
-				// handle error
-				return ctrl.Result{}, err
-			}
+	// Reconcile ServiceAccount
+	if err := r.reconcileServiceAccount(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile ServiceAccount.")
+		return ctrl.Result{}, err
+	}
+
+	// Reconcile PVCs only if volumes are defined
+	if len(framework.Spec.Volumes) > 0 {
+		if err := r.reconcilePVCs(ctx, &framework); err != nil {
+			log.Error(err, "Failed to reconcile PVCs.")
+			return ctrl.Result{}, err
 		}
 	}
 
-	// Reconcile the Service and Ingress for each Interface
-	for _, intf := range framework.Spec.Interfaces {
-		// Handle Service for each interface
-		err := r.reconcileService(ctx, &framework, intf)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	// Reconcile Deployment
+	if err := r.reconcileDeployment(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile Deployment.")
+		return ctrl.Result{}, err
+	}
 
-		// Handle Ingress for each interface (if defined)
-		if len(intf.Ingress.Rules) > 0 {
-			err := r.reconcileIngress(ctx, &framework, intf)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
+	// Reconcile Service
+	if err := r.reconcileService(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile Service.")
+		return ctrl.Result{}, err
+	}
+
+	// Reconcile Ingress
+	if err := r.reconcileIngress(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile Ingress.")
+		return ctrl.Result{}, err
+	}
+
+	// Reconcile HPA
+	if err := r.reconcileHPA(ctx, &framework); err != nil {
+		log.Error(err, "Failed to reconcile HPA.")
+		return ctrl.Result{}, err
+	}
+
+	// Update status
+	if err := r.updateStatus(ctx, &framework); err != nil {
+		if errors.IsConflict(err) {
+			log.Info("Conflict while updating status. Retrying.")
+			return ctrl.Result{Requeue: true}, nil
 		}
+		log.Error(err, "Failed to update status.")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil

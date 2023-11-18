@@ -26,6 +26,11 @@ spec:
       value: "admin"
     - name: "ANOTHER_SECRET"
       value: "122"
+  volumes:
+    - name: "data"
+      mountPath: "/data"
+      size: "1Gi"
+      storageClass: "standard"
   interfaces:
     - name: "http"
       port: 80

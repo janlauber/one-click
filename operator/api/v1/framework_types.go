@@ -54,6 +54,13 @@ type SecretItem struct {
 	Value string `json:"value"`
 }
 
+type VolumeSpec struct {
+	Name         string `json:"name"`
+	MountPath    string `json:"mountPath"`
+	Size         string `json:"size"`
+	StorageClass string `json:"storageClass,omitempty"`
+}
+
 type InterfaceSpec struct {
 	Name    string      `json:"name"`
 	Port    int32       `json:"port"`
@@ -79,14 +86,40 @@ type FrameworkSpec struct {
 	Resources          ResourceRequirements `json:"resources"`
 	Env                []EnvVar             `json:"env"`
 	Secrets            []SecretItem         `json:"secrets"`
+	Volumes            []VolumeSpec         `json:"volumes,omitempty"`
 	Interfaces         []InterfaceSpec      `json:"interfaces"`
 	ServiceAccountName string               `json:"serviceAccountName"`
 }
 
+type DeploymentStatus struct {
+	Replicas int32    `json:"replicas"`
+	PodNames []string `json:"podNames"`
+	Status   string   `json:"status"`
+}
+
+type ServiceStatus struct {
+	Name   string  `json:"name"`
+	Ports  []int32 `json:"ports"`
+	Status string  `json:"status"`
+}
+
+type IngressStatus struct {
+	Name   string   `json:"name"`
+	Hosts  []string `json:"hosts"`
+	Status string   `json:"status"`
+}
+
+type VolumeStatus struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
 // FrameworkStatus defines the observed state of Framework
 type FrameworkStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Deployment DeploymentStatus `json:"deployment"`
+	Services   []ServiceStatus  `json:"services"`
+	Ingresses  []IngressStatus  `json:"ingresses"`
+	Volumes    []VolumeStatus   `json:"volumes"`
 }
 
 //+kubebuilder:object:root=true

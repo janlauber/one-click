@@ -1,11 +1,55 @@
 package controllers
 
 import (
+	"context"
+
 	oneclickiov1 "github.com/janlauber/one-click/api/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 )
+
+func (r *FrameworkReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1.Framework) error {
+	log := log.FromContext(ctx)
+
+	// Construct the desired HPA object based on the Framework specification
+	desiredHpa := r.hpaForFramework(f)
+
+	// Try to fetch the existing HPA
+	foundHpa := &autoscalingv2.HorizontalPodAutoscaler{}
+	err := r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, foundHpa)
+	if err != nil && errors.IsNotFound(err) {
+		// If the HPA is not found, create a new one
+		log.Info("Creating a new HPA", "Namespace", desiredHpa.Namespace, "Name", desiredHpa.Name)
+		err = r.Create(ctx, desiredHpa)
+		if err != nil {
+			// Handle creation error
+			log.Error(err, "Failed to create HPA", "Namespace", desiredHpa.Namespace, "Name", desiredHpa.Name)
+			return err
+		}
+	} else if err != nil {
+		// Handle other errors
+		log.Error(err, "Failed to get HPA", "Namespace", desiredHpa.Namespace, "Name", desiredHpa.Name)
+		return err
+	} else {
+		// If the HPA exists, check if it needs to be updated
+		if needsHpaUpdate(foundHpa, f) {
+			log.Info("Updating HPA", "Namespace", foundHpa.Namespace, "Name", foundHpa.Name)
+			updateHpa(foundHpa, f)
+			err = r.Update(ctx, foundHpa)
+			if err != nil {
+				// Handle update error
+				log.Error(err, "Failed to update HPA", "Namespace", foundHpa.Namespace, "Name", foundHpa.Name)
+				return err
+			}
+		}
+	}
+
+	return nil
+}
 
 func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) *autoscalingv2.HorizontalPodAutoscaler {
 	return &autoscalingv2.HorizontalPodAutoscaler{
