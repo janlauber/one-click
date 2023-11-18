@@ -67,7 +67,7 @@ type InterfaceSpec struct {
 
 type IngressSpec struct {
 	IngressClass string            `json:"ingressClass"`
-	Annotations  map[string]string `json:"annotations"`
+	Annotations  map[string]string `json:"annotations,omitempty"`
 	Rules        []IngressRule     `json:"rules"`
 }
 

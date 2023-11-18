@@ -61,6 +61,44 @@ func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclicki
 					r.Recorder.Eventf(f, corev1.EventTypeNormal, "Updated", "Updated Ingress %s", foundIngress.Name)
 				}
 			}
+
+			if err == nil {
+				// Compare the desired state with the current state
+				updateNeeded := false
+
+				if intf.Ingress.IngressClass != "" {
+					if foundIngress.Spec.IngressClassName == nil || *foundIngress.Spec.IngressClassName != intf.Ingress.IngressClass {
+						foundIngress.Spec.IngressClassName = &intf.Ingress.IngressClass
+						updateNeeded = true
+					}
+				}
+
+				// Check for rules and TLS changes
+				desiredRules := getIngressRules(intf)
+				desiredTLS := getIngressTLS(intf)
+				if !reflect.DeepEqual(foundIngress.Spec.Rules, desiredRules) || !reflect.DeepEqual(foundIngress.Spec.TLS, desiredTLS) {
+					foundIngress.Spec.Rules = desiredRules
+					foundIngress.Spec.TLS = desiredTLS
+					updateNeeded = true
+				}
+
+				// Check for changes in Annotations
+				if !reflect.DeepEqual(foundIngress.Annotations, intf.Ingress.Annotations) {
+					foundIngress.Annotations = intf.Ingress.Annotations
+					updateNeeded = true
+				}
+
+				// Update the Ingress if necessary
+				if updateNeeded {
+					err = r.Update(ctx, foundIngress)
+					if err != nil {
+						// Handle update error
+						log.Error(err, "Failed to update Ingress", "Namespace", foundIngress.Namespace, "Name", foundIngress.Name)
+						return err
+					}
+				}
+			}
+
 		}
 	}
 

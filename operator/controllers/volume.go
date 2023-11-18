@@ -14,6 +14,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
+// TODO: fix PVCs not being deleted when removed from Framework spec
+// TODO: crashes when volume size is increased
+
 func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *oneclickiov1.Framework) error {
 	log := log.FromContext(ctx)
 
@@ -39,7 +42,20 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 			log.Error(err, "Failed to get PVC")
 			return err
 		}
-		// TODO: Check if PVC needs to be updated
+		// Check if PVC needs to be updated
+		if err == nil {
+			sizeChangeNeeded := foundPvc.Spec.Resources.Requests[corev1.ResourceStorage] != resource.MustParse(volSpec.Size)
+			// Include other checks if necessary (e.g., storage class change)
+
+			if sizeChangeNeeded {
+				// Update PVC size (considering Kubernetes limitations - PVCs can generally only be increased in size)
+				foundPvc.Spec.Resources.Requests[corev1.ResourceStorage] = resource.MustParse(volSpec.Size)
+				if err := r.Update(ctx, foundPvc); err != nil {
+					log.Error(err, "Failed to update PVC", "PVC.Namespace", foundPvc.Namespace, "PVC.Name", foundPvc.Name)
+					return err
+				}
+			}
+		}
 	}
 
 	// Clean up PVCs that should no longer exist

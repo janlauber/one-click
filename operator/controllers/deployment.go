@@ -217,16 +217,28 @@ func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
 	return false
 }
 
-func volumesMatch(currentVolumes []corev1.Volume, volumes []oneclickiov1.VolumeSpec) bool {
-	if len(currentVolumes) != len(volumes) {
+func volumesMatch(currentVolumes []corev1.Volume, desiredVolumes []oneclickiov1.VolumeSpec) bool {
+	if len(currentVolumes) != len(desiredVolumes) {
 		return false
 	}
 
-	for i, vol := range volumes {
-		if currentVolumes[i].Name != vol.Name {
+	desiredVolumeMap := make(map[string]oneclickiov1.VolumeSpec)
+	for _, v := range desiredVolumes {
+		desiredVolumeMap[v.Name] = v
+	}
+
+	for _, currentVolume := range currentVolumes {
+		volSpec, exists := desiredVolumeMap[currentVolume.Name]
+		if !exists {
+			// Volume is present in Deployment but not in Framework spec
 			return false
 		}
-		// TODO: Add size and storage class checks
+
+		// Check PVC name
+		if currentVolume.VolumeSource.PersistentVolumeClaim.ClaimName != volSpec.Name {
+			return false
+		}
+		// Additional checks can be added here, such as PVC size, storage class, etc.
 	}
 
 	return true
@@ -306,6 +318,16 @@ func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) 
 
 	// Update volumes
 	updateVolumes(&deployment.Spec.Template.Spec.Volumes, f.Spec.Volumes)
+
+	// Update volume mounts
+	var volumeMounts []corev1.VolumeMount
+	for _, v := range f.Spec.Volumes {
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      v.Name,
+			MountPath: v.MountPath,
+		})
+	}
+	deployment.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 
 	// Update service account name
 	deployment.Spec.Template.Spec.ServiceAccountName = f.Spec.ServiceAccountName

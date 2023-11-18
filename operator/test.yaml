@@ -31,7 +31,7 @@ spec:
   # volumes:
   #   - name: "data"
   #     mountPath: "/data"
-  #     size: "1Gi"
+  #     size: "2Gi"
   #     storageClass: "standard"
   interfaces:
     - name: "http"
@@ -48,8 +48,8 @@ spec:
           # - host: "reflex.oneclickapps.dev"
           #   path: "/test"
           #   tls: false
-    # - name: "https"
-    #   port: 8443
+    - name: "https"
+      port: 8443
     #   ingress:
     #     ingressClass: "nginx"
     #     annotations:

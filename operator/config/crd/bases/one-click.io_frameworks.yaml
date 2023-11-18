@@ -118,7 +118,6 @@ spec:
                             type: object
                           type: array
                       required:
-                      - annotations
                       - ingressClass
                       - rules
                       type: object
