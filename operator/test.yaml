@@ -21,6 +21,9 @@ spec:
   env:
     - name: "REFLEX_USERNAME"
       value: "admin"
+  secrets:
+    - name: "REFLEX_PASSWORD"
+      value: "admin"
   interfaces:
     - name: "http"
       port: 80

@@ -134,6 +134,18 @@ spec:
                 - limits
                 - requests
                 type: object
+              secrets:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                  required:
+                  - name
+                  - value
+                  type: object
+                type: array
               serviceAccountName:
                 type: string
             required:
@@ -142,6 +154,7 @@ spec:
             - image
             - interfaces
             - resources
+            - secrets
             - serviceAccountName
             type: object
           status:

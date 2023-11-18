@@ -49,6 +49,11 @@ type EnvVar struct {
 	Value string `json:"value"`
 }
 
+type SecretItem struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 type InterfaceSpec struct {
 	Name    string        `json:"name"`
 	Port    int32         `json:"port"`
@@ -67,6 +72,7 @@ type FrameworkSpec struct {
 	HorizontalScale    HorizontalScaleSpec  `json:"horizontalScale"`
 	Resources          ResourceRequirements `json:"resources"`
 	Env                []EnvVar             `json:"env"`
+	Secrets            []SecretItem         `json:"secrets"`
 	Interfaces         []InterfaceSpec      `json:"interfaces"`
 	ServiceAccountName string               `json:"serviceAccountName"`
 }

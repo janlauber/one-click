@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
@@ -90,6 +91,27 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	} else if err != nil {
 		// handle error
 		return ctrl.Result{}, err
+	}
+
+	// Handling the aggregated Secret
+	secret := r.secretForFramework(&framework)
+	foundSecret := &corev1.Secret{}
+	err = r.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, foundSecret)
+	if err != nil && errors.IsNotFound(err) {
+		log.Log.Info("Creating a new Secret", "Namespace", secret.Namespace, "Name", secret.Name)
+		err = r.Create(ctx, secret)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	} else if err != nil {
+		return ctrl.Result{}, err
+	} else if !reflect.DeepEqual(foundSecret.StringData, secret.StringData) {
+		// Update the Secret if it already exists and the data has changed
+		foundSecret.StringData = secret.StringData
+		err = r.Update(ctx, foundSecret)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Check if the Deployment already exists

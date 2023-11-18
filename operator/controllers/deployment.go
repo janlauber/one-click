@@ -54,6 +54,19 @@ func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) 
 		},
 	}
 
+	// if secrets are defined, add the secret f.Name + "-secrets" as envFrom
+	if len(f.Spec.Secrets) > 0 {
+		dep.Spec.Template.Spec.Containers[0].EnvFrom = []corev1.EnvFromSource{
+			{
+				SecretRef: &corev1.SecretEnvSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: f.Name + "-secrets",
+					},
+				},
+			},
+		}
+	}
+
 	ctrl.SetControllerReference(f, dep, r.Scheme)
 	return dep
 }
