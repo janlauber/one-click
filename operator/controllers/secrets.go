@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"strings"
 
 	oneclickiov1 "github.com/janlauber/one-click/api/v1"
@@ -68,8 +70,24 @@ func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1.Framework) bo
 		}
 	}
 
+	// Check if the secrets checksum annotation needs an update
+	secretsChecksum := calculateSecretsChecksum(f.Spec.Secrets)
+	currentChecksum, exists := foundSecret.Annotations["oneclick.io/secrets-checksum"]
+	if !exists || currentChecksum != secretsChecksum {
+		return true
+	}
+
 	// No update needed
 	return false
+}
+
+func calculateSecretsChecksum(secrets []oneclickiov1.SecretItem) string {
+	hash := sha256.New()
+	for _, secret := range secrets {
+		data := secret.Name + "=" + secret.Value
+		hash.Write([]byte(data))
+	}
+	return hex.EncodeToString(hash.Sum(nil))
 }
 
 func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1.Framework) {

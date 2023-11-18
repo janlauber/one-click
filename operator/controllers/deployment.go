@@ -286,6 +286,15 @@ func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) 
 		deployment.Spec.Template.Spec.Containers[0].EnvFrom = nil
 	}
 
+	// Ensure the Annotations map is not nil
+	if deployment.Spec.Template.Annotations == nil {
+		deployment.Spec.Template.Annotations = make(map[string]string)
+	}
+
+	// Calculate the checksum of the secrets and add it as an annotation
+	secretsChecksum := calculateSecretsChecksum(f.Spec.Secrets)
+	deployment.Spec.Template.Annotations["one-click.io/secrets-checksum"] = secretsChecksum
+
 	// Update environment variables
 	deployment.Spec.Template.Spec.Containers[0].Env = getEnvVars(f.Spec.Env)
 

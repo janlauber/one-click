@@ -21,11 +21,11 @@ spec:
   # env:
   #   - name: "REFLEX_USERNAME"
   #     value: "admin"
-  secrets:
-    - name: "REFLEX_PASSWORD"
-      value: "admin"
-    # - name: "ANOTHER_SECRET"
-    #   value: "122"
+  # secrets:
+  #   - name: "REFLEX_PASSWORD"
+  #     value: "admin"
+  #   - name: "ANOTHER_SECRET"
+  #     value: "122"
   # volumes:
   #   - name: "data"
   #     mountPath: "/data"
