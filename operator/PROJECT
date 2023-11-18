@@ -17,6 +17,6 @@ resources:
   controller: true
   domain: one-click.io
   kind: Framework
-  path: github.com/janlauber/one-click/api/v1
+  path: github.com/janlauber/one-click/operator/api/v1
   version: v1
 version: "3"
