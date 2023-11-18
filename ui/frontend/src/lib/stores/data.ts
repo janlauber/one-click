@@ -1,16 +1,16 @@
 import { client } from "$lib/pocketbase";
 import type {
-    DeploymentsResponse,
+    RolloutsResponse,
     ProjectsResponse,
-    TechnologiesResponse
+    FrameworksResponse
 } from "$lib/pocketbase/generated-types";
 import { writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
-export const technologies: Writable<TechnologiesResponse[]> = writable<TechnologiesResponse[]>([]);
+export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
 export type Pexpand = {
-    technology: TechnologiesResponse;
-    deployments: DeploymentsResponse[];
+    framework: FrameworksResponse;
+    rollouts: RolloutsResponse[];
 };
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
@@ -31,19 +31,19 @@ export interface UpdateFilter {
 
 export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
     if (filter.filter === UpdateFilterEnum.ALL) {
-        await updateTechnologies();
+        await updateFrameworks();
         await updateProjects(filter.projectId);
     }
 }
 
-export async function updateTechnologies() {
+export async function updateFrameworks() {
     await client
-        .collection("technologies")
+        .collection("frameworks")
         .getFullList({
             sort: "name"
         })
         .then((response: unknown) => {
-            technologies.set(response as TechnologiesResponse[]);
+            frameworks.set(response as FrameworksResponse[]);
         })
         .catch((error) => {
             console.error(error);
@@ -60,7 +60,7 @@ export async function updateProjects(projectId?: string) {
         }
         projects.set(response);
 
-        sortProjectsDeployments();
+        sortProjectsRollouts();
     } catch (error) {
         // Handle error
     }
@@ -69,16 +69,16 @@ export async function updateProjects(projectId?: string) {
 async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
     const queryOptions = {
         sort: "-created",
-        expand: "technology,deployments"
+        expand: "framework,rollouts"
     };
 
     return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
 }
 
-function sortProjectsDeployments() {
+function sortProjectsRollouts() {
     projects.update((projects) => {
         projects.forEach((project) => {
-            project.expand?.deployments.sort((a, b) => {
+            project.expand?.rollouts.sort((a, b) => {
                 if (a.startDate > b.startDate) {
                     return -1;
                 }

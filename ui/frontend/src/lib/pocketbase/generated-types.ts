@@ -6,10 +6,9 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export enum Collections {
-	Deployments = "deployments",
+	Frameworks = "frameworks",
 	Projects = "projects",
-	Technologies = "technologies",
-	TechnologyVersionings = "technologyVersionings",
+	Rollouts = "rollouts",
 	Users = "users",
 }
 
@@ -37,33 +36,27 @@ export type AuthSystemFields<T = never> = {
 
 // Record types for each collection
 
-export type DeploymentsRecord = {
-	endDate?: IsoDateString
-	startDate: IsoDateString
-	user: RecordIdString
-	values: string
-	version: string
-}
-
-export type ProjectsRecord = {
-	deployments?: RecordIdString[]
-	endPoint?: string
-	name: string
-	statusEndPoint: string
-	tags?: string
-	technology: RecordIdString
-	user: RecordIdString
-}
-
-export type TechnologiesRecord = {
+export type FrameworksRecord = {
 	logo: string
 	name: string
 	url: string
 }
 
-export type TechnologyVersioningsRecord = {
-	technology?: RecordIdString
-	version?: string
+export type ProjectsRecord = {
+	endPoint?: string
+	framework: RecordIdString
+	name: string
+	rollouts?: RecordIdString[]
+	statusEndPoint: string
+	tags?: string
+	user: RecordIdString
+}
+
+export type RolloutsRecord = {
+	endDate?: IsoDateString
+	revision?: number
+	startDate: IsoDateString
+	user: RecordIdString
 }
 
 export type UsersRecord = {
@@ -72,27 +65,24 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
-export type DeploymentsResponse<Texpand = unknown> = Required<DeploymentsRecord> & BaseSystemFields<Texpand>
+export type FrameworksResponse<Texpand = unknown> = Required<FrameworksRecord> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
-export type TechnologiesResponse<Texpand = unknown> = Required<TechnologiesRecord> & BaseSystemFields<Texpand>
-export type TechnologyVersioningsResponse<Texpand = unknown> = Required<TechnologyVersioningsRecord> & BaseSystemFields<Texpand>
+export type RolloutsResponse<Texpand = unknown> = Required<RolloutsRecord> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
-	deployments: DeploymentsRecord
+	frameworks: FrameworksRecord
 	projects: ProjectsRecord
-	technologies: TechnologiesRecord
-	technologyVersionings: TechnologyVersioningsRecord
+	rollouts: RolloutsRecord
 	users: UsersRecord
 }
 
 export type CollectionResponses = {
-	deployments: DeploymentsResponse
+	frameworks: FrameworksResponse
 	projects: ProjectsResponse
-	technologies: TechnologiesResponse
-	technologyVersionings: TechnologyVersioningsResponse
+	rollouts: RolloutsResponse
 	users: UsersResponse
 }
 
@@ -100,9 +90,8 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
-	collection(idOrName: 'deployments'): RecordService<DeploymentsResponse>
+	collection(idOrName: 'frameworks'): RecordService<FrameworksResponse>
 	collection(idOrName: 'projects'): RecordService<ProjectsResponse>
-	collection(idOrName: 'technologies'): RecordService<TechnologiesResponse>
-	collection(idOrName: 'technologyVersionings'): RecordService<TechnologyVersioningsResponse>
+	collection(idOrName: 'rollouts'): RecordService<RolloutsResponse>
 	collection(idOrName: 'users'): RecordService<UsersResponse>
 }

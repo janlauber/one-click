@@ -13,14 +13,14 @@
     size="xs"
     class="whitespace-nowrap"
     on:click={() => {
-      goto(`/app/projects/${$selectedProjectId}/deployments`);
+      goto(`/app/projects/${$selectedProjectId}/rollouts`);
     }}
   >
     <div class="relative">
       <Indicator size="sm" color="green" class="mr-1.5 absolute" />
       <Indicator size="sm" color="green" class="mr-1.5 animate-ping" />
     </div>
-    Current deployment
+    Current rollout
     <ArrowRight class="w-4 h-4 ml-2" />
   </Button>
 </div>

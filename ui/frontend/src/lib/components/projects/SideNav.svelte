@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
 
   import selectedProjectId from "$lib/stores/project";
-  import { Boxes, Cog, LineChart } from "lucide-svelte";
+  import { Cog, LineChart, Rocket } from "lucide-svelte";
 
   let items = [
     {
@@ -12,10 +12,10 @@
       icon: LineChart
     },
     {
-      name: "Deployments",
-      href: `/app/projects/${$selectedProjectId}/deployments`,
+      name: "Rollouts",
+      href: `/app/projects/${$selectedProjectId}/rollouts`,
       current: false,
-      icon: Boxes
+      icon: Rocket
     },
     {
       name: "Settings",

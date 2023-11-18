@@ -4,7 +4,7 @@
   import type { Pexpand } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
-  import { technologyLogoUrl } from "$lib/utils/technology.utils";
+  import { frameworkLogoUrl } from "$lib/utils/framework.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
   import { ChevronRight, Tag } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
@@ -19,7 +19,7 @@
   <div class="flex items-center gap-x-4 border-b border-gray-900/5 p-6">
     <div class="relative">
       <img
-        src={technologyLogoUrl(project.expand?.technology)}
+        src={frameworkLogoUrl(project.expand?.framework)}
         alt="Tuple"
         class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10"
       />
@@ -28,9 +28,10 @@
         size="xl"
         placement="top-right"
         class="text-xs font-bold text-white cursor-default"
-        >{project.expand?.deployments?.length || 0}</Indicator
+        >{project.expand?.rollouts?.length || 0}
+        </Indicator
       >
-      <Tooltip>Deployments</Tooltip>
+      <Tooltip>Rollouts</Tooltip>
     </div>
     <div class="text-sm font-medium leading-6">{project.name}</div>
     <div class="relative ml-auto">
@@ -48,14 +49,14 @@
     </div>
   </div>
   <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
-    {#if project.expand?.deployments}
+    {#if project.expand?.rollouts}
       <div class="flex justify-between gap-x-4 py-3">
-        <dt class="">Last deployment</dt>
+        <dt class="">Last rollout</dt>
         <dd class=" cursor-default">
-          <time datetime={formatDateTime(project.expand?.deployments[0].startDate)}>
-            {timeAgo(project.expand?.deployments[0].startDate)}
+          <time datetime={formatDateTime(project.expand?.rollouts[0].startDate)}>
+            {timeAgo(project.expand?.rollouts[0].startDate)}
           </time>
-          <Tooltip>{formatDateTime(project.expand?.deployments[0].startDate)}</Tooltip>
+          <Tooltip>{formatDateTime(project.expand?.rollouts[0].startDate)}</Tooltip>
         </dd>
       </div>
     {/if}
