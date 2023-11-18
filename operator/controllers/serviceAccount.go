@@ -16,37 +16,37 @@ func (r *FrameworkReconciler) reconcileServiceAccount(ctx context.Context, frame
 	log := log.FromContext(ctx)
 
 	// Define the ServiceAccount you expect to exist
+	saName := framework.Spec.ServiceAccountName
+	if saName == "" {
+		saName = framework.Name + "-sa" // Default name if not specified
+	}
+
 	expectedSa := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      framework.Spec.ServiceAccountName,
+			Name:      saName,
 			Namespace: framework.Namespace,
 		},
 	}
 
 	// Set Framework instance as the owner of the ServiceAccount
 	if err := ctrl.SetControllerReference(framework, expectedSa, r.Scheme); err != nil {
-		log.Error(err, "Failed to set controller reference for ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", framework.Spec.ServiceAccountName)
+		log.Error(err, "Failed to set controller reference for ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", saName)
 		return err
 	}
 
 	// Try to get the ServiceAccount
 	foundSa := &corev1.ServiceAccount{}
-	err := r.Get(ctx, types.NamespacedName{Name: framework.Spec.ServiceAccountName, Namespace: framework.Namespace}, foundSa)
+	err := r.Get(ctx, types.NamespacedName{Name: saName, Namespace: framework.Namespace}, foundSa)
 	if err != nil && errors.IsNotFound(err) {
 		// ServiceAccount doesn't exist - create it
+		log.Info("Creating a new ServiceAccount", "Namespace", framework.Namespace, "Name", saName)
 		err = r.Create(ctx, expectedSa)
 		if err != nil {
-			// Error occurred while trying to create the ServiceAccount
-			r.Recorder.Eventf(framework, corev1.EventTypeWarning, "CreationFailed", "Failed to create ServiceAccount %s", framework.Spec.ServiceAccountName)
-			log.Error(err, "Failed to create new ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", framework.Spec.ServiceAccountName)
+			log.Error(err, "Failed to create new ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", saName)
 			return err
 		}
-		r.Recorder.Eventf(framework, corev1.EventTypeNormal, "Created", "Created ServiceAccount %s", framework.Spec.ServiceAccountName)
-		// ServiceAccount created successfully
 	} else if err != nil {
-		// Error occurred while trying to get the ServiceAccount
-		r.Recorder.Eventf(framework, corev1.EventTypeWarning, "GetFailed", "Failed to get ServiceAccount %s", framework.Spec.ServiceAccountName)
-		log.Error(err, "Failed to get ServiceAccount")
+		log.Error(err, "Failed to get ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", saName)
 		return err
 	}
 	// ServiceAccount already exists - no action required

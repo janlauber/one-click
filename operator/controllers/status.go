@@ -85,27 +85,28 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 		return err
 	}
 
-	// Collect the hostnames from the Ingress rules
-	var hosts []string
-	var ingressStatus string
+	// Update the Framework status with ingress information
+	var ingressStatuses []oneclickiov1.IngressStatus
 	for _, ingress := range ingressList.Items {
+		// Filter out ingresses not related to the Framework, if necessary
+
+		var hosts []string
 		for _, rule := range ingress.Spec.Rules {
 			if rule.Host != "" {
 				hosts = append(hosts, rule.Host)
 			}
 		}
-		ingressStatus = "Unknown"
-		if len(ingress.Status.LoadBalancer.Ingress) > 0 {
-			ingressStatus = "OK"
+
+		if len(hosts) > 0 { // Only add if there are hosts
+			ingressStatus := oneclickiov1.IngressStatus{
+				Hosts:  hosts,
+				Status: determineIngressStatus(ingress), // Implement this function based on your logic
+			}
+			ingressStatuses = append(ingressStatuses, ingressStatus)
 		}
 	}
 
-	f.Status.Ingresses = []oneclickiov1.IngressStatus{
-		{
-			Hosts:  hosts,
-			Status: ingressStatus,
-		},
-	}
+	f.Status.Ingresses = ingressStatuses
 
 	// List the Services
 	serviceList := &corev1.ServiceList{}
@@ -199,4 +200,18 @@ func (r *FrameworkReconciler) getDeploymentReplicas(ctx context.Context, f *onec
 	}
 
 	return dep.Status.Replicas, nil
+}
+
+func determineIngressStatus(ingress networkingv1.Ingress) string {
+	// Check if the ingress has been assigned a load balancer IP or hostname
+	if len(ingress.Status.LoadBalancer.Ingress) > 0 {
+		// Assuming that the presence of a load balancer IP or hostname indicates that the ingress is operational
+		return "Operational"
+	}
+
+	// You can add more checks here depending on what you consider as part of the Ingress's status.
+	// For example, you could check for specific conditions, annotations, or other status fields.
+
+	// If the ingress does not meet your criteria for being operational, you can return another status
+	return "Pending"
 }

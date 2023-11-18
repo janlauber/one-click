@@ -62,7 +62,7 @@ type VolumeSpec struct {
 type InterfaceSpec struct {
 	Name    string      `json:"name"`
 	Port    int32       `json:"port"`
-	Ingress IngressSpec `json:"ingress"`
+	Ingress IngressSpec `json:"ingress,omitempty"`
 }
 
 type IngressSpec struct {

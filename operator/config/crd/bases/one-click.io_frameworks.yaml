@@ -128,7 +128,6 @@ spec:
                       format: int32
                       type: integer
                   required:
-                  - ingress
                   - name
                   - port
                   type: object

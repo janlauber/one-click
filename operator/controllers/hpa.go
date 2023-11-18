@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -16,11 +17,16 @@ func (r *FrameworkReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1.
 	log := log.FromContext(ctx)
 
 	// Construct the desired HPA object based on the Framework specification
-	desiredHpa := r.hpaForFramework(f)
+	desiredHpa, err := r.hpaForFramework(f)
+	if err != nil {
+		log.Error(err, "Failed to construct HPA", "Namespace", f.Namespace, "Name", f.Name)
+		r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to construct HPA %s", f.Name)
+		return err
+	}
 
 	// Try to fetch the existing HPA
 	foundHpa := &autoscalingv2.HorizontalPodAutoscaler{}
-	err := r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, foundHpa)
+	err = r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, foundHpa)
 	if err != nil && errors.IsNotFound(err) {
 		// If the HPA is not found, create a new one
 		log.Info("Creating a new HPA", "Namespace", desiredHpa.Namespace, "Name", desiredHpa.Name)
@@ -56,8 +62,8 @@ func (r *FrameworkReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1.
 	return nil
 }
 
-func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) *autoscalingv2.HorizontalPodAutoscaler {
-	return &autoscalingv2.HorizontalPodAutoscaler{
+func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) (*autoscalingv2.HorizontalPodAutoscaler, error) {
+	hpa := &autoscalingv2.HorizontalPodAutoscaler{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      f.Name,
 			Namespace: f.Namespace,
@@ -81,6 +87,13 @@ func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) *autosc
 			},
 		},
 	}
+
+	// Set the owner reference
+	if err := controllerutil.SetControllerReference(f, hpa, r.Scheme); err != nil {
+		return nil, err
+	}
+
+	return hpa, nil
 }
 
 func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) bool {

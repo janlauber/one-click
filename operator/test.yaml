@@ -21,6 +21,8 @@ spec:
   # env:
   #   - name: "REFLEX_USERNAME"
   #     value: "admin"
+  #   - name: DEBUG
+  #     value: "true"
   # secrets:
   #   - name: "REFLEX_PASSWORD"
   #     value: "admin"
@@ -41,20 +43,20 @@ spec:
           nginx.ingress.kubernetes.io/ssl-redirect: "false"
         rules:
           - host: "reflex.oneclickapps.dev"
-            path: "/"
-            tls: false
-          - host: "reflex.oneclickapps.dev"
             path: "/test"
             tls: false
-    - name: "https"
-      port: 8443
-      ingress:
-        ingressClass: "nginx"
-        annotations:
-          nginx.ingress.kubernetes.io/rewrite-target: /
-          nginx.ingress.kubernetes.io/ssl-redirect: "false"
-        rules:
-          - host: "reflex.oneclickapps.dev"
-            path: "/"
-            tls: true
+          # - host: "reflex.oneclickapps.dev"
+          #   path: "/test"
+          #   tls: false
+    # - name: "https"
+    #   port: 8443
+    #   ingress:
+    #     ingressClass: "nginx"
+    #     annotations:
+    #       nginx.ingress.kubernetes.io/rewrite-target: /
+    #       nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    #     rules:
+    #       - host: "reflex.oneclickapps.dev"
+    #         path: "/"
+    #         tls: true
   serviceAccountName: "nginx"

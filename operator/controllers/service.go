@@ -11,13 +11,18 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclickiov1.Framework) error {
 	log := log.FromContext(ctx)
 
+	// Keep track of services that should exist according to the Framework spec
+	expectedServices := make(map[string]bool)
 	for _, intf := range f.Spec.Interfaces {
+
+		expectedServices[intf.Name+"-svc"] = true
 		// Process each interface
 		service := r.serviceForFramework(f, intf)
 
@@ -56,11 +61,37 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 		}
 	}
 
+	// Delete services that are no longer specified in the Framework spec
+	serviceList := &corev1.ServiceList{}
+	listOpts := []client.ListOption{client.InNamespace(f.Namespace)}
+	err := r.List(ctx, serviceList, listOpts...)
+	if err != nil {
+		log.Error(err, "Failed to list services", "Namespace", f.Namespace)
+		return err
+	}
+
+	for _, service := range serviceList.Items {
+		if _, exists := expectedServices[service.Name]; !exists {
+			// Service is no longer needed, delete it
+			if service.Labels["managed-by"] == "framework-operator" {
+				err = r.Delete(ctx, &service)
+				if err != nil {
+					log.Error(err, "Failed to delete service", "Namespace", service.Namespace, "Name", service.Name)
+					return err
+				}
+				log.Info("Deleted service", "Namespace", service.Namespace, "Name", service.Name)
+			}
+		}
+	}
+
 	return nil
 }
 
 func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) *corev1.Service {
-	labels := map[string]string{"app": f.Name}
+	labels := map[string]string{
+		"app":        f.Name,
+		"managed-by": "framework-operator", // Unique label to identify operator-managed services
+	}
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      intf.Name + "-svc", // Create a unique name for the Service

@@ -11,16 +11,22 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 func (r *FrameworkReconciler) reconcileSecret(ctx context.Context, f *oneclickiov1.Framework) error {
 	// Get the desired state of the Secret from the helper function
-	desiredSecret := r.secretForFramework(f)
+	desiredSecret, err := r.secretForFramework(f)
+	if err != nil {
+		log.Log.Error(err, "Failed to construct Secret", "Namespace", f.Namespace, "Name", f.Name)
+		r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to construct Secret %s", f.Name)
+		return err
+	}
 
 	// Check if the Secret already exists
 	foundSecret := &corev1.Secret{}
-	err := r.Get(ctx, types.NamespacedName{Name: desiredSecret.Name, Namespace: f.Namespace}, foundSecret)
+	err = r.Get(ctx, types.NamespacedName{Name: desiredSecret.Name, Namespace: f.Namespace}, foundSecret)
 	if err != nil && errors.IsNotFound(err) {
 		// Create the Secret
 		err = r.Create(ctx, desiredSecret)
@@ -105,19 +111,25 @@ func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1.Framework) {
 	}
 }
 
-func (r *FrameworkReconciler) secretForFramework(f *oneclickiov1.Framework) *corev1.Secret {
+func (r *FrameworkReconciler) secretForFramework(f *oneclickiov1.Framework) (*corev1.Secret, error) {
 	secretData := make(map[string]string)
 	for _, secretItem := range f.Spec.Secrets {
-		// Ensure the secret key is valid
 		key := strings.TrimSpace(secretItem.Name)
 		secretData[key] = secretItem.Value
 	}
 
-	return &corev1.Secret{
+	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      f.Name + "-secrets", // Naming the secret based on the Framework name
 			Namespace: f.Namespace,
 		},
 		StringData: secretData,
 	}
+
+	// Set the owner reference
+	if err := controllerutil.SetControllerReference(f, secret, r.Scheme); err != nil {
+		return nil, err
+	}
+
+	return secret, nil
 }
