@@ -12,3 +12,4 @@ This directory contains the decisions made by me for this project. The decisions
 - [0005 Use of Generative AI](0005-use-of-generative-ai.md)
 - [0006 Applications Exclusion](0006-applications-exclusion.md)
 - [0007 Kubernetes Operator](0007-kubernetes-operator.md)
+- [0008 Project Management](0008-project-management.md)
