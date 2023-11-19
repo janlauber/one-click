@@ -10,6 +10,7 @@ import (
 	"github.com/natrontech/one-click/hooks"
 	"github.com/natrontech/one-click/pkg/controller"
 	"github.com/natrontech/one-click/pkg/env"
+	"github.com/natrontech/one-click/pkg/k8s"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -29,6 +30,7 @@ func defaultPublicDir() string {
 func init() {
 	// set the default public dir
 	env.Init()
+	k8s.Init()
 }
 
 func main() {
@@ -99,17 +101,17 @@ func main() {
 
 			return controller.HandleRolloutGetAll(c, app, project)
 		})
-		e.Router.GET("/rollouts/:project/:revision", func(c echo.Context) error {
+		e.Router.GET("/rollouts/:project/:rollout", func(c echo.Context) error {
 			project := c.PathParam("project")
-			revision := c.PathParam("revision")
+			rollout := c.PathParam("rollout")
 
-			return controller.HandleRolloutGet(c, app, project, revision)
+			return controller.HandleRolloutGet(c, app, project, rollout)
 		})
-		e.Router.POST("/rollouts/:project/:revision", func(c echo.Context) error {
+		e.Router.POST("/rollouts/:project/:rollout", func(c echo.Context) error {
 			project := c.PathParam("project")
-			revision := c.PathParam("revision")
+			rollout := c.PathParam("rollout")
 
-			return controller.HandleRolloutPost(c, app, project, revision)
+			return controller.HandleRolloutPost(c, app, project, rollout)
 		})
 
 		return nil

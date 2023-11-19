@@ -1,6 +1,6 @@
 package models
 
-type Framework struct {
+type Rollout struct {
 	APIVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
 	Metadata   struct {

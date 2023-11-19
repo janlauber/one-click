@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/natrontech/one-click/pkg/env"
+	"github.com/natrontech/one-click/pkg/k8s"
 	"github.com/natrontech/one-click/pkg/models"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
@@ -34,45 +35,45 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 	return nil
 }
 
-func HandleRolloutGet(c echo.Context, app *pocketbase.PocketBase, project string, revision string) error {
+func HandleRolloutGet(c echo.Context, app *pocketbase.PocketBase, projectId string, rolloutId string) error {
 
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, project, revision+".yaml")
+	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId, rolloutId+".yaml")
 	yamlFile, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
 
-	var frameworkRevision models.Framework
-	err = yaml.Unmarshal(yamlFile, &frameworkRevision)
+	var rolloutRevision models.Rollout
+	err = yaml.Unmarshal(yamlFile, &rolloutRevision)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(200, frameworkRevision)
+	return c.JSON(200, rolloutRevision)
 }
 
-func HandleRolloutGetAll(c echo.Context, app *pocketbase.PocketBase, project string) error {
+func HandleRolloutGetAll(c echo.Context, app *pocketbase.PocketBase, projectId string) error {
 
-	// get all revisions of project
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, project)
+	// get all revisions of projectId
+	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId)
 	rolloutDir, err := os.ReadDir(filePath)
 	if err != nil {
 		return err
 	}
 
-	// get all revisions of project
-	var revisions []string
+	// get all rollouts of projectId
+	var rollouts []string
 	for _, rollout := range rolloutDir {
 		// remove .yaml extension
-		revisions = append(revisions, rollout.Name()[:len(rollout.Name())-5])
+		rollouts = append(rollouts, rollout.Name()[:len(rollout.Name())-5])
 	}
 
-	return c.JSON(200, revisions)
+	return c.JSON(200, rollouts)
 }
 
-func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, project string, revision string) error {
+func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
 	// Create project dir if not exists
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, project)
+	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId)
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		err = os.MkdirAll(filePath, 0755)
 		if err != nil {
@@ -81,7 +82,7 @@ func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, project strin
 	}
 
 	// Create rollout file
-	filePath = filepath.Join(filePath, revision+".yaml")
+	filePath = filepath.Join(filePath, rollout+".yaml")
 	rolloutFile, err := os.Create(filePath)
 	if err != nil {
 		return err
@@ -89,19 +90,26 @@ func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, project strin
 	defer rolloutFile.Close()
 
 	// Get body and parse to yaml
-	framework := new(models.Framework)
-	if err := c.Bind(framework); err != nil {
+	rolloutBody := new(models.Rollout)
+	if err := c.Bind(rolloutBody); err != nil {
 		return err
 	}
 
 	// Marshal struct to YAML
-	yamlData, err := yaml.Marshal(framework)
+	yamlData, err := yaml.Marshal(rolloutBody)
 	if err != nil {
 		return err
 	}
 
 	// Write YAML to file
 	if _, err := rolloutFile.Write(yamlData); err != nil {
+		return err
+	}
+
+	// Apply the rollout
+	err = k8s.CreateOrUpdateRollout(projectId, rollout)
+	if err != nil {
+		log.Println(err)
 		return err
 	}
 
