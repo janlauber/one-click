@@ -127,7 +127,7 @@ func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclicki
 }
 
 func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) *networkingv1.Ingress {
-	labels := map[string]string{"app": f.Name}
+	labels := map[string]string{"framework.one-click.io/name": f.Name}
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        intf.Name + "-ingress", // Create a unique name for the Ingress

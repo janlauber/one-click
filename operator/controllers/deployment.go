@@ -58,7 +58,7 @@ func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *onecli
 }
 
 func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) *appsv1.Deployment {
-	labels := map[string]string{"app": f.Name}
+	labels := map[string]string{"framework.one-click.io/name": f.Name}
 	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
 
 	dep := &appsv1.Deployment{

@@ -80,7 +80,7 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 
 func (r *FrameworkReconciler) constructPVCForFramework(framework *oneclickiov1.Framework, volSpec oneclickiov1.VolumeSpec) *corev1.PersistentVolumeClaim {
 	labels := map[string]string{
-		"app": framework.Name,
+		"framework.one-click.io/name": framework.Name,
 	}
 
 	pvc := &corev1.PersistentVolumeClaim{
