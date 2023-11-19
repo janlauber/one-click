@@ -1,12 +1,12 @@
-apiVersion: one-click.io/v1
-kind: Framework
+apiVersion: one-click.io/v1alpha1
+kind: Rollout
 metadata:
   labels:
-    app.kubernetes.io/name: framework
-    app.kubernetes.io/instance: framework-sample
+    app.kubernetes.io/name: rollout
+    app.kubernetes.io/instance: rollout-sample
     app.kubernetes.io/part-of: operator
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: operator
-  name: framework-sample
+  name: rollout-sample
 spec:
   # TODO(user): Add fields here

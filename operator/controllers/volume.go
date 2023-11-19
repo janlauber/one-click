@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -14,17 +14,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// TODO: fix PVCs not being deleted when removed from Framework spec
+// TODO: fix PVCs not being deleted when removed from Rollout spec
 // TODO: crashes when volume size is increased
 
-func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcilePVCs(ctx context.Context, framework *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Keep track of the PVCs that should exist according to the Framework specification
+	// Keep track of the PVCs that should exist according to the Rollout specification
 	expectedPVCs := make(map[string]struct{})
 	for _, volSpec := range framework.Spec.Volumes {
 		expectedPVCs[volSpec.Name] = struct{}{}
-		desiredPvc := r.constructPVCForFramework(framework, volSpec)
+		desiredPvc := r.constructPVCForRollout(framework, volSpec)
 
 		foundPvc := &corev1.PersistentVolumeClaim{}
 		err := r.Get(ctx, types.NamespacedName{Name: desiredPvc.Name, Namespace: framework.Namespace}, foundPvc)
@@ -66,8 +66,8 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 	}
 
 	for _, pvc := range pvcList.Items {
-		if _, exists := expectedPVCs[pvc.Name]; !exists && isOwnedByFramework(&pvc, framework) {
-			// PVC is owned by Framework but no longer in spec, delete it
+		if _, exists := expectedPVCs[pvc.Name]; !exists && isOwnedByRollout(&pvc, framework) {
+			// PVC is owned by Rollout but no longer in spec, delete it
 			if err := r.Delete(ctx, &pvc); err != nil {
 				log.Error(err, "Failed to delete PVC", "PVC.Namespace", pvc.Namespace, "PVC.Name", pvc.Name)
 				return err
@@ -78,7 +78,7 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 	return nil
 }
 
-func (r *FrameworkReconciler) constructPVCForFramework(framework *oneclickiov1.Framework, volSpec oneclickiov1.VolumeSpec) *corev1.PersistentVolumeClaim {
+func (r *RolloutReconciler) constructPVCForRollout(framework *oneclickiov1alpha1.Rollout, volSpec oneclickiov1alpha1.VolumeSpec) *corev1.PersistentVolumeClaim {
 	labels := map[string]string{
 		"framework.one-click.io/name": framework.Name,
 	}
@@ -104,9 +104,9 @@ func (r *FrameworkReconciler) constructPVCForFramework(framework *oneclickiov1.F
 	return pvc
 }
 
-func isOwnedByFramework(pvc *corev1.PersistentVolumeClaim, framework *oneclickiov1.Framework) bool {
+func isOwnedByRollout(pvc *corev1.PersistentVolumeClaim, framework *oneclickiov1alpha1.Rollout) bool {
 	for _, ref := range pvc.GetOwnerReferences() {
-		if ref.Kind == "Framework" && ref.Name == framework.Name {
+		if ref.Kind == "Rollout" && ref.Name == framework.Name {
 			return true
 		}
 	}

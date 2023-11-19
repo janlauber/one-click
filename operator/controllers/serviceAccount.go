@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,7 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileServiceAccount(ctx context.Context, framework *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileServiceAccount(ctx context.Context, framework *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
 	// Define the ServiceAccount you expect to exist
@@ -28,7 +28,7 @@ func (r *FrameworkReconciler) reconcileServiceAccount(ctx context.Context, frame
 		},
 	}
 
-	// Set Framework instance as the owner of the ServiceAccount
+	// Set Rollout instance as the owner of the ServiceAccount
 	if err := ctrl.SetControllerReference(framework, expectedSa, r.Scheme); err != nil {
 		log.Error(err, "Failed to set controller reference for ServiceAccount", "ServiceAccount.Namespace", framework.Namespace, "ServiceAccount.Name", saName)
 		return err

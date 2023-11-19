@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) updateStatus(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
 	// get the deployment replica count
@@ -27,7 +27,7 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 	deployment := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, deployment)
 	if err != nil {
-		log.Error(err, "Failed to get Deployment", "Framework.Namespace", f.Namespace, "Framework.Name", f.Name)
+		log.Error(err, "Failed to get Deployment", "Rollout.Namespace", f.Namespace, "Rollout.Name", f.Name)
 		return err
 	}
 
@@ -41,7 +41,7 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 
 	err = r.List(ctx, podList, listOpts...)
 	if err != nil {
-		log.Error(err, "Failed to list pods", "Framework.Namespace", f.Namespace, "Framework.Name", f.Name)
+		log.Error(err, "Failed to list pods", "Rollout.Namespace", f.Namespace, "Rollout.Name", f.Name)
 		return err
 	}
 
@@ -81,14 +81,14 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 
 	err = r.List(ctx, ingressList, listOpts...)
 	if err != nil {
-		log.Error(err, "Failed to list ingresses", "Framework.Namespace", f.Namespace, "Framework.Name", f.Name)
+		log.Error(err, "Failed to list ingresses", "Rollout.Namespace", f.Namespace, "Rollout.Name", f.Name)
 		return err
 	}
 
-	// Update the Framework status with ingress information
-	var ingressStatuses []oneclickiov1.IngressStatus
+	// Update the Rollout status with ingress information
+	var ingressStatuses []oneclickiov1alpha1.IngressStatus
 	for _, ingress := range ingressList.Items {
-		// Filter out ingresses not related to the Framework, if necessary
+		// Filter out ingresses not related to the Rollout, if necessary
 
 		var hosts []string
 		for _, rule := range ingress.Spec.Rules {
@@ -98,7 +98,7 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 		}
 
 		if len(hosts) > 0 { // Only add if there are hosts
-			ingressStatus := oneclickiov1.IngressStatus{
+			ingressStatus := oneclickiov1alpha1.IngressStatus{
 				Hosts:  hosts,
 				Status: determineIngressStatus(ingress), // Implement this function based on your logic
 			}
@@ -117,12 +117,12 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 
 	err = r.List(ctx, serviceList, listOpts...)
 	if err != nil {
-		log.Error(err, "Failed to list services", "Framework.Namespace", f.Namespace, "Framework.Name", f.Name)
+		log.Error(err, "Failed to list services", "Rollout.Namespace", f.Namespace, "Rollout.Name", f.Name)
 		return err
 	}
 
 	// Collect information from the Services
-	var serviceStatuses []oneclickiov1.ServiceStatus
+	var serviceStatuses []oneclickiov1alpha1.ServiceStatus
 	for _, service := range serviceList.Items {
 		var ports []int32
 		for _, p := range service.Spec.Ports {
@@ -132,7 +132,7 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 		// Basic status check - customize this as necessary
 		status := "OK" // Example status, adjust based on your logic
 
-		serviceStatus := oneclickiov1.ServiceStatus{
+		serviceStatus := oneclickiov1alpha1.ServiceStatus{
 			Name:   service.Name,
 			Ports:  ports,
 			Status: status,
@@ -140,7 +140,7 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 		serviceStatuses = append(serviceStatuses, serviceStatus)
 	}
 
-	// Update the Framework status
+	// Update the Rollout status
 	f.Status.Services = serviceStatuses
 
 	// List the PVCs
@@ -152,12 +152,12 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 
 	err = r.List(ctx, pvcList, listOpts...)
 	if err != nil {
-		log.Error(err, "Failed to list PVCs", "Framework.Namespace", f.Namespace, "Framework.Name", f.Name)
+		log.Error(err, "Failed to list PVCs", "Rollout.Namespace", f.Namespace, "Rollout.Name", f.Name)
 		return err
 	}
 
 	// Collect information from the PVCs
-	var volumeStatuses []oneclickiov1.VolumeStatus
+	var volumeStatuses []oneclickiov1alpha1.VolumeStatus
 	for _, pvc := range pvcList.Items {
 		// Basic status check - customize this as necessary
 		status := "Unknown"
@@ -169,26 +169,26 @@ func (r *FrameworkReconciler) updateStatus(ctx context.Context, f *oneclickiov1.
 			status = "Lost"
 		}
 
-		volumeStatus := oneclickiov1.VolumeStatus{
+		volumeStatus := oneclickiov1alpha1.VolumeStatus{
 			Name:   pvc.Name,
 			Status: status,
 		}
 		volumeStatuses = append(volumeStatuses, volumeStatus)
 	}
 
-	// Update the Framework status
+	// Update the Rollout status
 	f.Status.Volumes = volumeStatuses
 
-	// Update the Framework status
+	// Update the Rollout status
 	if err := r.Status().Update(ctx, f); err != nil {
-		log.Error(err, "Failed to update Framework status")
+		log.Error(err, "Failed to update Rollout status")
 		return err
 	}
 
 	return nil
 }
 
-func (r *FrameworkReconciler) getDeploymentReplicas(ctx context.Context, f *oneclickiov1.Framework) (int32, error) {
+func (r *RolloutReconciler) getDeploymentReplicas(ctx context.Context, f *oneclickiov1alpha1.Rollout) (int32, error) {
 	log := log.FromContext(ctx)
 
 	// Get the deployment

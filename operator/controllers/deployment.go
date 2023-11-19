@@ -14,14 +14,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 )
 
-func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
 	// Get the desired state of the Deployment from the helper function
-	desiredDeployment := r.deploymentForFramework(f)
+	desiredDeployment := r.deploymentForRollout(f)
 
 	// Check if the Deployment already exists
 	foundDeployment := &appsv1.Deployment{}
@@ -57,7 +57,7 @@ func (r *FrameworkReconciler) reconcileDeployment(ctx context.Context, f *onecli
 	return nil
 }
 
-func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) *appsv1.Deployment {
+func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) *appsv1.Deployment {
 	labels := map[string]string{"framework.one-click.io/name": f.Name}
 	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
 
@@ -137,7 +137,7 @@ func (r *FrameworkReconciler) deploymentForFramework(f *oneclickiov1.Framework) 
 	return dep
 }
 
-func getContainerPorts(interfaces []oneclickiov1.InterfaceSpec) []corev1.ContainerPort {
+func getContainerPorts(interfaces []oneclickiov1alpha1.InterfaceSpec) []corev1.ContainerPort {
 	var ports []corev1.ContainerPort
 	for _, i := range interfaces {
 		ports = append(ports, corev1.ContainerPort{
@@ -147,7 +147,7 @@ func getContainerPorts(interfaces []oneclickiov1.InterfaceSpec) []corev1.Contain
 	return ports
 }
 
-func getEnvVars(envVars []oneclickiov1.EnvVar) []corev1.EnvVar {
+func getEnvVars(envVars []oneclickiov1alpha1.EnvVar) []corev1.EnvVar {
 	var envs []corev1.EnvVar
 	for _, env := range envVars {
 		envs = append(envs, corev1.EnvVar{
@@ -158,7 +158,7 @@ func getEnvVars(envVars []oneclickiov1.EnvVar) []corev1.EnvVar {
 	return envs
 }
 
-func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
+func needsUpdate(current *appsv1.Deployment, f *oneclickiov1alpha1.Rollout) bool {
 	// Check replicas
 	if *current.Spec.Replicas != int32(f.Spec.HorizontalScale.MinReplicas) {
 		return true
@@ -217,12 +217,12 @@ func needsUpdate(current *appsv1.Deployment, f *oneclickiov1.Framework) bool {
 	return false
 }
 
-func volumesMatch(currentVolumes []corev1.Volume, desiredVolumes []oneclickiov1.VolumeSpec) bool {
+func volumesMatch(currentVolumes []corev1.Volume, desiredVolumes []oneclickiov1alpha1.VolumeSpec) bool {
 	if len(currentVolumes) != len(desiredVolumes) {
 		return false
 	}
 
-	desiredVolumeMap := make(map[string]oneclickiov1.VolumeSpec)
+	desiredVolumeMap := make(map[string]oneclickiov1alpha1.VolumeSpec)
 	for _, v := range desiredVolumes {
 		desiredVolumeMap[v.Name] = v
 	}
@@ -230,7 +230,7 @@ func volumesMatch(currentVolumes []corev1.Volume, desiredVolumes []oneclickiov1.
 	for _, currentVolume := range currentVolumes {
 		volSpec, exists := desiredVolumeMap[currentVolume.Name]
 		if !exists {
-			// Volume is present in Deployment but not in Framework spec
+			// Volume is present in Deployment but not in Rollout spec
 			return false
 		}
 
@@ -244,7 +244,7 @@ func volumesMatch(currentVolumes []corev1.Volume, desiredVolumes []oneclickiov1.
 	return true
 }
 
-func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1.InterfaceSpec) bool {
+func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1alpha1.InterfaceSpec) bool {
 	if len(currentPorts) != len(interfaces) {
 		return false
 	}
@@ -263,7 +263,7 @@ func portsMatch(currentPorts []corev1.ContainerPort, interfaces []oneclickiov1.I
 	return true
 }
 
-func createResourceRequirements(resources oneclickiov1.ResourceRequirements) corev1.ResourceRequirements {
+func createResourceRequirements(resources oneclickiov1alpha1.ResourceRequirements) corev1.ResourceRequirements {
 	return corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse(resources.Requests.CPU),
@@ -276,7 +276,7 @@ func createResourceRequirements(resources oneclickiov1.ResourceRequirements) cor
 	}
 }
 
-func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) {
+func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1alpha1.Rollout) {
 	// Update replicas
 	deployment.Spec.Replicas = &f.Spec.HorizontalScale.MinReplicas
 
@@ -333,7 +333,7 @@ func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1.Framework) 
 	deployment.Spec.Template.Spec.ServiceAccountName = f.Spec.ServiceAccountName
 }
 
-func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1.InterfaceSpec) {
+func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1alpha1.InterfaceSpec) {
 	var ports []corev1.ContainerPort
 	for _, intf := range interfaces {
 		ports = append(ports, corev1.ContainerPort{ContainerPort: intf.Port})
@@ -342,7 +342,7 @@ func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1
 	container.Ports = ports
 }
 
-func updateVolumes(currentVolumes *[]corev1.Volume, volumes []oneclickiov1.VolumeSpec) {
+func updateVolumes(currentVolumes *[]corev1.Volume, volumes []oneclickiov1alpha1.VolumeSpec) {
 	var newVolumes []corev1.Volume
 	for _, vol := range volumes {
 		newVolumes = append(newVolumes, corev1.Volume{
