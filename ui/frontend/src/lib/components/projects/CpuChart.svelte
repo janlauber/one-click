@@ -44,8 +44,8 @@
     },
     series: [
       {
-        name: "Deployments",
-        data: [200, 250, 300, 280, 320, 310], // Mock data for deployments
+        name: "Rollouts",
+        data: [200, 250, 300, 280, 320, 310], // Mock data for rollouts
         color: "#1A56DB"
       }
     ],
@@ -80,12 +80,12 @@
       <h5
         class="inline-flex items-center text-gray-500 dark:text-gray-400 leading-none font-normal mb-2"
       >
-        Deployments
+        Rollouts
         <InfoCircleSolid
           id="b1"
           class="w-3 h-3 text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer ml-1"
         />
-        <!-- You may want to update Popover content to reflect Deployments context -->
+        <!-- You may want to update Popover content to reflect Rollouts context -->
       </h5>
       <p class="text-gray-900 dark:text-white text-2xl leading-none font-bold">1.3k</p> <!-- Update this figure as needed -->
     </div>

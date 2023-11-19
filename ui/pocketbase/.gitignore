@@ -7,3 +7,4 @@
 ./pocketbase
 one-click
 vendor/
+.rollouts/

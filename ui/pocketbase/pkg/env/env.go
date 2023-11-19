@@ -7,7 +7,8 @@ import (
 )
 
 type config struct {
-	Local bool `env:"LOCAL"`
+	Local             bool   `env:"LOCAL"`
+	DefaultRolloutDir string `env:"DEFAULT_ROLLOUT_DIR" envDefault:".rollouts"`
 }
 
 var Config config

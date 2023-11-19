@@ -6,7 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/labstack/echo/v5"
 	"github.com/natrontech/one-click/hooks"
+	"github.com/natrontech/one-click/pkg/controller"
 	"github.com/natrontech/one-click/pkg/env"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -62,6 +64,53 @@ func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS(publicDirFlag), true))
+
+		return nil
+	})
+
+	app.OnRecordBeforeCreateRequest().Add(func(e *core.RecordCreateEvent) error {
+		switch e.Collection.Name {
+		case "rollouts":
+			return controller.HandleRolloutCreate(e, app)
+		}
+		return nil
+	})
+
+	app.OnRecordBeforeUpdateRequest().Add(func(e *core.RecordUpdateEvent) error {
+		switch e.Collection.Name {
+		case "rollouts":
+			return controller.HandleRolloutUpdate(e, app)
+		}
+		return nil
+	})
+
+	app.OnRecordBeforeDeleteRequest().Add(func(e *core.RecordDeleteEvent) error {
+		switch e.Collection.Name {
+		case "rollouts":
+			return controller.HandleRolloutDelete(e, app)
+		}
+		return nil
+	})
+
+	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		// serve frameworks yaml rollouts from projects with revision of rollout
+		e.Router.GET("/rollouts/:project", func(c echo.Context) error {
+			project := c.PathParam("project")
+
+			return controller.HandleRolloutGetAll(c, app, project)
+		})
+		e.Router.GET("/rollouts/:project/:revision", func(c echo.Context) error {
+			project := c.PathParam("project")
+			revision := c.PathParam("revision")
+
+			return controller.HandleRolloutGet(c, app, project, revision)
+		})
+		e.Router.POST("/rollouts/:project/:revision", func(c echo.Context) error {
+			project := c.PathParam("project")
+			revision := c.PathParam("revision")
+
+			return controller.HandleRolloutPost(c, app, project, revision)
+		})
 
 		return nil
 	})
