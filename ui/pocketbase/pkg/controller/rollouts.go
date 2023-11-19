@@ -16,21 +16,38 @@ import (
 
 func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) error {
 
-	log.Println("HandleRolloutCreate")
-
 	return nil
 }
 
 func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) error {
-
-	log.Println("HandleRolloutUpdate")
 
 	return nil
 }
 
 func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) error {
 
-	log.Println("HandleRolloutDelete")
+	// Get rollout
+	rollout, err := app.Dao().FindRecordById("rollouts", e.Record.GetString("id"))
+	if err != nil {
+		return err
+	}
+
+	log.Println("Deleting rollout: " + rollout.GetString("id"))
+
+	// Get project
+	project, err := app.Dao().FindRecordById("projects", e.Record.GetString("projectId"))
+	if err != nil {
+		return err
+	}
+
+	log.Println("Deleting rollout: " + rollout.GetString("rolloutId"))
+	log.Println("Deleting project: " + project.GetString("projectId"))
+
+	// err = k8s.DeleteRollout(project.Id, rollout.Id)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return err
+	// }
 
 	return nil
 }
@@ -114,4 +131,15 @@ func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, projectId str
 	}
 
 	return nil
+}
+
+func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+	// Get rollout status
+	status, err := k8s.GetRolloutStatus(projectId, rollout)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return c.JSON(200, status)
 }
