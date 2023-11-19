@@ -89,8 +89,11 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 
 func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) *corev1.Service {
 	labels := map[string]string{
-		"app":        f.Name,
-		"managed-by": "framework-operator", // Unique label to identify operator-managed services
+		"framework.one-click.io/name": f.Name,
+		"managed-by":                  "framework-operator", // Unique label to identify operator-managed services
+	}
+	selectorLabels := map[string]string{
+		"framework.one-click.io/name": f.Name,
 	}
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -99,7 +102,7 @@ func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, int
 			Labels:    labels,
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: labels,
+			Selector: selectorLabels,
 			Ports:    getServicePorts(intf),
 			Type:     corev1.ServiceTypeClusterIP, // Default to ClusterIP, modify if needed
 		},
