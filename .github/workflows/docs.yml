@@ -1,0 +1,23 @@
+name: Documentation Typo Check
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+  pull_request:
+    paths:
+      - 'docs/**'
+
+jobs:
+  typo-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Check for Typos
+      uses: crate-ci/typos@v1.16.23
+      with:
+        files: |
+          docs/**/*.md

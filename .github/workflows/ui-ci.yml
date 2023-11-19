@@ -1,4 +1,4 @@
-name: CI
+name: UI CI
 on:
   push:
     branches: [ main ]

@@ -1,0 +1,25 @@
+name: Kubernetes Operator CI
+
+on:
+  push:
+    paths:
+      - 'operator/**'
+  pull_request:
+    paths:
+      - 'operator/**'
+
+jobs:
+  build-and-test-operator:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Docker Image
+      run: make docker-build
+
+    - name: Run Tests
+      run: make test
