@@ -1,29 +1,31 @@
 <script lang="ts">
   import { navigating, page } from "$app/stores";
-
   import selectedProjectId from "$lib/stores/project";
   import { Cog, LineChart, Rocket } from "lucide-svelte";
 
-  let items = [
+  // Function to generate items array
+  const generateItems = (projectId: string) => [
     {
       name: "Overview",
-      href: `/app/projects/${$selectedProjectId}/overview`,
+      href: `/app/projects/${projectId}/overview`,
       current: false,
       icon: LineChart
     },
     {
       name: "Rollouts",
-      href: `/app/projects/${$selectedProjectId}/rollouts`,
+      href: `/app/projects/${projectId}/rollouts`,
       current: false,
       icon: Rocket
     },
     {
       name: "Settings",
-      href: `/app/projects/${$selectedProjectId}/settings`,
+      href: `/app/projects/${projectId}/settings`,
       current: false,
       icon: Cog
     }
   ];
+
+  let items = generateItems($selectedProjectId);
 
   function setCurrentItem() {
     items = items.map((item) => {
@@ -36,12 +38,12 @@
     });
   }
 
-  $: setCurrentItem();
+  $: items = generateItems($selectedProjectId); // Regenerate items on projectId change
+  $: setCurrentItem(); // Call setCurrentItem whenever items are updated
 
   $: if ($page) {
-    setCurrentItem()
+    setCurrentItem();
   }
-
 </script>
 
 <div class="flex flex-col gap-y-4" role="group" aria-labelledby="projects-headline">

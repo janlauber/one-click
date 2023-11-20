@@ -29,16 +29,18 @@
     });
   });
 
-  // on change of selectedProjectId, update the url
-  if ($page.url.pathname.startsWith("/app/projects/")) {
-    // get the slug after the id (e.g. /app/projects/123/overview -> overview)
-    const slug = $page.url.pathname.split("/")[4];
-    if ($selectedProjectId) {
-      selectedProjectId.subscribe((value) => {
-        if (value) {
-          goto(`/app/projects/${value}/${slug}`);
+  $: {
+    if ($page.url.pathname.startsWith("/app/projects/")) {
+      const pathParts = $page.url.pathname.split("/");
+      const currentProjectId = pathParts[3];
+      const slug = pathParts[4];
+
+      if ($selectedProjectId && slug && currentProjectId !== $selectedProjectId) {
+        const targetUrl = `/app/projects/${$selectedProjectId}/${slug}`;
+        if ($page.url.pathname !== targetUrl) {
+          goto(targetUrl);
         }
-      });
+      }
     }
   }
 </script>
