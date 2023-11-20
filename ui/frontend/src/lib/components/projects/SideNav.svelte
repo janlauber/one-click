@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { navigating, page } from "$app/stores";
 
   import selectedProjectId from "$lib/stores/project";
   import { Cog, LineChart, Rocket } from "lucide-svelte";
@@ -25,14 +25,23 @@
     }
   ];
 
-  $: items = items.map((item) => {
-    if ($page.url.pathname.startsWith(item.href)) {
-      item.current = true;
-    } else {
-      item.current = false;
-    }
-    return item;
-  });
+  function setCurrentItem() {
+    items = items.map((item) => {
+      if ($page.url.pathname.startsWith(item.href)) {
+        item.current = true;
+      } else {
+        item.current = false;
+      }
+      return item;
+    });
+  }
+
+  $: setCurrentItem();
+
+  $: if ($page) {
+    setCurrentItem()
+  }
+
 </script>
 
 <div class="flex flex-col gap-y-4" role="group" aria-labelledby="projects-headline">

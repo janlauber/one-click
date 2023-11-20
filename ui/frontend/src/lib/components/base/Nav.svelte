@@ -16,7 +16,6 @@
     Select,
     type SelectOptionType
   } from "flowbite-svelte";
-  import { ChevronsUpDown } from "lucide-svelte";
 
   let avatarUrlString: any = avatarUrl();
   let projectsChoices: SelectOptionType<any>[] | undefined;
