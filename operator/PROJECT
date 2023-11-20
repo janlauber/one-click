@@ -12,11 +12,11 @@ projectName: operator
 repo: github.com/janlauber/one-click
 resources:
 - api:
-    crdVersion: v1
+    crdVersion: v1alpha1
     namespaced: true
   controller: true
   domain: one-click.io
-  kind: Framework
-  path: github.com/janlauber/one-click/operator/api/v1
-  version: v1
+  kind: Rollout
+  path: github.com/janlauber/one-click/operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

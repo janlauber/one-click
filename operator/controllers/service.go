@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,16 +15,16 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileService(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Keep track of services that should exist according to the Framework spec
+	// Keep track of services that should exist according to the Rollout spec
 	expectedServices := make(map[string]bool)
 	for _, intf := range f.Spec.Interfaces {
 
 		expectedServices[intf.Name+"-svc"] = true
 		// Process each interface
-		service := r.serviceForFramework(f, intf)
+		service := r.serviceForRollout(f, intf)
 
 		foundService := &corev1.Service{}
 		err := r.Get(ctx, types.NamespacedName{Name: service.Name, Namespace: f.Namespace}, foundService)
@@ -61,7 +61,7 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 		}
 	}
 
-	// Delete services that are no longer specified in the Framework spec
+	// Delete services that are no longer specified in the Rollout spec
 	serviceList := &corev1.ServiceList{}
 	listOpts := []client.ListOption{client.InNamespace(f.Namespace)}
 	err := r.List(ctx, serviceList, listOpts...)
@@ -87,13 +87,13 @@ func (r *FrameworkReconciler) reconcileService(ctx context.Context, f *oneclicki
 	return nil
 }
 
-func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) *corev1.Service {
+func (r *RolloutReconciler) serviceForRollout(f *oneclickiov1alpha1.Rollout, intf oneclickiov1alpha1.InterfaceSpec) *corev1.Service {
 	labels := map[string]string{
-		"framework.one-click.io/name": f.Name,
-		"managed-by":                  "framework-operator", // Unique label to identify operator-managed services
+		"rollout.one-click.io/name": f.Name,
+		"managed-by":                "framework-operator", // Unique label to identify operator-managed services
 	}
 	selectorLabels := map[string]string{
-		"framework.one-click.io/name": f.Name,
+		"rollout.one-click.io/name": f.Name,
 	}
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -108,12 +108,12 @@ func (r *FrameworkReconciler) serviceForFramework(f *oneclickiov1.Framework, int
 		},
 	}
 
-	// Set Framework instance as the owner and controller
+	// Set Rollout instance as the owner and controller
 	ctrl.SetControllerReference(f, svc, r.Scheme)
 	return svc
 }
 
-func getServicePorts(intf oneclickiov1.InterfaceSpec) []corev1.ServicePort {
+func getServicePorts(intf oneclickiov1alpha1.InterfaceSpec) []corev1.ServicePort {
 	return []corev1.ServicePort{
 		{
 			Name:       intf.Name,

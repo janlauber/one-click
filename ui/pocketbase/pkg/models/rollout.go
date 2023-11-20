@@ -1,6 +1,6 @@
 package models
 
-type Framework struct {
+type Rollout struct {
 	APIVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
 	Metadata   struct {
@@ -57,4 +57,35 @@ type Framework struct {
 		} `yaml:"interfaces"`
 		ServiceAccountName string `yaml:"serviceAccountName"`
 	} `yaml:"spec"`
+}
+
+type DeploymentStatus struct {
+	Replicas int32    `json:"replicas"`
+	PodNames []string `json:"podNames"`
+	Status   string   `json:"status"`
+}
+
+type ServiceStatus struct {
+	Name   string  `json:"name"`
+	Ports  []int32 `json:"ports"`
+	Status string  `json:"status"`
+}
+
+type IngressStatus struct {
+	Name   string   `json:"name"`
+	Hosts  []string `json:"hosts"`
+	Status string   `json:"status"`
+}
+
+type VolumeStatus struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+// RolloutStatus defines the observed state of Rollout
+type RolloutStatus struct {
+	Deployment DeploymentStatus `json:"deployment"`
+	Services   []ServiceStatus  `json:"services,omitempty"`
+	Ingresses  []IngressStatus  `json:"ingresses,omitempty"`
+	Volumes    []VolumeStatus   `json:"volumes,omitempty"`
 }

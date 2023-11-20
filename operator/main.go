@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	"github.com/janlauber/one-click/controllers"
 	//+kubebuilder:scaffold:imports
 )
@@ -44,7 +44,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(oneclickiov1.AddToScheme(scheme))
+	utilruntime.Must(oneclickiov1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -92,12 +92,12 @@ func main() {
 	// Initialize the event recorder
 	eventRecorder := mgr.GetEventRecorderFor("framework-controller")
 
-	if err = (&controllers.FrameworkReconciler{
+	if err = (&controllers.RolloutReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
 		Recorder: eventRecorder,
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Framework")
+		setupLog.Error(err, "unable to create controller", "controller", "Rollout")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

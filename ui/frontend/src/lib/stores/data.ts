@@ -8,9 +8,14 @@ import { writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
 export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
+export type Rexpand = {
+    project: ProjectsResponse;
+};
+export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
+    RolloutsResponse<Rexpand>[]
+>([]);
 export type Pexpand = {
     framework: FrameworksResponse;
-    rollouts: RolloutsResponse[];
 };
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
@@ -21,7 +26,7 @@ export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = 
 >(undefined);
 
 export enum UpdateFilterEnum {
-    ALL = "all",
+    ALL = "all"
 }
 
 export interface UpdateFilter {
@@ -33,6 +38,7 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
     if (filter.filter === UpdateFilterEnum.ALL) {
         await updateFrameworks();
         await updateProjects(filter.projectId);
+        await updateRollouts(filter.projectId);
     }
 }
 
@@ -50,6 +56,30 @@ export async function updateFrameworks() {
         });
 }
 
+export async function updateRollouts(projectId?: string) {
+    try {
+        const response = await fetchRollouts();
+        if (projectId) {
+            // set selected project
+            selectedProjectId.set(projectId);
+            // @ts-ignore
+            rollouts.set(response.filter((rollout) => rollout.expand?.project.id === projectId));
+        }
+        rollouts.set(response);
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchRollouts(): Promise<RolloutsResponse<Rexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "project"
+    };
+
+    return await client.collection("rollouts").getFullList<RolloutsResponse<Rexpand>>(queryOptions);
+}
+
 export async function updateProjects(projectId?: string) {
     try {
         const response = await fetchProjects();
@@ -59,8 +89,6 @@ export async function updateProjects(projectId?: string) {
             selectedProject.set(response.find((project) => project.id === projectId));
         }
         projects.set(response);
-
-        sortProjectsRollouts();
     } catch (error) {
         // Handle error
     }
@@ -69,25 +97,8 @@ export async function updateProjects(projectId?: string) {
 async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
     const queryOptions = {
         sort: "-created",
-        expand: "framework,rollouts"
+        expand: "framework"
     };
 
     return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
-}
-
-function sortProjectsRollouts() {
-    projects.update((projects) => {
-        projects.forEach((project) => {
-            project.expand?.rollouts.sort((a, b) => {
-                if (a.startDate > b.startDate) {
-                    return -1;
-                }
-                if (a.startDate < b.startDate) {
-                    return 1;
-                }
-                return 0;
-            });
-        });
-        return projects;
-    });
 }

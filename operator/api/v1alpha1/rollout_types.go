@@ -14,11 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
+package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type ImageSpec struct {
 	Registry   string `json:"registry"`
@@ -77,8 +80,8 @@ type IngressRule struct {
 	TLS  bool   `json:"tls"`
 }
 
-// FrameworkSpec defines the desired state of Framework
-type FrameworkSpec struct {
+// RolloutSpec defines the desired state of Rollout
+type RolloutSpec struct {
 	Image              ImageSpec            `json:"image"`
 	HorizontalScale    HorizontalScaleSpec  `json:"horizontalScale"`
 	Resources          ResourceRequirements `json:"resources"`
@@ -112,8 +115,8 @@ type VolumeStatus struct {
 	Status string `json:"status"`
 }
 
-// FrameworkStatus defines the observed state of Framework
-type FrameworkStatus struct {
+// RolloutStatus defines the observed state of Rollout
+type RolloutStatus struct {
 	Deployment DeploymentStatus `json:"deployment"`
 	Services   []ServiceStatus  `json:"services,omitempty"`
 	Ingresses  []IngressStatus  `json:"ingresses,omitempty"`
@@ -128,23 +131,23 @@ type FrameworkStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-type Framework struct {
+type Rollout struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   FrameworkSpec   `json:"spec,omitempty"`
-	Status FrameworkStatus `json:"status,omitempty"`
+	Spec   RolloutSpec   `json:"spec,omitempty"`
+	Status RolloutStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// FrameworkList contains a list of Framework
-type FrameworkList struct {
+// RolloutList contains a list of Rollout
+type RolloutList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Framework `json:"items"`
+	Items           []Rollout `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Framework{}, &FrameworkList{})
+	SchemeBuilder.Register(&Rollout{}, &RolloutList{})
 }

@@ -5,14 +5,14 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
-  name: frameworks.one-click.io
+  name: rollouts.one-click.io
 spec:
   group: one-click.io
   names:
-    kind: Framework
-    listKind: FrameworkList
-    plural: frameworks
-    singular: framework
+    kind: Rollout
+    listKind: RolloutList
+    plural: rollouts
+    singular: rollout
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -31,7 +31,7 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
-    name: v1
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:
@@ -48,7 +48,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: FrameworkSpec defines the desired state of Framework
+            description: RolloutSpec defines the desired state of Rollout
             properties:
               env:
                 items:
@@ -195,7 +195,7 @@ spec:
             - serviceAccountName
             type: object
           status:
-            description: FrameworkStatus defines the observed state of Framework
+            description: RolloutStatus defines the observed state of Rollout
             properties:
               deployment:
                 properties:

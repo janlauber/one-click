@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -15,16 +15,16 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileIngress(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Track the ingresses that should exist based on the Framework spec
+	// Track the ingresses that should exist based on the Rollout spec
 	expectedIngresses := make(map[string]bool)
 	for _, intf := range f.Spec.Interfaces {
 		// Process each interface
 		if intf.Ingress.IngressClass != "" || len(intf.Ingress.Rules) > 0 {
 			expectedIngresses[intf.Name+"-ingress"] = true
-			ingress := r.ingressForFramework(f, intf)
+			ingress := r.ingressForRollout(f, intf)
 
 			foundIngress := &networkingv1.Ingress{}
 			err := r.Get(ctx, types.NamespacedName{Name: ingress.Name, Namespace: f.Namespace}, foundIngress)
@@ -126,8 +126,8 @@ func (r *FrameworkReconciler) reconcileIngress(ctx context.Context, f *oneclicki
 	return nil
 }
 
-func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, intf oneclickiov1.InterfaceSpec) *networkingv1.Ingress {
-	labels := map[string]string{"framework.one-click.io/name": f.Name}
+func (r *RolloutReconciler) ingressForRollout(f *oneclickiov1alpha1.Rollout, intf oneclickiov1alpha1.InterfaceSpec) *networkingv1.Ingress {
+	labels := map[string]string{"rollout.one-click.io/name": f.Name}
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        intf.Name + "-ingress", // Create a unique name for the Ingress
@@ -191,12 +191,12 @@ func (r *FrameworkReconciler) ingressForFramework(f *oneclickiov1.Framework, int
 		}
 	}
 
-	// Set Framework instance as the owner and controller
+	// Set Rollout instance as the owner and controller
 	ctrl.SetControllerReference(f, ingress, r.Scheme)
 	return ingress
 }
 
-func getIngressRules(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressRule {
+func getIngressRules(intf oneclickiov1alpha1.InterfaceSpec) []networkingv1.IngressRule {
 	var rules []networkingv1.IngressRule
 
 	for _, rule := range intf.Ingress.Rules {
@@ -230,7 +230,7 @@ func getIngressRules(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressRule
 	return rules
 }
 
-func getIngressTLS(intf oneclickiov1.InterfaceSpec) []networkingv1.IngressTLS {
+func getIngressTLS(intf oneclickiov1alpha1.InterfaceSpec) []networkingv1.IngressTLS {
 	var tlsConfigs []networkingv1.IngressTLS
 
 	// Loop over each rule defined in the ingress path

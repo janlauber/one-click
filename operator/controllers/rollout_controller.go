@@ -19,6 +19,10 @@ package controllers
 import (
 	"context"
 
+	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
@@ -26,11 +30,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 )
 
-// FrameworkReconciler reconciles a Framework object
-type FrameworkReconciler struct {
+// RolloutReconciler reconciles a Rollout object
+type RolloutReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
 	Recorder record.EventRecorder
@@ -62,68 +66,68 @@ type FrameworkReconciler struct {
 //+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/finalizers,verbs=update
 //+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	// Fetch the Framework instance
-	var framework oneclickiov1.Framework
-	if err := r.Get(ctx, req.NamespacedName, &framework); err != nil {
+	// Fetch the Rollout instance
+	var rollout oneclickiov1alpha1.Rollout
+	if err := r.Get(ctx, req.NamespacedName, &rollout); err != nil {
 		if errors.IsNotFound(err) {
 			// Object not found, could have been deleted after reconcile request, return and don't requeue
-			log.Info("Framework resource not found. Ignoring since object must be deleted.")
+			log.Info("Rollout resource not found. Ignoring since object must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Framework.")
+		log.Error(err, "Failed to get Rollout.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile ServiceAccount
-	if err := r.reconcileServiceAccount(ctx, &framework); err != nil {
+	if err := r.reconcileServiceAccount(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile ServiceAccount.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile PVCs only if volumes are defined
-	if len(framework.Spec.Volumes) > 0 {
-		if err := r.reconcilePVCs(ctx, &framework); err != nil {
+	if len(rollout.Spec.Volumes) > 0 {
+		if err := r.reconcilePVCs(ctx, &rollout); err != nil {
 			log.Error(err, "Failed to reconcile PVCs.")
 			return ctrl.Result{}, err
 		}
 	}
 
 	// Reconcile Secrets
-	if err := r.reconcileSecret(ctx, &framework); err != nil {
+	if err := r.reconcileSecret(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile Secrets.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile Deployment
-	if err := r.reconcileDeployment(ctx, &framework); err != nil {
+	if err := r.reconcileDeployment(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile Deployment.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile Service
-	if err := r.reconcileService(ctx, &framework); err != nil {
+	if err := r.reconcileService(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile Service.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile Ingress
-	if err := r.reconcileIngress(ctx, &framework); err != nil {
+	if err := r.reconcileIngress(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile Ingress.")
 		return ctrl.Result{}, err
 	}
 
 	// Reconcile HPA
-	if err := r.reconcileHPA(ctx, &framework); err != nil {
+	if err := r.reconcileHPA(ctx, &rollout); err != nil {
 		log.Error(err, "Failed to reconcile HPA.")
 		return ctrl.Result{}, err
 	}
 
 	// Update status
-	if err := r.updateStatus(ctx, &framework); err != nil {
+	if err := r.updateStatus(ctx, &rollout); err != nil {
 		if errors.IsConflict(err) {
 			log.Info("Conflict while updating status. Retrying.")
 			return ctrl.Result{Requeue: true}, nil
@@ -136,8 +140,15 @@ func (r *FrameworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *FrameworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *RolloutReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&oneclickiov1.Framework{}).
+		For(&oneclickiov1alpha1.Rollout{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&networkingv1.Ingress{}).
+		Owns(&corev1.Secret{}).
+		Owns(&corev1.PersistentVolumeClaim{}).
+		Owns(&autoscalingv2.HorizontalPodAutoscaler{}).
+		Owns(&corev1.ServiceAccount{}).
 		Complete(r)
 }

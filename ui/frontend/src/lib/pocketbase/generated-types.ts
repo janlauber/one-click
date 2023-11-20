@@ -43,19 +43,17 @@ export type FrameworksRecord = {
 }
 
 export type ProjectsRecord = {
-	endPoint?: string
 	framework: RecordIdString
 	name: string
-	rollouts?: RecordIdString[]
-	statusEndPoint: string
 	tags?: string
 	user: RecordIdString
 }
 
-export type RolloutsRecord = {
+export type RolloutsRecord<Tmanifest = unknown> = {
 	endDate?: IsoDateString
-	revision?: number
-	startDate: IsoDateString
+	manifest: null | Tmanifest
+	project: RecordIdString
+	startDate?: IsoDateString
 	user: RecordIdString
 }
 
@@ -67,7 +65,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type FrameworksResponse<Texpand = unknown> = Required<FrameworksRecord> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
-export type RolloutsResponse<Texpand = unknown> = Required<RolloutsRecord> & BaseSystemFields<Texpand>
+export type RolloutsResponse<Tmanifest = unknown, Texpand = unknown> = Required<RolloutsRecord<Tmanifest>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions

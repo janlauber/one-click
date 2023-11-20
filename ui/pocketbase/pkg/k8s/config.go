@@ -3,10 +3,12 @@ package k8s
 import (
 	"context"
 	"flag"
+	"log"
 	"path/filepath"
 
 	"github.com/natrontech/one-click/pkg/env"
 	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -15,6 +17,7 @@ import (
 
 var (
 	Clientset       *kubernetes.Clientset
+	DynamicClient   dynamic.Interface
 	Kubeconfig      *rest.Config
 	DiscoveryClient *discovery.DiscoveryClient
 	Ctx             context.Context
@@ -33,37 +36,30 @@ func Init() {
 
 		Kubeconfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 		if err != nil {
-			panic(err)
+			log.Fatalf("Failed to build kubeconfig: %v", err)
 		}
-
-		DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(Kubeconfig)
-		if err != nil {
-			panic(err)
-		}
-
-		Clientset, err = kubernetes.NewForConfig(Kubeconfig)
-		if err != nil {
-			panic(err)
-		}
-
-		Ctx = context.Background()
 	} else {
 		Kubeconfig, err = rest.InClusterConfig()
 		if err != nil {
-			panic(err.Error())
+			log.Fatalf("Failed to get in-cluster config: %v", err)
 		}
+	}
 
-		DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(Kubeconfig)
-		if err != nil {
-			panic(err)
-		}
+	DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(Kubeconfig)
+	if err != nil {
+		log.Fatalf("Failed to create discovery client: %v", err)
+	}
 
-		Clientset, err = kubernetes.NewForConfig(Kubeconfig)
-		if err != nil {
-			panic(err)
-		}
+	Clientset, err = kubernetes.NewForConfig(Kubeconfig)
+	if err != nil {
+		log.Fatalf("Failed to create Kubernetes clientset: %v", err)
+	}
 
-		Ctx = context.Background()
+	Ctx = context.Background()
+
+	DynamicClient, err = dynamic.NewForConfig(Kubeconfig)
+	if err != nil {
+		log.Fatalf("Failed to create dynamic client: %v", err)
 	}
 }
 

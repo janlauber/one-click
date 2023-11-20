@@ -1,0 +1,80 @@
+{
+  "apiVersion": "one-click.io/v1alpha1",
+  "kind": "Rollout",
+  "spec": {
+    "env": [
+      {
+        "name": "REFLEX_USERNAME",
+        "value": "admin"
+      },
+      {
+        "name": "DEBUG",
+        "value": "true"
+      }
+    ],
+    "horizontalScale": {
+      "minReplicas": 1,
+      "maxReplicas": 2,
+      "targetCPUUtilizationPercentage": 80
+    },
+    "image": {
+      "registry": "docker.io",
+      "repository": "nginx",
+      "tag": "latest"
+    },
+    "interfaces": [
+      {
+        "ingress": {
+          "annotations": {
+            "nginx.ingress.kubernetes.io/rewrite-target": "/",
+            "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+          },
+          "ingressClass": "nginx",
+          "rules": [
+            {
+              "host": "reflex.oneclickapps.dev",
+              "path": "/test",
+              "tls": false
+            },
+            {
+              "host": "reflex.oneclickapps.dev",
+              "path": "/test",
+              "tls": false
+            }
+          ]
+        },
+        "name": "http",
+        "port": 80
+      },
+      {
+        "ingress": {
+          "annotations": {
+            "nginx.ingress.kubernetes.io/rewrite-target": "/",
+            "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+          },
+          "ingressClass": "nginx",
+          "rules": [
+            {
+              "host": "reflex.oneclickapps.dev",
+              "path": "/",
+              "tls": true
+            }
+          ]
+        },
+        "name": "https",
+        "port": 8443
+      }
+    ],
+    "resources": {
+      "limits": {
+        "cpu": "200m",
+        "memory": "256Mi"
+      },
+      "requests": {
+        "cpu": "100m",
+        "memory": "128Mi"
+      }
+    },
+    "serviceAccountName": "nginx"
+  }
+}

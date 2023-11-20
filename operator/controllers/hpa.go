@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -13,11 +13,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Construct the desired HPA object based on the Framework specification
-	desiredHpa, err := r.hpaForFramework(f)
+	// Construct the desired HPA object based on the Rollout specification
+	desiredHpa, err := r.hpaForRollout(f)
 	if err != nil {
 		log.Error(err, "Failed to construct HPA", "Namespace", f.Namespace, "Name", f.Name)
 		r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to construct HPA %s", f.Name)
@@ -62,7 +62,7 @@ func (r *FrameworkReconciler) reconcileHPA(ctx context.Context, f *oneclickiov1.
 	return nil
 }
 
-func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) (*autoscalingv2.HorizontalPodAutoscaler, error) {
+func (r *RolloutReconciler) hpaForRollout(f *oneclickiov1alpha1.Rollout) (*autoscalingv2.HorizontalPodAutoscaler, error) {
 	hpa := &autoscalingv2.HorizontalPodAutoscaler{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      f.Name,
@@ -96,7 +96,7 @@ func (r *FrameworkReconciler) hpaForFramework(f *oneclickiov1.Framework) (*autos
 	return hpa, nil
 }
 
-func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) bool {
+func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1alpha1.Rollout) bool {
 	// Check MinReplicas
 	if *current.Spec.MinReplicas != f.Spec.HorizontalScale.MinReplicas {
 		return true
@@ -115,7 +115,7 @@ func needsHpaUpdate(current *autoscalingv2.HorizontalPodAutoscaler, f *oneclicki
 	return false
 }
 
-func updateHpa(hpa *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1.Framework) {
+func updateHpa(hpa *autoscalingv2.HorizontalPodAutoscaler, f *oneclickiov1alpha1.Rollout) {
 	// Update MinReplicas
 	hpa.Spec.MinReplicas = &f.Spec.HorizontalScale.MinReplicas
 

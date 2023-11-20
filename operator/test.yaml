@@ -1,5 +1,5 @@
-apiVersion: one-click.io/v1
-kind: Framework
+apiVersion: one-click.io/v1alpha1
+kind: Rollout
 metadata:
   name: nginx
   namespace: test
@@ -19,11 +19,11 @@ spec:
     limits:
       cpu: "200m"
       memory: "256Mi"
-  env:
-    - name: "REFLEX_USERNAME"
-      value: "admin"
-    - name: DEBUG
-      value: "true"
+  # env:
+  #   - name: "REFLEX_USERNAME"
+  #     value: "admin"
+  #   - name: DEBUG
+  #     value: "true"
   secrets:
     - name: "REFLEX_PASSWORD"
       value: "admin"
@@ -37,6 +37,8 @@ spec:
   interfaces:
     - name: "http"
       port: 80
+    - name: "https"
+      port: 443
       # ingress:
       #   ingressClass: "nginx"
       #   annotations:

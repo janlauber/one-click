@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"strings"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,9 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func (r *FrameworkReconciler) reconcileSecret(ctx context.Context, f *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcileSecret(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
 	// Get the desired state of the Secret from the helper function
-	desiredSecret, err := r.secretForFramework(f)
+	desiredSecret, err := r.secretForRollout(f)
 	if err != nil {
 		log.Log.Error(err, "Failed to construct Secret", "Namespace", f.Namespace, "Name", f.Name)
 		r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to construct Secret %s", f.Name)
@@ -57,8 +57,8 @@ func (r *FrameworkReconciler) reconcileSecret(ctx context.Context, f *oneclickio
 	return nil
 }
 
-func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1.Framework) bool {
-	// If no secrets are specified in the Framework spec and the found secret is not empty, it needs to be deleted
+func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1alpha1.Rollout) bool {
+	// If no secrets are specified in the Rollout spec and the found secret is not empty, it needs to be deleted
 	if len(f.Spec.Secrets) == 0 && len(foundSecret.Data) > 0 {
 		return true
 	}
@@ -68,7 +68,7 @@ func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1.Framework) bo
 		return true
 	}
 
-	// Check if the content of the secret matches the Framework spec
+	// Check if the content of the secret matches the Rollout spec
 	for _, secretItem := range f.Spec.Secrets {
 		key := strings.TrimSpace(secretItem.Name)
 		if string(foundSecret.Data[key]) != secretItem.Value {
@@ -87,7 +87,7 @@ func needsSecretUpdate(foundSecret *corev1.Secret, f *oneclickiov1.Framework) bo
 	return false
 }
 
-func calculateSecretsChecksum(secrets []oneclickiov1.SecretItem) string {
+func calculateSecretsChecksum(secrets []oneclickiov1alpha1.SecretItem) string {
 	hash := sha256.New()
 	for _, secret := range secrets {
 		data := secret.Name + "=" + secret.Value
@@ -96,7 +96,7 @@ func calculateSecretsChecksum(secrets []oneclickiov1.SecretItem) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1.Framework) {
+func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1alpha1.Rollout) {
 	if len(f.Spec.Secrets) == 0 {
 		// Clear the secret data if no secrets are specified
 		foundSecret.Data = make(map[string][]byte)
@@ -111,7 +111,7 @@ func updateSecret(foundSecret *corev1.Secret, f *oneclickiov1.Framework) {
 	}
 }
 
-func (r *FrameworkReconciler) secretForFramework(f *oneclickiov1.Framework) (*corev1.Secret, error) {
+func (r *RolloutReconciler) secretForRollout(f *oneclickiov1alpha1.Rollout) (*corev1.Secret, error) {
 	secretData := make(map[string]string)
 	for _, secretItem := range f.Spec.Secrets {
 		key := strings.TrimSpace(secretItem.Name)
@@ -120,7 +120,7 @@ func (r *FrameworkReconciler) secretForFramework(f *oneclickiov1.Framework) (*co
 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      f.Name + "-secrets", // Naming the secret based on the Framework name
+			Name:      f.Name + "-secrets", // Naming the secret based on the Rollout name
 			Namespace: f.Namespace,
 		},
 		StringData: secretData,

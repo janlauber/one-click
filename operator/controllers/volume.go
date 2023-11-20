@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	oneclickiov1 "github.com/janlauber/one-click/api/v1"
+	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -14,31 +14,31 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// TODO: fix PVCs not being deleted when removed from Framework spec
+// TODO: fix PVCs not being deleted when removed from Rollout spec
 // TODO: crashes when volume size is increased
 
-func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *oneclickiov1.Framework) error {
+func (r *RolloutReconciler) reconcilePVCs(ctx context.Context, rollout *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Keep track of the PVCs that should exist according to the Framework specification
+	// Keep track of the PVCs that should exist according to the Rollout specification
 	expectedPVCs := make(map[string]struct{})
-	for _, volSpec := range framework.Spec.Volumes {
+	for _, volSpec := range rollout.Spec.Volumes {
 		expectedPVCs[volSpec.Name] = struct{}{}
-		desiredPvc := r.constructPVCForFramework(framework, volSpec)
+		desiredPvc := r.constructPVCForRollout(rollout, volSpec)
 
 		foundPvc := &corev1.PersistentVolumeClaim{}
-		err := r.Get(ctx, types.NamespacedName{Name: desiredPvc.Name, Namespace: framework.Namespace}, foundPvc)
+		err := r.Get(ctx, types.NamespacedName{Name: desiredPvc.Name, Namespace: rollout.Namespace}, foundPvc)
 		if err != nil && errors.IsNotFound(err) {
-			log.Info("Creating a new PVC", "PVC.Namespace", framework.Namespace, "PVC.Name", desiredPvc.Name)
+			log.Info("Creating a new PVC", "PVC.Namespace", rollout.Namespace, "PVC.Name", desiredPvc.Name)
 			err = r.Create(ctx, desiredPvc)
 			if err != nil {
-				r.Recorder.Eventf(framework, corev1.EventTypeWarning, "CreationFailed", "Failed to create PVC %s", desiredPvc.Name)
-				log.Error(err, "Failed to create new PVC", "PVC.Namespace", framework.Namespace, "PVC.Name", desiredPvc.Name)
+				r.Recorder.Eventf(rollout, corev1.EventTypeWarning, "CreationFailed", "Failed to create PVC %s", desiredPvc.Name)
+				log.Error(err, "Failed to create new PVC", "PVC.Namespace", rollout.Namespace, "PVC.Name", desiredPvc.Name)
 				return err
 			}
-			r.Recorder.Eventf(framework, corev1.EventTypeNormal, "Created", "Created PVC %s", desiredPvc.Name)
+			r.Recorder.Eventf(rollout, corev1.EventTypeNormal, "Created", "Created PVC %s", desiredPvc.Name)
 		} else if err != nil {
-			r.Recorder.Eventf(framework, corev1.EventTypeWarning, "GetFailed", "Failed to get PVC %s", desiredPvc.Name)
+			r.Recorder.Eventf(rollout, corev1.EventTypeWarning, "GetFailed", "Failed to get PVC %s", desiredPvc.Name)
 			log.Error(err, "Failed to get PVC")
 			return err
 		}
@@ -60,14 +60,14 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 
 	// Clean up PVCs that should no longer exist
 	pvcList := &corev1.PersistentVolumeClaimList{}
-	if err := r.List(ctx, pvcList, client.InNamespace(framework.Namespace)); err != nil {
+	if err := r.List(ctx, pvcList, client.InNamespace(rollout.Namespace)); err != nil {
 		log.Error(err, "Failed to list PVCs")
 		return err
 	}
 
 	for _, pvc := range pvcList.Items {
-		if _, exists := expectedPVCs[pvc.Name]; !exists && isOwnedByFramework(&pvc, framework) {
-			// PVC is owned by Framework but no longer in spec, delete it
+		if _, exists := expectedPVCs[pvc.Name]; !exists && isOwnedByRollout(&pvc, rollout) {
+			// PVC is owned by Rollout but no longer in spec, delete it
 			if err := r.Delete(ctx, &pvc); err != nil {
 				log.Error(err, "Failed to delete PVC", "PVC.Namespace", pvc.Namespace, "PVC.Name", pvc.Name)
 				return err
@@ -78,15 +78,15 @@ func (r *FrameworkReconciler) reconcilePVCs(ctx context.Context, framework *onec
 	return nil
 }
 
-func (r *FrameworkReconciler) constructPVCForFramework(framework *oneclickiov1.Framework, volSpec oneclickiov1.VolumeSpec) *corev1.PersistentVolumeClaim {
+func (r *RolloutReconciler) constructPVCForRollout(rollout *oneclickiov1alpha1.Rollout, volSpec oneclickiov1alpha1.VolumeSpec) *corev1.PersistentVolumeClaim {
 	labels := map[string]string{
-		"framework.one-click.io/name": framework.Name,
+		"rollout.one-click.io/name": rollout.Name,
 	}
 
 	pvc := &corev1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      volSpec.Name,
-			Namespace: framework.Namespace,
+			Namespace: rollout.Namespace,
 			Labels:    labels,
 		},
 		Spec: corev1.PersistentVolumeClaimSpec{
@@ -100,13 +100,13 @@ func (r *FrameworkReconciler) constructPVCForFramework(framework *oneclickiov1.F
 		},
 	}
 
-	ctrl.SetControllerReference(framework, pvc, r.Scheme)
+	ctrl.SetControllerReference(rollout, pvc, r.Scheme)
 	return pvc
 }
 
-func isOwnedByFramework(pvc *corev1.PersistentVolumeClaim, framework *oneclickiov1.Framework) bool {
+func isOwnedByRollout(pvc *corev1.PersistentVolumeClaim, rollout *oneclickiov1alpha1.Rollout) bool {
 	for _, ref := range pvc.GetOwnerReferences() {
-		if ref.Kind == "Framework" && ref.Name == framework.Name {
+		if ref.Kind == "Rollout" && ref.Name == rollout.Name {
 			return true
 		}
 	}

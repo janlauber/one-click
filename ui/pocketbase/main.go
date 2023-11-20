@@ -10,6 +10,7 @@ import (
 	"github.com/natrontech/one-click/hooks"
 	"github.com/natrontech/one-click/pkg/controller"
 	"github.com/natrontech/one-click/pkg/env"
+	"github.com/natrontech/one-click/pkg/k8s"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -27,8 +28,8 @@ func defaultPublicDir() string {
 }
 
 func init() {
-	// set the default public dir
 	env.Init()
+	k8s.Init()
 }
 
 func main() {
@@ -93,23 +94,12 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		// serve frameworks yaml rollouts from projects with revision of rollout
-		e.Router.GET("/rollouts/:project", func(c echo.Context) error {
-			project := c.PathParam("project")
+		// get status of a specific rollout
+		e.Router.GET("/rollouts/:projectId/:rolloutId/status", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			rolloutId := c.PathParam("rolloutId")
 
-			return controller.HandleRolloutGetAll(c, app, project)
-		})
-		e.Router.GET("/rollouts/:project/:revision", func(c echo.Context) error {
-			project := c.PathParam("project")
-			revision := c.PathParam("revision")
-
-			return controller.HandleRolloutGet(c, app, project, revision)
-		})
-		e.Router.POST("/rollouts/:project/:revision", func(c echo.Context) error {
-			project := c.PathParam("project")
-			revision := c.PathParam("revision")
-
-			return controller.HandleRolloutPost(c, app, project, revision)
+			return controller.HandleRolloutStatus(c, app, projectId, rolloutId)
 		})
 
 		return nil
