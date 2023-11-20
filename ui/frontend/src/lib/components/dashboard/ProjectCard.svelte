@@ -55,7 +55,7 @@
     </div>
   </div>
   <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
-    {#if these_rollouts}
+    {#if these_rollouts.length > 0}
       <div class="flex justify-between gap-x-4 py-3">
         <dt class="">Last rollout</dt>
         <dd class=" cursor-default">

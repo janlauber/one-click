@@ -43,10 +43,8 @@ export type FrameworksRecord = {
 }
 
 export type ProjectsRecord = {
-	endPoint?: string
 	framework: RecordIdString
 	name: string
-	statusEndPoint: string
 	tags?: string
 	user: RecordIdString
 }
@@ -55,7 +53,7 @@ export type RolloutsRecord<Tmanifest = unknown> = {
 	endDate?: IsoDateString
 	manifest: null | Tmanifest
 	project: RecordIdString
-	startDate: IsoDateString
+	startDate?: IsoDateString
 	user: RecordIdString
 }
 
