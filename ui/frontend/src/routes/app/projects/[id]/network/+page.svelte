@@ -4,9 +4,9 @@
 
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
-    <Heading tag="h2">Settings</Heading>
+    <Heading tag="h2">Network</Heading>
     <P class="text-gray-500 dark:text-gray-400 text-sm">
-      Settings of your project.
+      Network interface for your rollout.
     </P>
   </div>
 </div>

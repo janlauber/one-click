@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigating, page } from "$app/stores";
   import selectedProjectId from "$lib/stores/project";
-  import { Cog, LineChart, Rocket } from "lucide-svelte";
+  import { Box, Cog, Expand, LineChart, Network, Rocket, Variable } from "lucide-svelte";
 
   // Function to generate items array
   const generateItems = (projectId: string) => [
@@ -16,6 +16,30 @@
       href: `/app/projects/${projectId}/rollouts`,
       current: false,
       icon: Rocket
+    },
+    {
+      name: "Scale",
+      href: `/app/projects/${projectId}/scale`,
+      current: false,
+      icon: Expand
+    },
+    {
+      name: "Network",
+      href: `/app/projects/${projectId}/network`,
+      current: false,
+      icon: Network
+    },
+    {
+      name: "Instances",
+      href: `/app/projects/${projectId}/instances`,
+      current: false,
+      icon: Box
+    },
+    {
+      name: "Envs & Secrets",
+      href: `/app/projects/${projectId}/envs`,
+      current: false,
+      icon: Variable
     },
     {
       name: "Settings",
@@ -55,7 +79,7 @@
       "
       aria-current={item.current ? "page" : undefined}
     >
-      <svelte:component this={item.icon} class="w-5 h-5 mr-2 inline" strokeWidth={1.5} />
+      <svelte:component this={item.icon} class="w-5 h-5 mr-2 inline" strokeWidth={2} />
       {item.name}
     </a>
   {/each}

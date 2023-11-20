@@ -1,5 +1,15 @@
 package models
 
+type PodMetrics struct {
+	Name   string `json:"name"`
+	CPU    string `json:"cpu"`
+	Memory string `json:"memory"`
+}
+
+type PodMetricsResponse struct {
+	Metrics []PodMetrics `json:"metrics"`
+}
+
 type Rollout struct {
 	APIVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
@@ -59,10 +69,21 @@ type Rollout struct {
 	} `yaml:"spec"`
 }
 
+type Resources struct {
+	CPU    string `json:"cpu"`
+	Memory string `json:"memory"`
+}
+
+type DeploymentResources struct {
+	RequestSum Resources `json:"requestSum"`
+	LimitSum   Resources `json:"limitSum"`
+}
+
 type DeploymentStatus struct {
-	Replicas int32    `json:"replicas"`
-	PodNames []string `json:"podNames"`
-	Status   string   `json:"status"`
+	Replicas  int32               `json:"replicas"`
+	PodNames  []string            `json:"podNames"`
+	Resources DeploymentResources `json:"resources"`
+	Status    string              `json:"status"`
 }
 
 type ServiceStatus struct {

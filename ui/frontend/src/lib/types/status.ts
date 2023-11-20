@@ -1,10 +1,21 @@
 // Define a type for the status values
 type Status = "OK" | "Pending" | "Error";
 
+interface Resources {
+    cpu: string;
+    memory: string;
+}
+
+interface DeploymentResources {
+    requestSum: Resources;
+    limitSum: Resources;
+}
+
 // Define a type for the deployment object
 interface Deployment {
     replicas: number;
     podNames: string[];
+    resources: DeploymentResources;
     status: Status;
 }
 

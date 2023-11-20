@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"fmt"
+	"log"
 
 	yaml2 "github.com/ghodss/yaml"
 	"github.com/natrontech/one-click/pkg/models"
@@ -61,6 +62,9 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 		UserRecord: user,
 	}
 	err = CreateNamespace(nparams)
+	if err != nil {
+		log.Println(err)
+	}
 
 	// Try to get the existing Rollout
 	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, rolloutId, metav1.GetOptions{})
@@ -133,4 +137,36 @@ func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus
 	}
 
 	return &rolloutStatus, nil
+}
+
+func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsResponse, error) {
+
+	// List all pods in the projectId namespaced controlled by the rolloutId deployment
+	pods, err := Clientset.CoreV1().Pods(projectId).List(Ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("rollout.one-click.io/name=%s", rolloutId),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting pods: %w", err)
+	}
+
+	var podMetricsResponse models.PodMetricsResponse
+	var podMetrics []models.PodMetrics
+
+	for _, pod := range pods.Items {
+		metrics, err := MetricsClient.MetricsV1beta1().PodMetricses(projectId).Get(Ctx, pod.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("error getting pod metrics: %w", err)
+		}
+
+		podMetrics = append(podMetrics, models.PodMetrics{
+			Name:   pod.Name,
+			CPU:    metrics.Containers[0].Usage.Cpu().AsDec().String(),
+			Memory: metrics.Containers[0].Usage.Memory().AsDec().String(),
+		})
+	}
+
+	podMetricsResponse.Metrics = podMetrics
+
+	return &podMetricsResponse, nil
 }
