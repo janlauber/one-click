@@ -9,7 +9,7 @@ spec:
     repository: "nginx"
     tag: "latest"
   horizontalScale:
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
   resources:
@@ -19,11 +19,11 @@ spec:
     limits:
       cpu: "200m"
       memory: "256Mi"
-  env:
-    - name: "REFLEX_USERNAME"
-      value: "admin"
-    - name: DEBUG
-      value: "true"
+  # env:
+  #   - name: "REFLEX_USERNAME"
+  #     value: "admin"
+  #   - name: DEBUG
+  #     value: "true"
   secrets:
     - name: "REFLEX_PASSWORD"
       value: "admin"
@@ -37,6 +37,8 @@ spec:
   interfaces:
     - name: "http"
       port: 80
+    - name: "https"
+      port: 443
       # ingress:
       #   ingressClass: "nginx"
       #   annotations:

@@ -28,7 +28,6 @@ func defaultPublicDir() string {
 }
 
 func init() {
-	// set the default public dir
 	env.Init()
 	k8s.Init()
 }
@@ -95,25 +94,7 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		// serve frameworks yaml rollouts from projects with revision of rollout
-		e.Router.GET("/rollouts/:projectId", func(c echo.Context) error {
-			projectId := c.PathParam("projectId")
-
-			return controller.HandleRolloutGetAll(c, app, projectId)
-		})
-		e.Router.GET("/rollouts/:projectId/:rolloutId", func(c echo.Context) error {
-			projectId := c.PathParam("projectId")
-			rolloutId := c.PathParam("rolloutId")
-
-			return controller.HandleRolloutGet(c, app, projectId, rolloutId)
-		})
-		e.Router.POST("/rollouts/:projectId/:rolloutId", func(c echo.Context) error {
-			projectId := c.PathParam("projectId")
-			rolloutId := c.PathParam("rolloutId")
-
-			return controller.HandleRolloutPost(c, app, projectId, rolloutId)
-		})
-
+		// get status of a specific rollout
 		e.Router.GET("/rollouts/:projectId/:rolloutId/status", func(c echo.Context) error {
 			projectId := c.PathParam("projectId")
 			rolloutId := c.PathParam("rolloutId")

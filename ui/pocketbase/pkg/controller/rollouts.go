@@ -2,24 +2,154 @@ package controller
 
 import (
 	"log"
-	"os"
-	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
-	"github.com/natrontech/one-click/pkg/env"
 	"github.com/natrontech/one-click/pkg/k8s"
-	"github.com/natrontech/one-click/pkg/models"
+	"github.com/natrontech/one-click/pkg/util"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
-	"gopkg.in/yaml.v2"
 )
 
 func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) error {
 
+	// Get project
+	project, err := app.Dao().FindRecordById("projects", e.Record.GetString("project"))
+	if err != nil {
+		return err
+	}
+
+	// Get user
+	user, err := app.Dao().FindRecordById("users", project.GetString("user"))
+	if err != nil {
+		return err
+	}
+
+	// Generate a rolloutId (15 characters)
+	rolloutId := util.GenerateId(15)
+
+	// Check if endDate is set, if yes, throw error
+	if e.Record.GetString("endDate") != "" {
+		return echo.NewHTTPError(400, "endDate is not allowed on create")
+	}
+
+	// Check if there is another rollout in the same project with no endDate
+	running_rollout, err := app.Dao().FindFirstRecordByData("rollouts", "endDate", "")
+	if err != nil {
+		if contains := strings.Contains(err.Error(), "no rows"); !contains {
+			return err
+		}
+	}
+
+	// if there is another rollout in the same project with no endDate, set endDate to now on that rollout
+	if running_rollout != nil {
+		running_rollout.Set("endDate", time.Now().UTC().Format(time.RFC3339))
+		err = app.Dao().SaveRecord(running_rollout)
+		if err != nil {
+			return err
+		}
+
+		// Delete rollout in k8s
+		err = k8s.DeleteRollout(project.Id, running_rollout.Id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	// Create rollout in k8s
+	err = k8s.CreateOrUpdateRollout(rolloutId, user, project.Id, e.Record.GetString("manifest"))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Update rollout with startDate time.Now().UTC().Format(time.RFC3339)
+	e.Record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
+
+	// Update rollout with rolloutId
+	e.Record.Set("id", rolloutId)
+
 	return nil
+
 }
 
 func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) error {
+
+	// Get rollout
+	rollout, err := app.Dao().FindRecordById("rollouts", e.Record.GetString("id"))
+	if err != nil {
+		return err
+	}
+
+	// Get project
+	project, err := app.Dao().FindRecordById("projects", rollout.GetString("project"))
+	if err != nil {
+		return err
+	}
+
+	// Get user
+	user, err := app.Dao().FindRecordById("users", project.GetString("user"))
+	if err != nil {
+		return err
+	}
+
+	// Check if endDate is set, if yes, delete rollout
+	if e.Record.GetString("endDate") != "" {
+		err = k8s.DeleteRollout(project.Id, rollout.Id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		return nil
+	} else if rollout.GetString("endDate") != "" {
+
+		// Check if there is another rollout in the same project with no endDate
+		running_rollout, err := app.Dao().FindFirstRecordByData("rollouts", "endDate", "")
+		if err != nil {
+			// only throw error string if it doesn't contain "no rows"
+			if contains := strings.Contains(err.Error(), "no rows"); !contains {
+				return err
+			}
+		}
+
+		// if there is another rollout in the same project with no endDate, set endDate to now on that rollout
+		if running_rollout != nil && running_rollout.Id != rollout.Id {
+			running_rollout.Set("endDate", time.Now().UTC().Format(time.RFC3339))
+			err = app.Dao().SaveRecord(running_rollout)
+			if err != nil {
+				return err
+			}
+
+			// Delete rollout in k8s
+			err = k8s.DeleteRollout(project.Id, running_rollout.Id)
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+		}
+
+		e.Record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
+
+		// If endDate was set before, but is not set anymore, create rollout again
+		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, e.Record.GetString("manifest"))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		return nil
+
+	} else {
+		e.Record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
+		// Update rollout in k8s
+		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, e.Record.GetString("manifest"))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
 
 	return nil
 }
@@ -32,102 +162,19 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		return err
 	}
 
-	log.Println("Deleting rollout: " + rollout.GetString("id"))
-
 	// Get project
-	project, err := app.Dao().FindRecordById("projects", e.Record.GetString("projectId"))
+	project, err := app.Dao().FindRecordById("projects", rollout.GetString("project"))
 	if err != nil {
 		return err
 	}
 
-	log.Println("Deleting rollout: " + rollout.GetString("rolloutId"))
-	log.Println("Deleting project: " + project.GetString("projectId"))
-
-	// err = k8s.DeleteRollout(project.Id, rollout.Id)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return err
-	// }
-
-	return nil
-}
-
-func HandleRolloutGet(c echo.Context, app *pocketbase.PocketBase, projectId string, rolloutId string) error {
-
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId, rolloutId+".yaml")
-	yamlFile, err := os.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	var rolloutRevision models.Rollout
-	err = yaml.Unmarshal(yamlFile, &rolloutRevision)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(200, rolloutRevision)
-}
-
-func HandleRolloutGetAll(c echo.Context, app *pocketbase.PocketBase, projectId string) error {
-
-	// get all revisions of projectId
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId)
-	rolloutDir, err := os.ReadDir(filePath)
-	if err != nil {
-		return err
-	}
-
-	// get all rollouts of projectId
-	var rollouts []string
-	for _, rollout := range rolloutDir {
-		// remove .yaml extension
-		rollouts = append(rollouts, rollout.Name()[:len(rollout.Name())-5])
-	}
-
-	return c.JSON(200, rollouts)
-}
-
-func HandleRolloutPost(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
-	// Create project dir if not exists
-	filePath := filepath.Join(env.Config.DefaultRolloutDir, projectId)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		err = os.MkdirAll(filePath, 0755)
+	// Check if endDate is set, if no, delete rollout
+	if rollout.GetString("endDate") == "" {
+		err = k8s.DeleteRollout(project.Id, rollout.Id)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
-	}
-
-	// Create rollout file
-	filePath = filepath.Join(filePath, rollout+".yaml")
-	rolloutFile, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer rolloutFile.Close()
-
-	// Get body and parse to yaml
-	rolloutBody := new(models.Rollout)
-	if err := c.Bind(rolloutBody); err != nil {
-		return err
-	}
-
-	// Marshal struct to YAML
-	yamlData, err := yaml.Marshal(rolloutBody)
-	if err != nil {
-		return err
-	}
-
-	// Write YAML to file
-	if _, err := rolloutFile.Write(yamlData); err != nil {
-		return err
-	}
-
-	// Apply the rollout
-	err = k8s.CreateOrUpdateRollout(projectId, rollout)
-	if err != nil {
-		log.Println(err)
-		return err
 	}
 
 	return nil

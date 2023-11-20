@@ -58,7 +58,7 @@ func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, f *oneclick
 }
 
 func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) *appsv1.Deployment {
-	labels := map[string]string{"framework.one-click.io/name": f.Name}
+	labels := map[string]string{"rollout.one-click.io/name": f.Name}
 	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
 
 	dep := &appsv1.Deployment{

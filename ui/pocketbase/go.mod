@@ -7,7 +7,6 @@ require (
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
 	github.com/pocketbase/dbx v1.10.1
 	github.com/pocketbase/pocketbase v0.19.0
-	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.28.4
 	k8s.io/apimachinery v0.28.4
 )
@@ -35,6 +34,7 @@ require (
 	golang.org/x/sync v0.4.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231012201019-e917dd12ba7a // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 // indirect
@@ -76,6 +76,7 @@ require (
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/ganigeorgiev/fexpr v0.3.0 // indirect
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/goccy/go-json v0.10.2 // indirect

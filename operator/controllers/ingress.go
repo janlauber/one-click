@@ -127,7 +127,7 @@ func (r *RolloutReconciler) reconcileIngress(ctx context.Context, f *oneclickiov
 }
 
 func (r *RolloutReconciler) ingressForRollout(f *oneclickiov1alpha1.Rollout, intf oneclickiov1alpha1.InterfaceSpec) *networkingv1.Ingress {
-	labels := map[string]string{"framework.one-click.io/name": f.Name}
+	labels := map[string]string{"rollout.one-click.io/name": f.Name}
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        intf.Name + "-ingress", // Create a unique name for the Ingress

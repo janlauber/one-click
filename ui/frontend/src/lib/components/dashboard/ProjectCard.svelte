@@ -1,7 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import type { Pexpand } from "$lib/stores/data";
+  import type { ProjectsResponse, RolloutsResponse } from "$lib/pocketbase/generated-types";
+  import type { Pexpand, Rexpand } from "$lib/stores/data";
+  import { rollouts } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { frameworkLogoUrl } from "$lib/utils/framework.utils";
@@ -13,6 +14,11 @@
   if (project.tags) {
     tags = new Set(project.tags.split(","));
   }
+
+  // filter $rollouts by $rollouts.expand.project
+  let these_rollouts: RolloutsResponse<Rexpand>[] = [];
+  // @ts-ignore
+  $: these_rollouts = $rollouts.filter((r) => r.expand?.project.id === project.id);
 </script>
 
 <div class="rounded-xl border border-gray-200 ov">
@@ -28,7 +34,7 @@
         size="xl"
         placement="top-right"
         class="text-xs font-bold text-white cursor-default"
-        >{project.expand?.rollouts?.length || 0}
+        >{these_rollouts.length || 0}
         </Indicator
       >
       <Tooltip>Rollouts</Tooltip>
@@ -49,14 +55,14 @@
     </div>
   </div>
   <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
-    {#if project.expand?.rollouts}
+    {#if these_rollouts}
       <div class="flex justify-between gap-x-4 py-3">
         <dt class="">Last rollout</dt>
         <dd class=" cursor-default">
-          <time datetime={formatDateTime(project.expand?.rollouts[0].startDate)}>
-            {timeAgo(project.expand?.rollouts[0].startDate)}
+          <time datetime={formatDateTime(these_rollouts[0].startDate)}>
+            {timeAgo(these_rollouts[0].startDate)}
           </time>
-          <Tooltip>{formatDateTime(project.expand?.rollouts[0].startDate)}</Tooltip>
+          <Tooltip>{formatDateTime(these_rollouts[0].startDate)}</Tooltip>
         </dd>
       </div>
     {/if}

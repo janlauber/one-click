@@ -24,6 +24,7 @@ func (r *RolloutReconciler) updateStatus(ctx context.Context, f *oneclickiov1alp
 	}
 
 	// Get the Deployment
+	// TODO: fix status at first run
 	deployment := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, deployment)
 	if err != nil {

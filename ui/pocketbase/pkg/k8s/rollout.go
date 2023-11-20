@@ -2,10 +2,10 @@ package k8s
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
+	yaml2 "github.com/ghodss/yaml"
 	"github.com/natrontech/one-click/pkg/models"
+	pb_models "github.com/pocketbase/pocketbase/models"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -13,23 +13,40 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 )
 
-func CreateOrUpdateRollout(projectId string, rolloutId string) error {
-	// Define the path to the YAML file
-	yamlFilePath := filepath.Join(".rollouts", projectId, rolloutId+".yaml")
+func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId string, manifest string) error {
+	if rolloutId == "" {
+		return fmt.Errorf("rolloutId is required")
+	}
 
-	// Read the YAML manifest
-	yamlFile, err := os.ReadFile(yamlFilePath)
+	if user == nil {
+		return fmt.Errorf("user is required")
+	}
+
+	if projectId == "" {
+		return fmt.Errorf("projectId is required")
+	}
+
+	if manifest == "" {
+		return fmt.Errorf("manifest is required")
+	}
+
+	// manifest is a json string, convert to yaml
+	yamlBytes, err := yaml2.JSONToYAML([]byte(manifest))
 	if err != nil {
-		return fmt.Errorf("error reading YAML file: %w", err)
+		return fmt.Errorf("error converting JSON to YAML: %w", err)
 	}
 
 	// Decode the YAML manifest into an unstructured object
 	decUnstructured := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
 	obj := &unstructured.Unstructured{}
-	_, _, err = decUnstructured.Decode(yamlFile, nil, obj)
+	_, _, err = decUnstructured.Decode(yamlBytes, nil, obj)
 	if err != nil {
 		return fmt.Errorf("error decoding YAML: %w", err)
 	}
+
+	// Set the name and namespace to rolloutId and projectId
+	obj.SetName(rolloutId)
+	obj.SetNamespace(projectId)
 
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
@@ -38,14 +55,18 @@ func CreateOrUpdateRollout(projectId string, rolloutId string) error {
 		Resource: "rollouts",
 	}
 
-	namespace := obj.GetNamespace()
-	rolloutName := obj.GetName()
+	// Create Namespace
+	nparams := NamespaceParams{
+		Name:       projectId,
+		UserRecord: user,
+	}
+	err = CreateNamespace(nparams)
 
 	// Try to get the existing Rollout
-	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Get(Ctx, rolloutName, metav1.GetOptions{})
+	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, rolloutId, metav1.GetOptions{})
 	if err != nil {
 		// If not found, create it
-		_, err = DynamicClient.Resource(rolloutGVR).Namespace(namespace).Create(Ctx, obj, metav1.CreateOptions{})
+		_, err = DynamicClient.Resource(rolloutGVR).Namespace(projectId).Create(Ctx, obj, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("error creating Rollout: %w", err)
 		}
@@ -54,7 +75,7 @@ func CreateOrUpdateRollout(projectId string, rolloutId string) error {
 		obj.SetResourceVersion(existingRollout.GetResourceVersion())
 
 		// Update the Rollout
-		_, err = DynamicClient.Resource(rolloutGVR).Namespace(namespace).Update(Ctx, obj, metav1.UpdateOptions{})
+		_, err = DynamicClient.Resource(rolloutGVR).Namespace(projectId).Update(Ctx, obj, metav1.UpdateOptions{})
 		if err != nil {
 			return fmt.Errorf("error updating Rollout: %w", err)
 		}
