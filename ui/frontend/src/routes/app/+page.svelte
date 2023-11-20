@@ -17,7 +17,7 @@
       >
     </Heading>
     <span class="bg-black text-background text-sm font-extralight px-2 py-1 rounded-full mt-2">
-      The <b>Open Source Software</b> Market
+      The <b>Open Source Platform</b> to manage your <b>Software Rollouts</b>
     </span>
   </div>
   <!-- <div class="absolute left-1/2 -translate-x-1/2 -bottom-16">
