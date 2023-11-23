@@ -26,9 +26,10 @@ nav:
     - Sources: research/sources.md
   - Docs:
     - docs/index.md
+    - Architecture: docs/architecture.md
     - Frontend: docs/frontend.md
     - Backend: docs/backend.md
-    - Infrastructure: docs/infrastructure.md
+    - Kubernetes Operator: docs/kubernetes-operator.md
     - Scalability: docs/scalability.md
     - Security: docs/security.md
   - Meetings:
