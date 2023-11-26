@@ -3,6 +3,7 @@
   import { Button, Heading, P } from "flowbite-svelte";
   import { ArrowRight, Plus } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
+    import RolloutsTable from "$lib/components/rollouts/RolloutsTable.svelte";
 </script>
 
 <div class="flex items-start justify-between">
@@ -21,6 +22,10 @@
     <Plus class="w-4 h-4 mr-2" />
     New rollout
   </Button>
+</div>
+
+<div>
+  <RolloutsTable />
 </div>
 
 

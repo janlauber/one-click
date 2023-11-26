@@ -63,7 +63,7 @@
   <div class="flex items-center md:order-2 cursor-pointer active:scale-105">
     <Avatar id="avatar-menu" src={avatarUrlString} />
   </div>
-  <Dropdown placement="bottom" triggeredBy="#avatar-menu" class="p-0">
+  <Dropdown placement="bottom" triggeredBy="#avatar-menu">
     <DropdownHeader>
       <span class="block text-sm">{client.authStore.model?.name}</span>
       <span class="block truncate text-sm font-medium">{client.authStore.model?.email}</span>

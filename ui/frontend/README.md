@@ -24,7 +24,7 @@ Now visit http://localhost:5173 (ui) or http://localhost:8090 (pb)
 
 *PocketBase*:
 email: `admin@one-click.io`
-password: `admin`
+password: `0123456789`
 
 *App*:
 email: `jan@one-click.io`

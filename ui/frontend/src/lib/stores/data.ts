@@ -9,6 +9,7 @@ import selectedProjectId from "./project";
 
 export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
 export type Rexpand = {
+    spec: any;
     project: ProjectsResponse;
 };
 export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
