@@ -207,3 +207,14 @@ func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId 
 
 	return c.JSON(200, metrics)
 }
+
+func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+	// Get rollout events
+	events, err := k8s.GetRolloutEvents(projectId, rollout)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return c.JSON(200, events)
+}

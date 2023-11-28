@@ -170,3 +170,29 @@ func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsRe
 
 	return &podMetricsResponse, nil
 }
+
+func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse, error) {
+	// List all events in the projectId namespaced controlled by the rolloutId deployment
+	events, err := Clientset.CoreV1().Events(projectId).List(Ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.name=%s", rolloutId),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting events: %w", err)
+	}
+
+	var eventResponse models.EventResponse
+	var eventList []models.Event
+
+	for _, event := range events.Items {
+		eventList = append(eventList, models.Event{
+			Reason:  event.Reason,
+			Message: event.Message,
+			Type:    event.Type,
+		})
+	}
+
+	eventResponse.Events = eventList
+
+	return &eventResponse, nil
+}

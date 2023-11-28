@@ -109,6 +109,13 @@ func main() {
 			return controller.HandleRolloutMetrics(c, app, projectId, rolloutId)
 		})
 
+		e.Router.GET("/rollouts/:projectId/:rolloutId/events", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			rolloutId := c.PathParam("rolloutId")
+
+			return controller.HandleRolloutEvents(c, app, projectId, rolloutId)
+		})
+
 		return nil
 	})
 

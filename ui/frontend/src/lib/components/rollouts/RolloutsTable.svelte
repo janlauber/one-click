@@ -3,7 +3,7 @@
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { Badge, Indicator, Tooltip } from "flowbite-svelte";
 
-  import { Button, Dropdown, DropdownItem, ToolbarButton, DropdownDivider } from "flowbite-svelte";
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsHorizontalOutline } from "flowbite-svelte-icons";
 </script>
 

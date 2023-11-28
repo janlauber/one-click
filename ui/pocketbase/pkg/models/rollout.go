@@ -110,3 +110,13 @@ type RolloutStatus struct {
 	Ingresses  []IngressStatus  `json:"ingresses,omitempty"`
 	Volumes    []VolumeStatus   `json:"volumes,omitempty"`
 }
+
+type Event struct {
+	Reason  string `json:"reason"`
+	Message string `json:"message"`
+	Type    string `json:"type"`
+}
+
+type EventResponse struct {
+	Events []Event `json:"events"`
+}
