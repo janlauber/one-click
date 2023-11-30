@@ -90,13 +90,8 @@
       client
         .collection("rollouts")
         .update(rollout.id, data)
-        .then((res) => {
+        .then(() => {
           updateDataStores();
-          return "Rollout deployed.";
-        })
-        .catch((err) => {
-          console.log(err);
-          return "Error deploying rollout.";
         }),
       {
         loading: "Deploying rollout...",
@@ -116,13 +111,8 @@
       client
         .collection("rollouts")
         .delete(rollout.id)
-        .then((res) => {
+        .then(() => {
           updateDataStores();
-          return "Rollout deleted.";
-        })
-        .catch((err) => {
-          console.log(err);
-          return "Error deleting rollout.";
         }),
       {
         loading: "Deleting rollout...",

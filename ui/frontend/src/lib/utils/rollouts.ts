@@ -18,7 +18,7 @@ async function fetchRolloutStatus(projectId: string, rolloutId: string) {
             );
             status = await response.json();
         } catch (error) {
-            console.error(error);
+            // Handle error
         }
 
         return status;
@@ -28,7 +28,7 @@ async function fetchRolloutStatus(projectId: string, rolloutId: string) {
         const response = await fetch(`/rollouts/${projectId}/${rolloutId}/status`);
         status = await response.json();
     } catch (error) {
-        console.error(error);
+        // Handle error
     }
 
     return status;
@@ -50,7 +50,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
             );
             metrics = await response.json();
         } catch (error) {
-            console.error(error);
+            // Handle error
         }
 
         return metrics;
@@ -60,7 +60,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
         const response = await fetch(`/rollouts/${projectId}/${rolloutId}/metrics`);
         metrics = await response.json();
     } catch (error) {
-        console.error(error);
+        // Handle error
     }
 
     return metrics;
@@ -83,7 +83,7 @@ async function fetchRolloutEvents(projectId: string, rolloutId: string) {
             );
             events = await response.json();
         } catch (error) {
-            console.error(error);
+            // Handle error
         }
 
         return events;
@@ -93,7 +93,7 @@ async function fetchRolloutEvents(projectId: string, rolloutId: string) {
         const response = await fetch(`/rollouts/${projectId}/${rolloutId}/events`);
         events = await response.json();
     } catch (error) {
-        console.error(error);
+        // Handle error
     }
 
     return events;

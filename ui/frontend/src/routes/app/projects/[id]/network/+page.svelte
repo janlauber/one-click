@@ -1,6 +1,10 @@
 <script>
-  import { Heading, P } from "flowbite-svelte";
+  import { Button, Heading, P } from "flowbite-svelte";
+    import { Plus } from "lucide-svelte";
 </script>
+
+<div class="flex items-start justify-between">
+</div>
 
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
@@ -9,4 +13,17 @@
       Network interface for your rollout.
     </P>
   </div>
+  <Button
+    color="primary"
+    size="xs"
+    class="whitespace-nowrap self-start"
+    on:click={() => {
+    }}
+  >
+    <Plus class="w-4 h-4 mr-2" />
+    New interface
+  </Button>
+</div>
+
+<div>
 </div>

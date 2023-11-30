@@ -141,13 +141,8 @@
         client
           .collection("rollouts")
           .create(data)
-          .then((res) => {
+          .then(() => {
             updateDataStores();
-            return "Rollout created.";
-          })
-          .catch((err) => {
-            console.log(err);
-            return "Error creating rollout.";
           }),
         {
           loading: "Creating rollout...",
