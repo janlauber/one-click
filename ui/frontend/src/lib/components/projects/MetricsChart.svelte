@@ -8,109 +8,97 @@
 
   let options: any;
 
-  $: series = [
-    {
-      name: "Usage",
-      data: [usage] // Assuming usage is a single value
-    },
-    {
-      name: "Requests",
-      data: [requests] // Assuming requests is a single value
-    },
-    {
-      name: "Limits",
-      data: [limits] // Assuming limits is a single value
-    }
-  ];
+  $: series = [usage, requests, limits];
 
   $: options = {
     colors: ["#1C64F2", "#16BDCA", "#FDBA8C"],
     series,
     chart: {
-      type: "bar",
-      height: "320px",
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false
-      }
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "70%",
-        borderRadiusApplication: "end",
-        borderRadius: 8
-      }
-    },
-    tooltip: {
-      shared: true,
-      intersect: false,
-      style: {
-        fontFamily: "Inter, sans-serif"
-      }
-    },
-    states: {
-      hover: {
-        filter: {
-          type: "darken",
-          value: 1
-        }
-      }
+      height: 320,
+      width: "100%",
+      type: "donut"
     },
     stroke: {
-      show: true,
-      width: 0,
-      colors: ["transparent"]
+      colors: ["transparent"],
+      lineCap: ""
     },
-    grid: {
-      show: false,
-      strokeDashArray: 4,
-      padding: {
-        left: 2,
-        right: 2,
-        top: -14
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            name: {
+              show: true,
+              fontFamily: "Inter, sans-serif",
+              offsetY: 20
+            },
+            total: {
+              showAlways: true,
+              show: true,
+              label: "Usage",
+              fontFamily: "Inter, sans-serif",
+              formatter: function (w: any) {
+                // Show only usage rounded to 2 decimals
+                const rounded = Math.round(w.globals.seriesTotals[0] * 100) / 100;
+
+                return `${rounded}`;
+              }
+            },
+            value: {
+              show: true,
+              fontFamily: "Inter, sans-serif",
+              offsetY: -20,
+              formatter: function (value: any) {
+                return value + "";
+              }
+            }
+          },
+          size: "80%"
+        }
       }
     },
+    grid: {
+      padding: {
+        top: -2
+      }
+    },
+    labels: ["Usage", "Requests", "Limits"],
     dataLabels: {
-      enabled: true
+      enabled: false
     },
     legend: {
-      show: true
+      position: "bottom",
+      fontFamily: "Inter, sans-serif"
+    },
+    yaxis: {
+      labels: {
+        formatter: function (value: any) {
+          return value + "";
+        }
+      }
     },
     xaxis: {
-      floating: false,
       labels: {
-        show: true,
-        style: {
-          fontFamily: "Inter, sans-serif",
-          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+        formatter: function (value: any) {
+          return value + "";
         }
-      },
-      categories: [title + " resources"],
-      axisBorder: {
-        show: false
       },
       axisTicks: {
         show: false
+      },
+      axisBorder: {
+        show: false
       }
-    },
-    yaxis: {
-      show: false
-    },
-    fill: {
-      opacity: 1
     }
   };
 </script>
 
-<Card
-  size="xl"
->
+<Card size="xl">
   <div class="flex justify-between items-start w-full">
     <div class="flex-col items-center">
       <div class="flex items-center mb-1">
         <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white mr-1">
-          {title} resources
+          {title}
         </h5>
       </div>
     </div>

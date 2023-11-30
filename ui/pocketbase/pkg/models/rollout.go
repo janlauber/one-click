@@ -114,7 +114,7 @@ type RolloutStatus struct {
 type Event struct {
 	Reason  string `json:"reason"`
 	Message string `json:"message"`
-	Type    string `json:"type"`
+	Typus   string `json:"typus"`
 }
 
 type EventResponse struct {

@@ -1,8 +1,8 @@
 // Interface for rollout events
 interface Event {
-    Reason: string;
-    Message: string;
-    Type: string;
+    reason: string;
+    message: string;
+    typus: string;
 }
 
 // Interface for rollout events response

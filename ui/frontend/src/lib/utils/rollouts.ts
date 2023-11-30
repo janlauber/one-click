@@ -65,3 +65,36 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
 
     return metrics;
 }
+
+// get rollout events
+export async function getRolloutEvents(projectId: string, rolloutId: string) {
+    const response = await fetchRolloutEvents(projectId, rolloutId);
+    return response;
+}
+
+async function fetchRolloutEvents(projectId: string, rolloutId: string) {
+    let events: RolloutEventsResponse | undefined;
+
+    // if localhost, use localhost:8090 as base url
+    if (window.location.hostname === "localhost") {
+        try {
+            const response = await fetch(
+                `http://localhost:8090/rollouts/${projectId}/${rolloutId}/events`
+            );
+            events = await response.json();
+        } catch (error) {
+            console.error(error);
+        }
+
+        return events;
+    }
+
+    try {
+        const response = await fetch(`/rollouts/${projectId}/${rolloutId}/events`);
+        events = await response.json();
+    } catch (error) {
+        console.error(error);
+    }
+
+    return events;
+}

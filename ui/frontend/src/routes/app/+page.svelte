@@ -12,7 +12,7 @@
   <div class="text-center flex justify-center items-center flex-col space-y-4">
     <Heading tag="h3" class="flex text-background font-extralight items-center w-auto">
       Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge
-        color="dark"
+        color="primary"
         class="text-xl font-semibold ml-2">prototype</Badge
       >
     </Heading>

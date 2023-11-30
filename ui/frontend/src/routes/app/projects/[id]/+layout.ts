@@ -3,7 +3,6 @@ import type { PageLoad } from "../../$types";
 
 export const load: PageLoad = async ({ params }: any) => {
     const { id } = params;
-
     await updateDataStores({
         filter: UpdateFilterEnum.ALL,
         projectId: id

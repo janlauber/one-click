@@ -186,6 +186,9 @@
       </div>
     </Card>
   </div>
+
+  <Heading tag="h3">Live Metrics</Heading>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {#if currentRollout}
       <MetricsChart

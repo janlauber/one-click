@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigating, page } from "$app/stores";
   import selectedProjectId from "$lib/stores/project";
-  import { Box, Cog, Expand, LineChart, Network, Rocket, Variable } from "lucide-svelte";
+  import { Box, Cog, Expand, HardDrive, History, LineChart, Network, Rocket, Variable } from "lucide-svelte";
 
   // Function to generate items array
   const generateItems = (projectId: string) => [
@@ -15,7 +15,13 @@
       name: "Rollouts",
       href: `/app/projects/${projectId}/rollouts`,
       current: false,
-      icon: Rocket
+      icon: History
+    },
+    {
+      name: "Image",
+      href: `/app/projects/${projectId}/image`,
+      current: false,
+      icon: HardDrive
     },
     {
       name: "Scale",

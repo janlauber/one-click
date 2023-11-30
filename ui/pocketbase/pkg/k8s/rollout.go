@@ -188,11 +188,16 @@ func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse
 		eventList = append(eventList, models.Event{
 			Reason:  event.Reason,
 			Message: event.Message,
-			Type:    event.Type,
+			Typus:   event.Type,
 		})
 	}
 
 	eventResponse.Events = eventList
+
+	// check if there is null
+	if eventResponse.Events == nil {
+		eventResponse.Events = []models.Event{}
+	}
 
 	return &eventResponse, nil
 }

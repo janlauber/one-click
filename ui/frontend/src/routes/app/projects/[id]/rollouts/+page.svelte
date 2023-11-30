@@ -1,31 +1,15 @@
-<script>
-  import { goto } from "$app/navigation";
-  import { Button, Heading, P } from "flowbite-svelte";
-  import { ArrowRight, Plus } from "lucide-svelte";
-  import selectedProjectId from "$lib/stores/project";
-    import RolloutsTable from "$lib/components/rollouts/RolloutsTable.svelte";
+<script lang="ts">
+  import { Heading, P } from "flowbite-svelte";
+  import RolloutsTable from "$lib/components/rollouts/RolloutsTable.svelte";
 </script>
 
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
     <Heading tag="h2">Rollouts</Heading>
-    <P class="text-gray-500 dark:text-gray-400 text-sm">All rollouts for your project.</P>
+    <P class="text-gray-500 dark:text-gray-400 text-sm">Rollouts history acts just like snapshots.</P>
   </div>
-  <Button
-    color="dark"
-    size="xs"
-    class="whitespace-nowrap self-start"
-    on:click={() => {
-      goto(`/app/projects/${$selectedProjectId}/rollouts`);
-    }}
-  >
-    <Plus class="w-4 h-4 mr-2" />
-    New rollout
-  </Button>
 </div>
 
 <div>
   <RolloutsTable />
 </div>
-
-

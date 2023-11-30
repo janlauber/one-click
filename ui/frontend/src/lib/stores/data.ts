@@ -4,7 +4,7 @@ import type {
     ProjectsResponse,
     FrameworksResponse
 } from "$lib/pocketbase/generated-types";
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
 export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
@@ -64,7 +64,8 @@ export async function updateRollouts(projectId?: string) {
             // set selected project
             selectedProjectId.set(projectId);
             // @ts-ignore
-            rollouts.set(response.filter((rollout) => rollout.expand?.project.id === projectId));
+            rollouts.set(response.filter((rollout) => rollout.project === projectId));
+            return;
         }
         rollouts.set(response);
     } catch (error) {
