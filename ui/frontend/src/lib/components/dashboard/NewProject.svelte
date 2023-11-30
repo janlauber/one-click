@@ -43,7 +43,6 @@
       framework: selectedFramework.id,
       user: client.authStore.model?.id,
       tags: setToString(localTags),
-      statusEndPoint: "https://" + name + ".svc." + name + ".oneclick.cloud"
     };
 
     await client

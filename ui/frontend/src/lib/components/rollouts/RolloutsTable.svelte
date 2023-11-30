@@ -6,15 +6,27 @@
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { getRolloutEvents, getRolloutStatus } from "$lib/utils/rollouts";
-  import { Badge, CloseButton, Drawer, Indicator, P, TableSearch, Tooltip } from "flowbite-svelte";
+  import {
+    Badge,
+    Button,
+    CloseButton,
+    Drawer,
+    Indicator,
+    Modal,
+    P,
+    TableSearch,
+    Tooltip
+  } from "flowbite-svelte";
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsHorizontalOutline, InfoCircleSolid } from "flowbite-svelte-icons";
   import { Copy, HardDrive, PanelRightOpen } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
+  import DiffLines from "../base/DiffLines.svelte";
 
   let hidden6 = true;
+  let defaultModal = false;
   let searchTerm: string = "";
   let transitionParamsRight = {
     x: 320,
@@ -27,6 +39,9 @@
   let selectedRolloutEvents: RolloutEventsResponse | undefined;
   let loadingStatus: boolean = false;
   let loadingEvents: boolean = false;
+  let currentRollout: RolloutsResponse<Rexpand> | undefined;
+  let modalTitle1: string = "";
+  let modalTitle2: string = "";
 
   async function toggleSidebar(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
@@ -66,7 +81,32 @@
       });
   }
 
-  async function handleDeploy(rollout: RolloutsResponse<Rexpand>) {
+  function confirmRollback(rollout: RolloutsResponse<Rexpand>) {
+    selectedRollout = rollout;
+    currentRollout = $rollouts.find((r) => !r.endDate);
+
+    if (currentRollout == undefined) {
+      toast.error("There is no rollout to rollback to.");
+      return;
+    }
+
+    if (currentRollout.manifest == undefined) {
+      toast.error("The current rollout has no manifest.");
+      return;
+    }
+
+    if (rollout.manifest == undefined) {
+      toast.error("This rollout has no manifest.");
+      return;
+    }
+
+    modalTitle1 = currentRollout.id;
+    modalTitle2 = rollout.id;
+
+    defaultModal = true;
+  }
+
+  async function handleRollback(rollout: RolloutsResponse<Rexpand>) {
     // check if rollout is already deployed (if there is no end date)
     if (rollout.endDate == "") {
       toast.error("This rollout is already deployed.");
@@ -229,6 +269,20 @@
   {/key}
 </Drawer>
 
+<Modal title="Compare Rollouts" bind:open={defaultModal} size="xl" autoclose>
+  <DiffLines
+    jsonObject1={currentRollout?.manifest ?? {}}
+    jsonObject2={selectedRollout?.manifest ?? {}}
+    title1={modalTitle1}
+    title2={modalTitle2}
+  />
+
+  <svelte:fragment slot="footer">
+    <Button on:click={() => selectedRollout ? handleRollback(selectedRollout) : toast.error("No rollout selected!")}>Confirm</Button>
+    <Button color="alternative">Cancel</Button>
+  </svelte:fragment>
+</Modal>
+
 <div class="dark:text-white">
   <div class="mt-8 flow-root">
     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -302,7 +356,7 @@
                           class="dots-menu-{idx} dark:text-white inline-block cursor-pointer"
                         />
                         <Dropdown triggeredBy=".dots-menu-{idx}">
-                          <DropdownItem on:click={() => handleDeploy(rollout)}
+                          <DropdownItem on:click={() => confirmRollback(rollout)}
                             >Rollback</DropdownItem
                           >
                           <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
