@@ -6,6 +6,6 @@
   <SideNav />
 </div>
 
-<div class="absolute top-8 left-64 right-10 bottom-10 overflow-y-auto scrollbar-none p-2">
+<div class="absolute top-1 pt-8 left-64 right-10 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden">
   <slot />
 </div>
