@@ -6,6 +6,7 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export enum Collections {
+	Blueprint = "blueprint",
 	Frameworks = "frameworks",
 	Projects = "projects",
 	Rollouts = "rollouts",
@@ -36,6 +37,13 @@ export type AuthSystemFields<T = never> = {
 
 // Record types for each collection
 
+export type BlueprintRecord<Tmanifest = unknown> = {
+	avatar?: string
+	description: string
+	manifest: null | Tmanifest
+	name: string
+}
+
 export type FrameworksRecord = {
 	logo: string
 	name: string
@@ -43,6 +51,8 @@ export type FrameworksRecord = {
 }
 
 export type ProjectsRecord = {
+	avatar?: string
+	description?: string
 	framework: RecordIdString
 	name: string
 	tags?: string
@@ -63,6 +73,7 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
+export type BlueprintResponse<Tmanifest = unknown, Texpand = unknown> = Required<BlueprintRecord<Tmanifest>> & BaseSystemFields<Texpand>
 export type FrameworksResponse<Texpand = unknown> = Required<FrameworksRecord> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
 export type RolloutsResponse<Tmanifest = unknown, Texpand = unknown> = Required<RolloutsRecord<Tmanifest>> & BaseSystemFields<Texpand>
@@ -71,6 +82,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	blueprint: BlueprintRecord
 	frameworks: FrameworksRecord
 	projects: ProjectsRecord
 	rollouts: RolloutsRecord
@@ -78,6 +90,7 @@ export type CollectionRecords = {
 }
 
 export type CollectionResponses = {
+	blueprint: BlueprintResponse
 	frameworks: FrameworksResponse
 	projects: ProjectsResponse
 	rollouts: RolloutsResponse
@@ -88,6 +101,7 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'blueprint'): RecordService<BlueprintResponse>
 	collection(idOrName: 'frameworks'): RecordService<FrameworksResponse>
 	collection(idOrName: 'projects'): RecordService<ProjectsResponse>
 	collection(idOrName: 'rollouts'): RecordService<RolloutsResponse>
