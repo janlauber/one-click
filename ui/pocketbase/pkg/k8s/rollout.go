@@ -14,7 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 )
 
-func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId string, manifest string) error {
+func CreateOrUpdateRollout(rolloutId string, projectName string, user *pb_models.Record, projectId string, manifest string) error {
 	if rolloutId == "" {
 		return fmt.Errorf("rolloutId is required")
 	}
@@ -46,7 +46,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 	}
 
 	// Set the name and namespace to rolloutId and projectId
-	obj.SetName(rolloutId)
+	obj.SetName(projectName)
 	obj.SetNamespace(projectId)
 
 	// Define the GroupVersionResource for the Rollout object
@@ -67,7 +67,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 	}
 
 	// Try to get the existing Rollout
-	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, rolloutId, metav1.GetOptions{})
+	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, projectName, metav1.GetOptions{})
 	if err != nil {
 		// If not found, create it
 		_, err = DynamicClient.Resource(rolloutGVR).Namespace(projectId).Create(Ctx, obj, metav1.CreateOptions{})
@@ -88,7 +88,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 	return nil
 }
 
-func DeleteRollout(projectId string, rolloutId string) error {
+func DeleteRollout(projectId string, projectName string, rolloutId string) error {
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
 		Group:    "one-click.io",
@@ -99,7 +99,7 @@ func DeleteRollout(projectId string, rolloutId string) error {
 	namespace := projectId
 
 	// Delete the Rollout
-	err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Delete(Ctx, rolloutId, metav1.DeleteOptions{})
+	err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Delete(Ctx, projectName, metav1.DeleteOptions{})
 	if err != nil {
 		return fmt.Errorf("error deleting Rollout: %w", err)
 	}
@@ -107,7 +107,7 @@ func DeleteRollout(projectId string, rolloutId string) error {
 	return nil
 }
 
-func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus, error) {
+func GetRolloutStatus(projectId string, projectName string, rolloutId string) (*models.RolloutStatus, error) {
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
 		Group:    "one-click.io",
@@ -118,7 +118,7 @@ func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus
 	namespace := projectId
 
 	// Get the Rollout
-	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Get(Ctx, rolloutId, metav1.GetOptions{})
+	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Get(Ctx, projectName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting Rollout: %w", err)
 	}
@@ -139,11 +139,11 @@ func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus
 	return &rolloutStatus, nil
 }
 
-func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsResponse, error) {
+func GetRolloutMetrics(projectId string, projectName string, rolloutId string) (*models.PodMetricsResponse, error) {
 
 	// List all pods in the projectId namespaced controlled by the rolloutId deployment
 	pods, err := Clientset.CoreV1().Pods(projectId).List(Ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("rollout.one-click.io/name=%s", rolloutId),
+		LabelSelector: fmt.Sprintf("rollout.one-click.io/name=%s", projectName),
 	})
 
 	if err != nil {
@@ -171,10 +171,10 @@ func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsRe
 	return &podMetricsResponse, nil
 }
 
-func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse, error) {
+func GetRolloutEvents(projectId string, projectName string, rolloutId string) (*models.EventResponse, error) {
 	// List all events in the projectId namespaced controlled by the rolloutId deployment
 	events, err := Clientset.CoreV1().Events(projectId).List(Ctx, metav1.ListOptions{
-		FieldSelector: fmt.Sprintf("involvedObject.name=%s", rolloutId),
+		FieldSelector: fmt.Sprintf("involvedObject.name=%s", projectName),
 	})
 
 	if err != nil {

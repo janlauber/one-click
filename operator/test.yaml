@@ -19,38 +19,38 @@ spec:
     limits:
       cpu: "200m"
       memory: "256Mi"
-  # env:
-  #   - name: "REFLEX_USERNAME"
-  #     value: "admin"
-  #   - name: DEBUG
-  #     value: "true"
+  env:
+    - name: "REFLEX_USERNAME"
+      value: "admin"
+    - name: DEBUG
+      value: "true"
   secrets:
     - name: "REFLEX_PASSWORD"
       value: "admin"
     - name: "ANOTHER_SECRET"
       value: "122"
-  # volumes:
-  #   - name: "data"
-  #     mountPath: "/data"
-  #     size: "2Gi"
-  #     storageClass: "standard"
+  volumes:
+    - name: "data"
+      mountPath: "/data"
+      size: "2Gi"
+      storageClass: "standard"
   interfaces:
     - name: "http"
       port: 80
     - name: "https"
       port: 443
-      # ingress:
-      #   ingressClass: "nginx"
-      #   annotations:
-      #     nginx.ingress.kubernetes.io/rewrite-target: /
-      #     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-      #   rules:
-      #     - host: "reflex.oneclickapps.dev"
-      #       path: "/test"
-      #       tls: false
-      #     - host: "reflex.oneclickapps.dev"
-      #       path: "/test"
-      #       tls: false
+      ingress:
+        ingressClass: "nginx"
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+          nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        rules:
+          - host: "reflex.oneclickapps.dev"
+            path: "/test"
+            tls: false
+          - host: "reflex.oneclickapps.dev"
+            path: "/test"
+            tls: false
     # - name: "https"
     #   port: 8443
     #   ingress:

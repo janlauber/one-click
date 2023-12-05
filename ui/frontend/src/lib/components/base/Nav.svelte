@@ -51,7 +51,7 @@
     <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
   </NavBrand>
   <!-- display only when under /app/projects/{id} -->
-  <!-- {#if $page.url.pathname.startsWith("/app/projects/")}
+  {#if $page.url.pathname.startsWith("/app/projects/")}
     <div class="flex items-center justify-center md:order-1 cursor-pointer active:scale-105">
       <Select
         placeholder="Choose Project"
@@ -60,8 +60,8 @@
         bind:value={$selectedProjectId}
       ></Select>
     </div>
-  {/if} -->
-  <ComboBox />
+  {/if}
+  <!-- <ComboBox /> -->
   <div class="flex items-center md:order-2 cursor-pointer active:scale-105">
     <Avatar id="avatar-menu" src={avatarUrlString} />
   </div>
