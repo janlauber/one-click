@@ -18,7 +18,7 @@
     </div>
     {#key data.url}
       <div
-        class="absolute top-0 pt-8 left-64 right-2 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden"
+        class="absolute top-4 pt-4 left-64 right-2 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden"
         in:fly={{ duration: 100, easing: cubicOut }}
         out:fly={{ duration: 100, easing: cubicOut }}
       >

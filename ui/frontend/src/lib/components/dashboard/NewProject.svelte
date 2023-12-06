@@ -35,12 +35,19 @@
       .sort((a, b) => a.price - b.price);
   }
 
+  function formatTag(tag: string): string {
+    // remove whitespace and add - between words
+    // to lowercase
+
+    return tag.trim().split(" ").join("-").toLowerCase();
+  }
+
   function handleAddTagEnter(event: KeyboardEvent) {
     // if value is empty, do nothing
     if (!(event.target as HTMLInputElement).value) return;
 
     if (event.key === "Enter") {
-      localTags = localTags.add((event.target as HTMLInputElement).value);
+      localTags = localTags.add(formatTag((event.target as HTMLInputElement).value));
       (event.target as HTMLInputElement).value = "";
       toast.success("Tag added");
     }
@@ -50,7 +57,9 @@
     // if value of #tags is empty, do nothing
     if (!(event.target.previousElementSibling as HTMLInputElement).value) return;
 
-    localTags = localTags.add((event.target.previousElementSibling as HTMLInputElement).value);
+    localTags = localTags.add(
+      formatTag((event.target.previousElementSibling as HTMLInputElement).value)
+    );
     (event.target.previousElementSibling as HTMLInputElement).value = "";
     toast.success("Tag added");
   }

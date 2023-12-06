@@ -80,7 +80,7 @@
         <dd class="items-start gap-y-2 space-x-2">
           {#each [...tags] as tag (tag)}
             <Badge color="dark" large class="cursor-default"
-              >{tag.charAt(0).toUpperCase() + tag.slice(1)}</Badge
+              >{tag.charAt(0) + tag.slice(1)}</Badge
             >
           {/each}
 
