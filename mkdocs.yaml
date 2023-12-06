@@ -35,6 +35,7 @@ nav:
   - Meetings:
     - meetings/index.md
     - 2023-10-23: meetings/2023-10-23.md
+    - 2023-12-06: meetings/2023-12-06.md
   - Decisions:
     - decisions/index.md
     - 0000-template: decisions/0000-template.md
@@ -44,8 +45,8 @@ nav:
     - 0004-supported-technologies: decisions/0004-supported-technologies.md
     - 0005-use-of-generative-ai: decisions/0005-use-of-generative-ai.md
     - 0006-applications-exclusion: decisions/0006-applications-exclusion.md
-    - 0007 Kubernetes Operator: decisions/0007-kubernetes-operator.md
-    - 0008 Project Management: decisions/0008-project-management.md
+    - 0007-kubernetes-operator: decisions/0007-kubernetes-operator.md
+    - 0008-project-management: decisions/0008-project-management.md
   - Feedback Loop:
     - feedback-loop/index.md
   - About:
