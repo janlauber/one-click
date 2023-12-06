@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { type Rexpand, rollouts, updateDataStores } from "$lib/stores/data";
+  import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
   import { Button, Heading, Input, Label, P, TableSearch, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
@@ -142,7 +142,10 @@
           .collection("rollouts")
           .create(data)
           .then(() => {
-            updateDataStores();
+            updateDataStores({
+              filter: UpdateFilterEnum.ALL,
+              projectId: $selectedProjectId
+            });
           }),
         {
           loading: "Creating rollout...",

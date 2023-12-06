@@ -1,7 +1,7 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { rollouts, type Rexpand, updateDataStores } from "$lib/stores/data";
+  import { rollouts, type Rexpand, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
@@ -131,7 +131,10 @@
         .collection("rollouts")
         .update(rollout.id, data)
         .then(() => {
-          updateDataStores();
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProjectId
+          });
         }),
       {
         loading: "Deploying rollout...",
@@ -152,7 +155,10 @@
         .collection("rollouts")
         .delete(rollout.id)
         .then(() => {
-          updateDataStores();
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProjectId
+          });
         }),
       {
         loading: "Deleting rollout...",
@@ -184,7 +190,7 @@
 <Drawer
   placement="right"
   transitionType="fly"
-  width="w-96"
+  width="max-w-xl w-full"
   transitionParams={transitionParamsRight}
   bind:hidden={hidden6}
   id="sidebar6"
@@ -278,7 +284,11 @@
   />
 
   <svelte:fragment slot="footer">
-    <Button on:click={() => selectedRollout ? handleRollback(selectedRollout) : toast.error("No rollout selected!")}>Confirm</Button>
+    <Button
+      on:click={() =>
+        selectedRollout ? handleRollback(selectedRollout) : toast.error("No rollout selected!")}
+      >Confirm</Button
+    >
     <Button color="alternative">Cancel</Button>
   </svelte:fragment>
 </Modal>

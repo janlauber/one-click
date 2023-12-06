@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { type Rexpand, rollouts, updateDataStores } from "$lib/stores/data";
+  import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
   import { Button, Heading, Input, Label, P } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
@@ -235,7 +235,10 @@
           .collection("rollouts")
           .create(data)
           .then(() => {
-            updateDataStores();
+            updateDataStores({
+              filter: UpdateFilterEnum.ALL,
+              projectId: $selectedProjectId
+            });
           }),
         {
           loading: "Creating rollout...",
@@ -304,6 +307,33 @@
                     placeholder="1"
                     class="
                     {maxInstances < minInstances ? 'border-red-500' : 'border-green-500'}
+                    "
+                  />
+                </td>
+              </tr>
+              <!-- targetCPUUtilizationPercentage scaling -->
+              <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
+                  <Heading tag="h5">Target CPU Utilization Percentage</Heading>
+                  <P class="text-gray-500 dark:text-gray-400 text-xs">
+                    The target CPU utilization percentage to trigger a scale up.
+                  </P>
+                </td><td class="whitespace-nowrap px-3 py-4 text-xs">
+                  <Label for="tag" class="block "
+                    >Percentage %
+                    <span class={targetCPUUtilizationPercentage < 40 ? "text-red-500" : "text-green-500"}>
+                      *
+                    </span>
+                  </Label>
+                  <Input
+                    id="targetCPUUtilizationPercentage"
+                    size="sm"
+                    type="number"
+                    bind:value={targetCPUUtilizationPercentage}
+                    on:input={(e) => handleInputChange(e, "targetCPUUtilizationPercentage")}
+                    placeholder="1"
+                    class="
+                    {targetCPUUtilizationPercentage < 40 ? 'border-red-500' : 'border-green-500'}
                     "
                   />
                 </td>

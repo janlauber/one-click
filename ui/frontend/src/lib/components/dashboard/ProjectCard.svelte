@@ -7,7 +7,7 @@
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { frameworkLogoUrl } from "$lib/utils/framework.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
-  import { ChevronRight, Tag } from "lucide-svelte";
+  import { ArrowRight, ChevronRight, Tag } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();
@@ -27,7 +27,7 @@
       <img
         src={frameworkLogoUrl(project.expand?.framework)}
         alt="Tuple"
-        class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10"
+        class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
       />
       <Indicator
         color="dark"
@@ -49,7 +49,7 @@
             goto(`/app/projects/${project.id}/overview`);
           }}
         >
-          <ChevronRight class="w-5 h-5" />
+          <ArrowRight class="w-5 h-5" />
         </Button>
       </div>
     </div>

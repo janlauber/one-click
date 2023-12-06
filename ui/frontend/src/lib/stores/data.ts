@@ -2,7 +2,8 @@ import { client } from "$lib/pocketbase";
 import type {
     RolloutsResponse,
     ProjectsResponse,
-    FrameworksResponse
+    FrameworksResponse,
+    PlansResponse
 } from "$lib/pocketbase/generated-types";
 import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
@@ -21,6 +22,10 @@ export type Pexpand = {
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
+export type Plexpand = {
+    framework: FrameworksResponse;
+};
+export const plans: Writable<PlansResponse<Plexpand>[]> = writable<PlansResponse<Plexpand>[]>([]);
 
 export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
     ProjectsResponse<Pexpand> | undefined
@@ -40,6 +45,7 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
         await updateFrameworks();
         await updateProjects(filter.projectId);
         await updateRollouts(filter.projectId);
+        await updatePlans();
     }
 }
 
@@ -103,4 +109,22 @@ async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
     };
 
     return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
+}
+
+export async function updatePlans() {
+    try {
+        const response = await fetchPlans();
+        plans.set(response);
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchPlans(): Promise<PlansResponse<Plexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "framework"
+    };
+
+    return await client.collection("plans").getFullList<PlansResponse<Plexpand>>(queryOptions);
 }

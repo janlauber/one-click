@@ -1,0 +1,12 @@
+{
+  "overview": true,
+  "rollouts": true,
+  "image": true,
+  "scale": true,
+  "network": true,
+  "volumes": true,
+  "instances": true,
+  "envs": true,
+  "settings": true,
+  "logs": false
+}
