@@ -9,3 +9,4 @@ We will use the concept of Strengths, Weaknesses, Opportunities, and Threats (`S
 - [Streamlit Cloud Hosting](./competitive-analysis/streamlit-cloud.md)
 - [Reflex Hosting](./competitive-analysis/reflex-hosting.md)
 - [Kaa Node-RED Hosting](./competitive-analysis/kaa-node-red.md)
+- [Bonsai Hosting](./competitive-analysis/bonsai-hosting.md)
