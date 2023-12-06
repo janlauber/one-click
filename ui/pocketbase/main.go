@@ -89,6 +89,8 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutDelete(e, app)
+		case "projects":
+			return controller.HandleProjectDelete(e, app)
 		}
 		return nil
 	})
