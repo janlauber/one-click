@@ -1,6 +1,7 @@
 {
   "overview": true,
   "rollouts": true,
+  "builds": true,
   "image": true,
   "scale": true,
   "network": true,

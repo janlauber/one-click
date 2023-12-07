@@ -53,7 +53,7 @@ export async function updateFrameworks() {
     await client
         .collection("frameworks")
         .getFullList({
-            sort: "name"
+            sort: "application,name"
         })
         .then((response: unknown) => {
             frameworks.set(response as FrameworksResponse[]);

@@ -52,7 +52,7 @@
 </script>
 
 <div class="absolute w-full top-28 bottom-0 overflow-y-scroll scrollbar-none">
-  <Modal bind:open={projectModal} size="md" autoclose={false} class="w-full">
+  <Modal bind:open={projectModal} size="lg" autoclose={false} class="w-full">
     <NewProject bind:projectModal />
   </Modal>
 

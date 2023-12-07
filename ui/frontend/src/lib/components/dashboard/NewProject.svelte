@@ -10,7 +10,7 @@
   import { frameworks, plans, updateDataStores } from "$lib/stores/data";
   import { frameworkLogoUrl } from "$lib/utils/framework.utils";
 
-  import { Button, Input, Label } from "flowbite-svelte";
+  import { Badge, Button, Input, Label } from "flowbite-svelte";
   import { ArrowRight, DollarSign, ExternalLink, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
@@ -149,9 +149,9 @@
   </Label>
   <fieldset class="space-y-2">
     <Label class="space-y-2">
-      <span>Select a framework</span>
+      <span>Select a framework *</span>
     </Label>
-    <div class="grid gap-2">
+    <div class="grid grid-cols-2 gap-2">
       {#if $frameworks}
         {#each $frameworks as framework (framework.id)}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -176,8 +176,11 @@
             />
             <span class="flex items-center">
               <span class="flex flex-col text-sm">
-                <span id="server-size-1-label" class="font-medium">{framework?.name}</span>
-                <span id="server-size-1-description-0" class=" hover:text-gray-600">
+                <span id="server-size-1-label" class="font-medium">
+                  {framework?.name}
+                </span>
+
+                <span id="server-size-1-description-0" class=" hover:text-gray-600 mt-1">
                   <ExternalLink class="w-4 h-4 mr-1 inline-block" />
                   <a href={framework.url} target="_blank" class="block sm:inline underline">
                     {framework.url}</a
@@ -209,7 +212,7 @@
 
   <fieldset class="space-y-2">
     <Label class="space-y-2">
-      <span>Select a plan</span>
+      <span>Select a plan *</span>
     </Label>
     <div class="grid grid-cols-2 gap-2">
       {#if tempPlans}
