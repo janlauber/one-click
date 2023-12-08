@@ -6,13 +6,16 @@
   import {
     ArrowLeft,
     Box,
+    Boxes,
     Cog,
     Database,
     Expand,
+    FileText,
     HardDrive,
     History,
     LineChart,
     Network,
+    Package,
     Variable
   } from "lucide-svelte";
 
@@ -32,10 +35,22 @@
         icon: LineChart
       },
       {
+        name: "Logs",
+        href: `/app/projects/${projectId}/logs`,
+        current: false,
+        icon: FileText
+      },
+      {
         name: "Rollouts",
         href: `/app/projects/${projectId}/rollouts`,
         current: false,
         icon: History
+      },
+      {
+        name: "Builds",
+        href: `/app/projects/${projectId}/builds`,
+        current: false,
+        icon: Package
       },
       {
         name: "Image",
@@ -65,7 +80,7 @@
         name: "Instances",
         href: `/app/projects/${projectId}/instances`,
         current: false,
-        icon: Box
+        icon: Boxes
       },
       {
         name: "Envs & Secrets",
@@ -88,10 +103,22 @@
         items.find((item) => item.name === "Overview")
       );
     }
+    if (!projectSettings?.logs) {
+      removeItem(
+        items,
+        items.find((item) => item.name === "Logs")
+      );
+    }
     if (!projectSettings?.rollouts) {
       removeItem(
         items,
         items.find((item) => item.name === "Rollouts")
+      );
+    }
+    if (!projectSettings?.builds) {
+      removeItem(
+        items,
+        items.find((item) => item.name === "Builds")
       );
     }
     if (!projectSettings?.image) {

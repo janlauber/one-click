@@ -1,6 +1,7 @@
 export interface ProjectSettings {
     overview: boolean;
     rollouts: boolean;
+    builds: boolean;
     image: boolean;
     scale: boolean;
     network: boolean;
