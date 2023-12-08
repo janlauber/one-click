@@ -3,7 +3,6 @@ WORKDIR /build
 COPY pocketbase/go.mod pocketbase/go.sum pocketbase/main.go ./
 COPY pocketbase/hooks ./hooks
 COPY pocketbase/pkg ./pkg
-COPY pocketbase/vcluster-values.yaml ./vcluster-values.yaml
 RUN apk --no-cache add upx make git gcc libtool musl-dev ca-certificates dumb-init \
   && go mod tidy \
   && CGO_ENABLED=0 go build \

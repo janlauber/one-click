@@ -113,7 +113,6 @@
           .then((response) => {
             toast.success("Project & initial Rollout created");
             updateDataStores();
-            goto(`/app/projects/${response.project}/overview`);
           })
           .catch((error) => {
             toast.success("Project created");
