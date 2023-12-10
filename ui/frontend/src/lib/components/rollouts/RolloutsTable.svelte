@@ -244,7 +244,7 @@
             <span class="text-sm font-light">Replicas</span>
             <span class="text-sm font-semibold">
               {#if selectedRolloutStatus}
-                {selectedRolloutStatus?.deployment.replicas}
+                {selectedRolloutStatus?.deployment?.replicas}
               {/if}
             </span>
           </div>

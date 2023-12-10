@@ -168,7 +168,7 @@
       </div>
       <div class="flex flex-col ml-4">
         <span class="text-sm font-light">Replicas</span>
-        <span class="text-sm font-semibold">{current_rollout_status?.deployment.replicas ?? 0}</span
+        <span class="text-sm font-semibold">{current_rollout_status?.deployment?.replicas ?? 0}</span
         >
       </div>
     </Card>

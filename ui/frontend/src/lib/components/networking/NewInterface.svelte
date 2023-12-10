@@ -1,13 +1,12 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { updateDataStores, type Rexpand, UpdateFilterEnum } from "$lib/stores/data";
+  import { updateDataStores, type Rexpand, UpdateFilterEnum, currentRollout } from "$lib/stores/data";
   import { Accordion, AccordionItem, Button, Input, Label, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
-  export let current_rollout: RolloutsResponse<Rexpand> | undefined;
 
   interface Interface {
     id: string;
@@ -28,7 +27,7 @@
   };
 
   async function handleCreateInterface() {
-    if (!current_rollout) {
+    if (!$currentRollout) {
       toast.error("No rollout selected");
       return;
     }
@@ -45,7 +44,7 @@
 
     // Check for existing interface with same name, host, or port
     // @ts-ignore
-    const existingInterface = current_rollout.manifest.spec.interfaces.find(
+    const existingInterface = $currentRollout.manifest.spec.interfaces.find(
       (i: any) =>
         i.name === inf.name ||
         i.port === inf.port ||
@@ -61,13 +60,13 @@
 
     if (inf.host) {
       new_manifest = {
-        ...current_rollout.manifest,
+        ...$currentRollout.manifest,
         spec: {
           // @ts-ignore
-          ...current_rollout.manifest.spec,
+          ...$currentRollout.manifest.spec,
           interfaces: [
             // @ts-ignore
-            ...current_rollout.manifest.spec.interfaces,
+            ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,
               port: parseInt(inf.port.toString()),
@@ -90,13 +89,13 @@
       };
     } else {
       new_manifest = {
-        ...current_rollout.manifest,
+        ...$currentRollout.manifest,
         spec: {
           // @ts-ignore
-          ...current_rollout.manifest.spec,
+          ...$currentRollout.manifest.spec,
           interfaces: [
             // @ts-ignore
-            ...current_rollout.manifest.spec.interfaces,
+            ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,
               port: parseInt(inf.port.toString())
@@ -106,15 +105,15 @@
       };
     }
 
+    console.log(new_manifest);
+
     const data: RolloutsRecord = {
       manifest: new_manifest,
-      startDate: current_rollout.startDate,
+      startDate: $currentRollout.startDate,
       endDate: "",
       project: $selectedProjectId,
       user: client.authStore.model?.id
     };
-
-    console.log(data);
 
     toast.promise(
       client

@@ -16,6 +16,9 @@ export type Rexpand = {
 export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
     RolloutsResponse<Rexpand>[]
 >([]);
+export const currentRollout: Writable<RolloutsResponse<Rexpand> | undefined> = writable<
+    RolloutsResponse<Rexpand> | undefined
+>(undefined);
 export type Pexpand = {
     framework: FrameworksResponse;
 };
@@ -71,6 +74,10 @@ export async function updateRollouts(projectId?: string) {
             selectedProjectId.set(projectId);
             // @ts-ignore
             rollouts.set(response.filter((rollout) => rollout.project === projectId));
+
+            // set the current rollout to the one without an endDate
+            // @ts-ignore
+            currentRollout.set(response.find((rollout) => rollout.endDate === ""));
             return;
         }
         rollouts.set(response);
