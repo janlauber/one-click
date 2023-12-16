@@ -47,6 +47,8 @@ nav:
     - 0006-applications-exclusion: decisions/0006-applications-exclusion.md
     - 0007-kubernetes-operator: decisions/0007-kubernetes-operator.md
     - 0008-project-management: decisions/0008-project-management.md
+    - 0009-demo-app-streamlit: decisions/0009-demo-app-streamlit.md
+    - 0010-no-mockups: decisions/0010-no-mockups.md
   - Feedback Loop:
     - feedback-loop/index.md
   - About:
