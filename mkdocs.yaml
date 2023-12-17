@@ -30,8 +30,6 @@ nav:
     - Frontend: docs/frontend.md
     - Backend: docs/backend.md
     - Kubernetes Operator: docs/kubernetes-operator.md
-    - Scalability: docs/scalability.md
-    - Security: docs/security.md
   - Meetings:
     - meetings/index.md
     - 2023-10-23: meetings/2023-10-23.md

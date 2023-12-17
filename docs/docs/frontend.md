@@ -13,16 +13,33 @@ For the mockups we used Figma, which is a tool for creating mockups and prototyp
     You can find the mockups here:  
     [Figma Design File](https://www.figma.com/file/Bi4OKCqGSgPXN1tvFzVV6Q/Untitled?type=design&mode=design&t=Sv1KYLH6X63M3oaV-1)
 
-### Mockups
+## Sveltekit
 
-#### Login Page
+We used Sveltekit to create the frontend of the application. Sveltekit is a framework for creating web applications. It is based on Svelte, which is a compiler for creating web applications. Sveltekit is still in beta and will be released in the next few months.
 
-![Login Page](../assets/images/mockups/login.png)
+!!! note "Sveltekit"
+    You can find the Sveltekit documentation here:  
+    [Sveltekit Documentation](https://kit.svelte.dev/docs)
 
-#### Overview Page
+### Pages
 
-#### Project Page
+The frontend of the application consists of the following pages:
 
-#### Profile Page
+- Login
+- Overview
+- Projects
+  - Overview
+  - Environment Variables
+  - Builds
+  - Instances
+  - Logs
+  - Networking
+  - Rollouts
+  - Scale
+  - Settings
+  - Volumes
+- Profile
 
-#### Settings Page
+### Authentication
+
+The authentication is done via static Pocketbase account. This means that you can only login with the credentials that are stored in the [backend](backend.md). The authentication is done via the [Pocketbase JS-SDK](https://github.com/pocketbase/js-sdk).
