@@ -37,18 +37,6 @@
     tls: boolean;
   }
 
-  interface Ingress {
-    ingressClass: string;
-    annotations: Record<string, string>;
-    rules: Rule[];
-  }
-
-  interface Rule {
-    host: string;
-    path: string;
-    tls: boolean;
-  }
-
   let interfaces: Interface[] = [];
 
   $: {
