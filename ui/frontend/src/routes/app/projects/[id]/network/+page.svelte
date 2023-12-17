@@ -20,10 +20,13 @@
     P,
     Toggle
   } from "flowbite-svelte";
+  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
   import { Network, Plus } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
+  let deleteModal: boolean;
+  let selectedInterfaceId: string;
 
   interface Interface {
     id: string;
@@ -85,6 +88,42 @@
     }
   }
 
+  function handleDeleteClick(id: string) {
+    selectedInterfaceId = id;
+    deleteModal = true;
+  }
+
+  async function handleDelete() {
+    const interfaceIndex = interfaces.findIndex((inf) => inf.id === selectedInterfaceId);
+    if (interfaceIndex === -1) {
+      return; // Interface not found, do nothing
+    }
+
+    interfaces.splice(interfaceIndex, 1); // Remove the interface from the array
+
+    if (!$currentRollout) {
+      toast.error("No rollout selected");
+      return;
+    }
+
+    if (!$currentRollout.manifest) {
+      toast.error("No manifest found");
+      return;
+    }
+
+    // Remove the interface from the manifest
+    $currentRollout.manifest.spec.interfaces.splice(interfaceIndex, 1);
+
+    // Save the manifest
+    try {
+      await updateManifest($currentRollout.manifest);
+      toast.success("Interface deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete interface");
+      console.error(error);
+    }
+  }
+
   async function handleInputSave(id: string) {
     const interfaceIndex = interfaces.findIndex((inf) => inf.id === id);
     if (!$currentRollout) {
@@ -114,13 +153,16 @@
       // Check if there's another interface with the same name, host, or port in the current rollout
       // @ts-ignore
       const existingInterface = $currentRollout.manifest.spec.interfaces.find(
-        (i: any) => i.id !== updatedInterface.id && (
-          i.name === updatedInterface.name ||
-          i.port === updatedInterface.port ||
-          (i.ingress && i.ingress.rules.some((rule: any) =>
-            rule.host === updatedInterface.host && rule.path === updatedInterface.path))
-      ));
-
+        (i: any) =>
+          i.id !== updatedInterface.id &&
+          (i.name === updatedInterface.name ||
+            i.port === updatedInterface.port ||
+            (i.ingress &&
+              i.ingress.rules.some(
+                (rule: any) =>
+                  rule.host === updatedInterface.host && rule.path === updatedInterface.path
+              )))
+      );
 
       if (existingInterface) {
         toast.error("An interface with the same name, host, or port already exists");
@@ -139,7 +181,7 @@
       // @ts-ignore
       $currentRollout.manifest.spec.interfaces[rolloutInterfaceIndex] = {
         name: updatedInterface.name,
-        port: updatedInterface.port,
+        port: parseInt(String(updatedInterface.port)),
         ingress: updatedInterface.host
           ? {
               ingressClass: "nginx",
@@ -184,6 +226,8 @@
         project: $currentRollout?.project,
         user: client.authStore.model?.id
       };
+
+      console.log("data", data);
 
       client
         .collection("rollouts")
@@ -247,7 +291,7 @@
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
             <Network class="w-4 h-4" />
           </div>
-          <span class="pt-1">{inf.name}</span>
+          <span class="pt-1">{inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span>
         </div>
         <div class="">
           <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
@@ -308,7 +352,11 @@
           </table>
           <!-- Reset & Save Button bottom right -->
           <div class="flex justify-end mt-4 p-4">
-            <Button color="red" class="whitespace-nowrap self-start mr-2" on:click={() => {}}>
+            <Button
+              color="red"
+              class="whitespace-nowrap self-start mr-2"
+              on:click={() => handleDeleteClick(inf.id)}
+            >
               Delete
             </Button>
             <Button
@@ -324,6 +372,17 @@
     {/each}
   {/key}
 </Accordion>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleOutline class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      Are you sure you want to delete this interface?
+    </h3>
+    <Button color="red" class="me-2" on:click={() => handleDelete()}>Yes, I'm sure</Button>
+    <Button color="alternative">No, cancel</Button>
+  </div>
+</Modal>
 
 <div>
   <Modal bind:open={modal} size="xs" autoclose={false} class="w-full">
