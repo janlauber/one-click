@@ -25,7 +25,7 @@
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
-  let deleteModal: boolean;
+  let deleteModal: boolean = false;
   let selectedInterfaceId: string;
 
   interface Interface {
@@ -40,7 +40,6 @@
   let interfaces: Interface[] = [];
 
   $: {
-    console.log("currentRollout", $currentRollout?.manifest?.spec?.interfaces);
     parseManifestsToInterfaces($currentRollout);
   }
 
