@@ -47,12 +47,6 @@
         icon: History
       },
       {
-        name: "Builds",
-        href: `/app/projects/${projectId}/builds`,
-        current: false,
-        icon: Package
-      },
-      {
         name: "Image",
         href: `/app/projects/${projectId}/image`,
         current: false,
@@ -113,12 +107,6 @@
       removeItem(
         items,
         items.find((item) => item.name === "Rollouts")
-      );
-    }
-    if (!projectSettings?.builds) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Builds")
       );
     }
     if (!projectSettings?.image) {

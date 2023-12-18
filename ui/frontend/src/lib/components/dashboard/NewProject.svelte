@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
   import type {
     ProjectsRecord,

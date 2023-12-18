@@ -376,7 +376,7 @@
             >
               <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
-                  <Heading tag="h5">Requests</Heading>
+                  <Heading tag="h5">Reserved</Heading>
                   <P class="text-gray-500 dark:text-gray-400 text-xs">
                     The reserved resources for each instance.
                   </P>

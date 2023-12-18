@@ -20,7 +20,7 @@ PocketBase offers a set of hooks that can be used to execute custom code before 
 
 ### Collection Schema
 
-![Database schema](../assets/images/erd/pb_diagram_prototype.png)
+![Database schema](../assets/images/erd/pb_diagram_final.png)
 
 <https://pocketbase-uml.github.io/>
 
