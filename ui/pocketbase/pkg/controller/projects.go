@@ -28,7 +28,6 @@ func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		err = k8s.DeleteRollout(e.Record.GetString("id"), rollout.Id)
 		if err != nil {
 			log.Println(err)
-			// return err
 		}
 	}
 
