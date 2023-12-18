@@ -13,3 +13,5 @@ This directory contains the decisions made by me for this project. The decisions
 - [0006 Applications Exclusion](0006-applications-exclusion.md)
 - [0007 Kubernetes Operator](0007-kubernetes-operator.md)
 - [0008 Project Management](0008-project-management.md)
+- [0009 Demo App Streamlit](0009-demo-app-streamlit.md)
+- [0010 No Mockups](0010-no-mockups.md)

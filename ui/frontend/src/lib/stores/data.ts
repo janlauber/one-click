@@ -2,24 +2,33 @@ import { client } from "$lib/pocketbase";
 import type {
     RolloutsResponse,
     ProjectsResponse,
-    FrameworksResponse
+    FrameworksResponse,
+    PlansResponse
 } from "$lib/pocketbase/generated-types";
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
 export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
 export type Rexpand = {
+    spec: any;
     project: ProjectsResponse;
 };
 export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
     RolloutsResponse<Rexpand>[]
 >([]);
+export const currentRollout: Writable<RolloutsResponse<Rexpand> | undefined> = writable<
+    RolloutsResponse<Rexpand> | undefined
+>(undefined);
 export type Pexpand = {
     framework: FrameworksResponse;
 };
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
+export type Plexpand = {
+    framework: FrameworksResponse;
+};
+export const plans: Writable<PlansResponse<Plexpand>[]> = writable<PlansResponse<Plexpand>[]>([]);
 
 export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
     ProjectsResponse<Pexpand> | undefined
@@ -39,6 +48,7 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
         await updateFrameworks();
         await updateProjects(filter.projectId);
         await updateRollouts(filter.projectId);
+        await updatePlans();
     }
 }
 
@@ -46,7 +56,7 @@ export async function updateFrameworks() {
     await client
         .collection("frameworks")
         .getFullList({
-            sort: "name"
+            sort: "application,name"
         })
         .then((response: unknown) => {
             frameworks.set(response as FrameworksResponse[]);
@@ -63,7 +73,15 @@ export async function updateRollouts(projectId?: string) {
             // set selected project
             selectedProjectId.set(projectId);
             // @ts-ignore
-            rollouts.set(response.filter((rollout) => rollout.expand?.project.id === projectId));
+            rollouts.set(response.filter((rollout) => rollout.project === projectId));
+
+            // set the current rollout to the one without an endDate and the project id
+            // @ts-ignore
+            currentRollout.set(
+                response.find((rollout) => rollout.project === projectId && !rollout.endDate)
+            );
+
+            return;
         }
         rollouts.set(response);
     } catch (error) {
@@ -101,4 +119,22 @@ async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
     };
 
     return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
+}
+
+export async function updatePlans() {
+    try {
+        const response = await fetchPlans();
+        plans.set(response);
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchPlans(): Promise<PlansResponse<Plexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "framework"
+    };
+
+    return await client.collection("plans").getFullList<PlansResponse<Plexpand>>(queryOptions);
 }

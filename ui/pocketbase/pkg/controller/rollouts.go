@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/natrontech/one-click/pkg/k8s"
 	"github.com/natrontech/one-click/pkg/util"
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -35,7 +37,9 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 	}
 
 	// Check if there is another rollout in the same project with no endDate
-	running_rollout, err := app.Dao().FindFirstRecordByData("rollouts", "endDate", "")
+	running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project}",
+		dbx.Params{"project": e.Record.GetString("project")},
+	)
 	if err != nil {
 		if contains := strings.Contains(err.Error(), "no rows"); !contains {
 			return err
@@ -44,6 +48,7 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 
 	// if there is another rollout in the same project with no endDate, set endDate to now on that rollout
 	if running_rollout != nil {
+		fmt.Println("running_rollout", running_rollout)
 		running_rollout.Set("endDate", time.Now().UTC().Format(time.RFC3339))
 		err = app.Dao().SaveRecord(running_rollout)
 		if err != nil {
@@ -106,7 +111,9 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 	} else if rollout.GetString("endDate") != "" {
 
 		// Check if there is another rollout in the same project with no endDate
-		running_rollout, err := app.Dao().FindFirstRecordByData("rollouts", "endDate", "")
+		running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project}",
+			dbx.Params{"project": rollout.GetString("project")},
+		)
 		if err != nil {
 			// only throw error string if it doesn't contain "no rows"
 			if contains := strings.Contains(err.Error(), "no rows"); !contains {
@@ -173,7 +180,6 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		err = k8s.DeleteRollout(project.Id, rollout.Id)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 	}
 
@@ -181,6 +187,7 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 }
 
 func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+
 	// Get rollout status
 	status, err := k8s.GetRolloutStatus(projectId, rollout)
 	if err != nil {
@@ -189,4 +196,28 @@ func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId s
 	}
 
 	return c.JSON(200, status)
+}
+
+func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+
+	// Get rollout metrics
+	metrics, err := k8s.GetRolloutMetrics(projectId, rollout)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return c.JSON(200, metrics)
+}
+
+func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+
+	// Get rollout events
+	events, err := k8s.GetRolloutEvents(projectId, rollout)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return c.JSON(200, events)
 }

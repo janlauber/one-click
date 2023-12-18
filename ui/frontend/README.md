@@ -20,6 +20,16 @@ npm run dev
 
 Now visit http://localhost:5173 (ui) or http://localhost:8090 (pb)
 
+### Default Logins
+
+*PocketBase*:
+email: `admin@one-click.io`
+password: `0123456789`
+
+*App*:
+email: `jan@one-click.io`
+password: `jan`
+
 ## Generated Types
 
 The file `generated-types.ts` contains TypeScript definitions of `Record` types mirroring the fields in your database collections. But it needs to be regenerated every time you modify the schema. This can be done by simply running the `typegen` script in the frontend's `package.json`. So remember to run `npm run typegen` after every schema change.

@@ -17,40 +17,29 @@ import (
 	oneclickiov1alpha1 "github.com/janlauber/one-click/api/v1alpha1"
 )
 
-func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, f *oneclickiov1alpha1.Rollout) error {
+func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, rollout *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	// Get the desired state of the Deployment from the helper function
-	desiredDeployment := r.deploymentForRollout(f)
+	desiredDeployment := r.deploymentForRollout(rollout)
 
-	// Check if the Deployment already exists
-	foundDeployment := &appsv1.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, foundDeployment)
+	currentDeployment := &appsv1.Deployment{}
+	err := r.Get(ctx, types.NamespacedName{Name: rollout.Name, Namespace: rollout.Namespace}, currentDeployment)
 	if err != nil && errors.IsNotFound(err) {
-		log.Info("Creating a new Deployment", "Deployment.Namespace", f.Namespace, "Deployment.Name", f.Name)
-		err = r.Create(ctx, desiredDeployment)
-		if err != nil {
-			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", f.Namespace, "Deployment.Name", f.Name)
-			r.Recorder.Eventf(f, corev1.EventTypeWarning, "CreationFailed", "Failed to create Deployment %s", f.Name)
-			return err
-		}
-		r.Recorder.Eventf(f, corev1.EventTypeNormal, "Created", "Created Deployment %s", f.Name)
+		log.Info("Creating a new Deployment", "Deployment.Namespace", rollout.Namespace, "Deployment.Name", rollout.Name)
+		return r.Create(ctx, desiredDeployment)
 	} else if err != nil {
 		log.Error(err, "Failed to get Deployment")
-		r.Recorder.Eventf(f, corev1.EventTypeWarning, "GetFailed", "Failed to get Deployment %s", f.Name)
 		return err
-	} else {
-		// Deployment exists - check if it needs an update
-		if needsUpdate(foundDeployment, f) {
-			log.Info("Updating Deployment", "Deployment.Namespace", foundDeployment.Namespace, "Deployment.Name", foundDeployment.Name)
-			updateDeployment(foundDeployment, f)
-			err = r.Update(ctx, foundDeployment)
-			if err != nil {
-				log.Error(err, "Failed to update Deployment", "Deployment.Namespace", foundDeployment.Namespace, "Deployment.Name", foundDeployment.Name)
-				r.Recorder.Eventf(f, corev1.EventTypeWarning, "UpdateFailed", "Failed to update Deployment %s", foundDeployment.Name)
-				return err
-			}
-			r.Recorder.Eventf(f, corev1.EventTypeNormal, "Updated", "Updated Deployment %s", foundDeployment.Name)
+	}
+
+	// Compare the current Deployment with the Rollout spec
+	if needsUpdate(currentDeployment, rollout) {
+		// Update the Deployment to align it with the Rollout spec
+		currentDeployment.Spec = desiredDeployment.Spec
+		err = r.Update(ctx, currentDeployment)
+		if err != nil {
+			log.Error(err, "Failed to update Deployment", "Deployment.Namespace", currentDeployment.Namespace, "Deployment.Name", currentDeployment.Name)
+			return err
 		}
 	}
 
@@ -111,7 +100,7 @@ func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) 
 		}
 	}
 
-	// if volumes are defined, add them to the pod
+	// Update volumes and volume mounts
 	if len(f.Spec.Volumes) > 0 {
 		var volumes []corev1.Volume
 		var volumeMounts []corev1.VolumeMount
@@ -131,7 +120,18 @@ func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) 
 		}
 		dep.Spec.Template.Spec.Volumes = volumes
 		dep.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+	} else {
+		// Handle no volumes case
+		dep.Spec.Template.Spec.Volumes = nil
+		dep.Spec.Template.Spec.Containers[0].VolumeMounts = nil
 	}
+
+	// Add secret checksum to pod template annotations to trigger redeployment when secrets change
+	checksum := calculateSecretsChecksum(f.Spec.Secrets)
+	if dep.Spec.Template.Annotations == nil {
+		dep.Spec.Template.Annotations = make(map[string]string)
+	}
+	dep.Spec.Template.Annotations["one-click.io/secrets-checksum"] = checksum
 
 	ctrl.SetControllerReference(f, dep, r.Scheme)
 	return dep
@@ -274,86 +274,4 @@ func createResourceRequirements(resources oneclickiov1alpha1.ResourceRequirement
 			corev1.ResourceMemory: resource.MustParse(resources.Limits.Memory),
 		},
 	}
-}
-
-func updateDeployment(deployment *appsv1.Deployment, f *oneclickiov1alpha1.Rollout) {
-	// Update replicas
-	deployment.Spec.Replicas = &f.Spec.HorizontalScale.MinReplicas
-
-	// Update container image
-	deployment.Spec.Template.Spec.Containers[0].Image = fmt.Sprintf("%s/%s:%s", f.Spec.Image.Registry, f.Spec.Image.Repository, f.Spec.Image.Tag)
-
-	// Update secrets
-	if len(f.Spec.Secrets) > 0 {
-		deployment.Spec.Template.Spec.Containers[0].EnvFrom = []corev1.EnvFromSource{
-			{
-				SecretRef: &corev1.SecretEnvSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: f.Name + "-secrets",
-					},
-				},
-			},
-		}
-	} else {
-		deployment.Spec.Template.Spec.Containers[0].EnvFrom = nil
-	}
-
-	// Ensure the Annotations map is not nil
-	if deployment.Spec.Template.Annotations == nil {
-		deployment.Spec.Template.Annotations = make(map[string]string)
-	}
-
-	// Calculate the checksum of the secrets and add it as an annotation
-	secretsChecksum := calculateSecretsChecksum(f.Spec.Secrets)
-	deployment.Spec.Template.Annotations["one-click.io/secrets-checksum"] = secretsChecksum
-
-	// Update environment variables
-	deployment.Spec.Template.Spec.Containers[0].Env = getEnvVars(f.Spec.Env)
-
-	// Update resource requests and limits
-	deployment.Spec.Template.Spec.Containers[0].Resources = createResourceRequirements(f.Spec.Resources)
-
-	// Update ports
-	updateContainerPorts(&deployment.Spec.Template.Spec.Containers[0], f.Spec.Interfaces)
-
-	// Update volumes
-	updateVolumes(&deployment.Spec.Template.Spec.Volumes, f.Spec.Volumes)
-
-	// Update volume mounts
-	var volumeMounts []corev1.VolumeMount
-	for _, v := range f.Spec.Volumes {
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      v.Name,
-			MountPath: v.MountPath,
-		})
-	}
-	deployment.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
-
-	// Update service account name
-	deployment.Spec.Template.Spec.ServiceAccountName = f.Spec.ServiceAccountName
-}
-
-func updateContainerPorts(container *corev1.Container, interfaces []oneclickiov1alpha1.InterfaceSpec) {
-	var ports []corev1.ContainerPort
-	for _, intf := range interfaces {
-		ports = append(ports, corev1.ContainerPort{ContainerPort: intf.Port})
-		// Add additional port configuration if necessary
-	}
-	container.Ports = ports
-}
-
-func updateVolumes(currentVolumes *[]corev1.Volume, volumes []oneclickiov1alpha1.VolumeSpec) {
-	var newVolumes []corev1.Volume
-	for _, vol := range volumes {
-		newVolumes = append(newVolumes, corev1.Volume{
-			Name: vol.Name,
-			VolumeSource: corev1.VolumeSource{
-				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: vol.Name,
-				},
-			},
-		})
-		// Add additional volume configuration if necessary
-	}
-	*currentVolumes = newVolumes
 }

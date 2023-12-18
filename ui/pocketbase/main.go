@@ -89,6 +89,8 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutDelete(e, app)
+		case "projects":
+			return controller.HandleProjectDelete(e, app)
 		}
 		return nil
 	})
@@ -100,6 +102,27 @@ func main() {
 			rolloutId := c.PathParam("rolloutId")
 
 			return controller.HandleRolloutStatus(c, app, projectId, rolloutId)
+		})
+
+		e.Router.GET("/rollouts/:projectId/:rolloutId/metrics", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			rolloutId := c.PathParam("rolloutId")
+
+			return controller.HandleRolloutMetrics(c, app, projectId, rolloutId)
+		})
+
+		e.Router.GET("/rollouts/:projectId/:rolloutId/events", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			rolloutId := c.PathParam("rolloutId")
+
+			return controller.HandleRolloutEvents(c, app, projectId, rolloutId)
+		})
+
+		e.Router.GET("/rollouts/:projectId/:podName/logs", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			podName := c.PathParam("podName")
+
+			return k8s.GetRolloutLogs(c.Response().Writer, projectId, podName)
 		})
 
 		return nil

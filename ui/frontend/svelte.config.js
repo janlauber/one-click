@@ -29,7 +29,10 @@ const config = {
     onwarn: (warning, handler) => {
         if (warning.code.startsWith("a11y-")) return;
         handler(warning);
-    }
+    },
+    optimizeDeps: {
+        exclude: ["codemirror", "@codemirror/language-javascript" /* ... */],
+    },
 };
 
 export default config;

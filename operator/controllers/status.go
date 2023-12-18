@@ -7,6 +7,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -25,6 +26,8 @@ func (r *RolloutReconciler) updateStatus(ctx context.Context, f *oneclickiov1alp
 
 	// Get the Deployment
 	// TODO: fix status at first run
+	var requestSumCpu, requestSumMemory, limitSumCpu, limitSumMemory resource.Quantity
+
 	deployment := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: f.Name, Namespace: f.Namespace}, deployment)
 	if err != nil {
@@ -67,10 +70,41 @@ func (r *RolloutReconciler) updateStatus(ctx context.Context, f *oneclickiov1alp
 		}
 	}
 
+	for _, pod := range podList.Items {
+		for _, container := range pod.Spec.Containers {
+			// Sum requested resources
+			if req, ok := container.Resources.Requests[corev1.ResourceCPU]; ok {
+				requestSumCpu.Add(req)
+			}
+			if req, ok := container.Resources.Requests[corev1.ResourceMemory]; ok {
+				requestSumMemory.Add(req)
+			}
+
+			// Sum limits
+			if lim, ok := container.Resources.Limits[corev1.ResourceCPU]; ok {
+				limitSumCpu.Add(lim)
+			}
+			if lim, ok := container.Resources.Limits[corev1.ResourceMemory]; ok {
+				limitSumMemory.Add(lim)
+			}
+		}
+	}
+
 	// add some test data to the status
 	f.Status.Deployment.Replicas = replicas
 	f.Status.Deployment.PodNames = podNames
 	f.Status.Deployment.Status = deploymentStatus
+	// Update the Rollout status with resource information
+	f.Status.Deployment.Resources = oneclickiov1alpha1.DeploymentResources{
+		RequestSum: oneclickiov1alpha1.Resources{
+			CPU:    requestSumCpu.AsDec().String(),
+			Memory: requestSumMemory.AsDec().String(),
+		},
+		LimitSum: oneclickiov1alpha1.Resources{
+			CPU:    limitSumCpu.AsDec().String(),
+			Memory: limitSumMemory.AsDec().String(),
+		},
+	}
 
 	// List the Ingresses
 	ingressList := &networkingv1.IngressList{}

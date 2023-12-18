@@ -1,11 +1,16 @@
 package k8s
 
 import (
+	"bufio"
+	"context"
 	"fmt"
+	"log"
+	"net/http"
 
 	yaml2 "github.com/ghodss/yaml"
 	"github.com/natrontech/one-click/pkg/models"
 	pb_models "github.com/pocketbase/pocketbase/models"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -45,7 +50,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 	}
 
 	// Set the name and namespace to rolloutId and projectId
-	obj.SetName(rolloutId)
+	obj.SetName(projectId)
 	obj.SetNamespace(projectId)
 
 	// Define the GroupVersionResource for the Rollout object
@@ -61,9 +66,12 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 		UserRecord: user,
 	}
 	err = CreateNamespace(nparams)
+	if err != nil {
+		log.Println(err)
+	}
 
 	// Try to get the existing Rollout
-	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, rolloutId, metav1.GetOptions{})
+	existingRollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, projectId, metav1.GetOptions{})
 	if err != nil {
 		// If not found, create it
 		_, err = DynamicClient.Resource(rolloutGVR).Namespace(projectId).Create(Ctx, obj, metav1.CreateOptions{})
@@ -95,7 +103,7 @@ func DeleteRollout(projectId string, rolloutId string) error {
 	namespace := projectId
 
 	// Delete the Rollout
-	err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Delete(Ctx, rolloutId, metav1.DeleteOptions{})
+	err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Delete(Ctx, projectId, metav1.DeleteOptions{})
 	if err != nil {
 		return fmt.Errorf("error deleting Rollout: %w", err)
 	}
@@ -114,7 +122,7 @@ func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus
 	namespace := projectId
 
 	// Get the Rollout
-	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Get(Ctx, rolloutId, metav1.GetOptions{})
+	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(namespace).Get(Ctx, projectId, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting Rollout: %w", err)
 	}
@@ -133,4 +141,99 @@ func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus
 	}
 
 	return &rolloutStatus, nil
+}
+
+func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsResponse, error) {
+
+	// List all pods in the projectId namespaced controlled by the rolloutId deployment
+	pods, err := Clientset.CoreV1().Pods(projectId).List(Ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("rollout.one-click.io/name=%s", projectId),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting pods: %w", err)
+	}
+
+	var podMetricsResponse models.PodMetricsResponse
+	var podMetrics []models.PodMetrics
+
+	for _, pod := range pods.Items {
+		metrics, err := MetricsClient.MetricsV1beta1().PodMetricses(projectId).Get(Ctx, pod.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("error getting pod metrics: %w", err)
+		}
+
+		podMetrics = append(podMetrics, models.PodMetrics{
+			Name:   pod.Name,
+			CPU:    metrics.Containers[0].Usage.Cpu().AsDec().String(),
+			Memory: metrics.Containers[0].Usage.Memory().AsDec().String(),
+		})
+	}
+
+	podMetricsResponse.Metrics = podMetrics
+
+	return &podMetricsResponse, nil
+}
+
+func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse, error) {
+	// List all events in the projectId namespaced controlled by the rolloutId deployment
+	events, err := Clientset.CoreV1().Events(projectId).List(Ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.name=%s", projectId),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting events: %w", err)
+	}
+
+	var eventResponse models.EventResponse
+	var eventList []models.Event
+
+	for _, event := range events.Items {
+		eventList = append(eventList, models.Event{
+			Reason:  event.Reason,
+			Message: event.Message,
+			Typus:   event.Type,
+		})
+	}
+
+	eventResponse.Events = eventList
+
+	// check if there is null
+	if eventResponse.Events == nil {
+		eventResponse.Events = []models.Event{}
+	}
+
+	return &eventResponse, nil
+}
+
+func GetRolloutLogs(w http.ResponseWriter, projectId string, podName string) error {
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	// Get live logs
+	liveLogOptions := &corev1.PodLogOptions{
+		Follow: true,
+	}
+	liveReq := Clientset.CoreV1().Pods(projectId).GetLogs(podName, liveLogOptions)
+	liveLogs, err := liveReq.Stream(context.Background())
+	if err != nil {
+		return err
+	}
+
+	// Write live logs line by line
+	scanner := bufio.NewScanner(liveLogs)
+	for scanner.Scan() {
+		line := scanner.Text()
+		_, err := fmt.Fprintf(w, "data: %s\n\n", line)
+		if err != nil {
+			return err
+		}
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
+
+	return nil
 }

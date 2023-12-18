@@ -89,11 +89,9 @@ func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	// Reconcile PVCs only if volumes are defined
-	if len(rollout.Spec.Volumes) > 0 {
-		if err := r.reconcilePVCs(ctx, &rollout); err != nil {
-			log.Error(err, "Failed to reconcile PVCs.")
-			return ctrl.Result{}, err
-		}
+	if err := r.reconcilePVCs(ctx, &rollout); err != nil {
+		log.Error(err, "Failed to reconcile PVCs.")
+		return ctrl.Result{}, err
 	}
 
 	// Reconcile Secrets

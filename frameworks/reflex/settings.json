@@ -1,0 +1,13 @@
+{
+  "overview": true,
+  "rollouts": true,
+  "builds": true,
+  "image": true,
+  "scale": false,
+  "network": true,
+  "volumes": true,
+  "instances": true,
+  "envs": true,
+  "settings": true,
+  "logs": true
+}

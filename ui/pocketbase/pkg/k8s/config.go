@@ -13,13 +13,15 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+	metricsv "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 var (
 	Clientset       *kubernetes.Clientset
 	DynamicClient   dynamic.Interface
-	Kubeconfig      *rest.Config
 	DiscoveryClient *discovery.DiscoveryClient
+	MetricsClient   metricsv.Interface
+	Kubeconfig      *rest.Config
 	Ctx             context.Context
 )
 
@@ -48,6 +50,11 @@ func Init() {
 	DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(Kubeconfig)
 	if err != nil {
 		log.Fatalf("Failed to create discovery client: %v", err)
+	}
+
+	MetricsClient, err = metricsv.NewForConfig(Kubeconfig)
+	if err != nil {
+		log.Fatalf("Failed to create metrics client: %v", err)
 	}
 
 	Clientset, err = kubernetes.NewForConfig(Kubeconfig)
