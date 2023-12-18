@@ -64,6 +64,7 @@
     "pocketbase-typegen": "^1.2.1",
     "prismjs": "^1.29.0",
     "svelte-french-toast": "^1.2.0",
+    "svelte-highlight": "^7.4.6",
     "svelte-icons-pack": "^2.1.0",
     "svelte-local-storage-store": "^0.6.4",
     "svelte-particles": "^2.12.0",
