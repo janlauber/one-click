@@ -1,12 +1,17 @@
 package k8s
 
 import (
+	"bufio"
+	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"strings"
 
 	yaml2 "github.com/ghodss/yaml"
 	"github.com/natrontech/one-click/pkg/models"
 	pb_models "github.com/pocketbase/pocketbase/models"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -200,4 +205,57 @@ func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse
 	}
 
 	return &eventResponse, nil
+}
+
+func GetRolloutLogs(w http.ResponseWriter, projectId string, podName string) error {
+	// Get historical logs
+	historicalLogOptions := &corev1.PodLogOptions{}
+	historicalReq := Clientset.CoreV1().Pods(projectId).GetLogs(podName, historicalLogOptions)
+	historicalLogs, err := historicalReq.DoRaw(context.TODO())
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	// Write historical logs line by line
+	scanner := bufio.NewScanner(strings.NewReader(string(historicalLogs)))
+	for scanner.Scan() {
+		line := scanner.Text()
+		_, err := fmt.Fprintf(w, "data: %s\n\n", line)
+		if err != nil {
+			return err
+		}
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
+
+	// Start streaming new logs
+	streamingLogOptions := &corev1.PodLogOptions{Follow: true}
+	streamingReq := Clientset.CoreV1().Pods(projectId).GetLogs(podName, streamingLogOptions)
+	logStream, err := streamingReq.Stream(context.TODO())
+	if err != nil {
+		return err
+	}
+	defer logStream.Close()
+
+	reader := bufio.NewReader(logStream)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil { // handle EOF, etc.
+			break
+		}
+		_, writeErr := fmt.Fprintf(w, "data: %s\n\n", line)
+		if writeErr != nil {
+			return writeErr
+		}
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
+
+	return nil
 }

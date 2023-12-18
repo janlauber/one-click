@@ -120,3 +120,7 @@ type Event struct {
 type EventResponse struct {
 	Events []Event `json:"events"`
 }
+
+type LogResponse struct {
+	Logs string `json:"logs"`
+}

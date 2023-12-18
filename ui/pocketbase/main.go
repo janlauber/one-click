@@ -118,6 +118,13 @@ func main() {
 			return controller.HandleRolloutEvents(c, app, projectId, rolloutId)
 		})
 
+		e.Router.GET("/rollouts/:projectId/:podName/logs", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			podName := c.PathParam("podName")
+
+			return k8s.GetRolloutLogs(c.Response().Writer, projectId, podName)
+		})
+
 		return nil
 	})
 
