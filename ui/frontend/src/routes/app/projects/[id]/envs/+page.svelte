@@ -1,7 +1,7 @@
 <script lang="ts">
   import { rollouts } from "$lib/stores/data";
   import { Accordion, AccordionItem, Button, Heading, Input, Label, P } from "flowbite-svelte";
-  import { Lock, Variable } from "lucide-svelte";
+  import { Lock, Plus, Variable, X } from "lucide-svelte";
 
   interface Env {
     id: string;
@@ -67,10 +67,21 @@
             </div>
           </div>
           <div>
-            <Button class="bg-red-500 hover:bg-red-600" size="sm">Delete</Button>
+            <Button color="red">
+              <X class="w-4 h-4" />
+            </Button>
           </div>
         </div>
       {/each}
+      <div class="flex justify-between mt-4 gap-4">
+        <Button color="alternative">
+          <Plus class="mr-2 w-4 h-4" />
+          Add</Button>
+        <Button>Save</Button>
+      </div>
+      <!-- Save button -->
+      <div class="flex justify-end mt-4">
+      </div>
     </AccordionItem>
     <AccordionItem class="rounded-lg">
       <div slot="header" class="flex">
