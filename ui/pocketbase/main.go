@@ -125,6 +125,11 @@ func main() {
 			return k8s.GetRolloutLogs(c.Response().Writer, projectId, podName)
 		})
 
+		// trigger image auto update
+		e.Router.POST("/auto-update", func(c echo.Context) error {
+			return controller.HandleAutoUpdate(c, app)
+		})
+
 		return nil
 	})
 

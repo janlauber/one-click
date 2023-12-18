@@ -46,6 +46,7 @@ require (
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.7 // indirect
+	github.com/Masterminds/semver v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.45.25 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.21.2 // indirect
