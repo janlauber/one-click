@@ -90,7 +90,37 @@
         </div>
         <span class="pt-1">Secret Environment Variables</span>
       </div>
-      <div class=""></div>
+      {#each secrets as secret, i (secret.id)}
+        <div class="flex items-end space-x-4">
+          <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label class="mt-4">Name</Label>
+              <Input
+                size="sm"
+                type="text"
+                placeholder="Name"
+                bind:value={secret.name}
+                class="w-full"
+              />
+            </div>
+            <div>
+              <Label class="mt-4">Value</Label>
+              <Input
+                size="sm"
+                type="text"
+                placeholder="Value"
+                bind:value={secret.value}
+                class="w-full"
+              />
+            </div>
+          </div>
+          <div>
+            <Button color="red">
+              <X class="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      {/each}
     </AccordionItem>
   {/key}
 </Accordion>
