@@ -98,7 +98,7 @@
         </div>
         <div class="log-container px-2 rounded-lg bg-gray-800">
           {#if logStreams[podName]}
-            <div class="log-scroll text-sm scrollbar-none" use:autoScroll>
+            <div class="log-scroll text-sm scrollbar-none max-h-96" use:autoScroll>
               <Highlight language={prolog} code={logStreams[podName].join("\n")} let:highlighted>
                 <LineNumbers {highlighted} wrapLines />
               </Highlight>
@@ -126,7 +126,6 @@
 
 <style>
   .log-scroll {
-    height: 500px;
     overflow-y: scroll;
   }
 </style>
