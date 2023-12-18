@@ -50,7 +50,8 @@
 
   function startLogStream(podName: string) {
     const projectId = $currentRollout?.project;
-    const url = `http://localhost:8090/rollouts/${projectId}/${podName}/logs`;
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:8090' : '';
+    const url = `${baseUrl}/rollouts/${projectId}/${podName}/logs`;
     const eventSource = new EventSource(url);
 
     logStreams[podName] = [];
