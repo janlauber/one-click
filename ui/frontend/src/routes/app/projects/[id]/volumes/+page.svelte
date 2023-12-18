@@ -230,7 +230,7 @@
   </Button>
 </div>
 
-<Accordion class="gap-2 grid mt-10">
+<Accordion class="gap-2 grid mt-10" flush>
   {#key $rollouts}
     {#each volumes as volume, v (volume.id)}
       <AccordionItem class="rounded-lg">

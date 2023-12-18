@@ -86,7 +86,7 @@
   </div>
 </div>
 
-<Accordion class="gap-2 grid mt-10" multiple>
+<Accordion class="gap-2 grid mt-10" multiple flush>
   {#key $rollouts}
     {#each podNames as podName, i (podName)}
       <AccordionItem class="rounded-lg">
@@ -111,10 +111,10 @@
           {/if}
         </div>
         <div class="flex justify-end">
-          <Button color="alternative" class="mt-4 mr-2" on:click={() => startLogStream(podName)}>
+          <Button size="sm" color="alternative" class="mt-4 mr-2" on:click={() => startLogStream(podName)}>
             <RefreshCcw class="mr-2" />
             Refresh</Button>
-          <Button class="mt-4" on:click={() => downloadLogs(podName)}>
+          <Button size="sm" class="mt-4" on:click={() => downloadLogs(podName)}>
             <FileDown class="mr-2" />
             Download Logs</Button
           >

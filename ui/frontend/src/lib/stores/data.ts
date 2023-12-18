@@ -75,9 +75,12 @@ export async function updateRollouts(projectId?: string) {
             // @ts-ignore
             rollouts.set(response.filter((rollout) => rollout.project === projectId));
 
-            // set the current rollout to the one without an endDate
+            // set the current rollout to the one without an endDate and the project id
             // @ts-ignore
-            currentRollout.set(response.find((rollout) => rollout.endDate === ""));
+            currentRollout.set(
+                response.find((rollout) => rollout.project === projectId && !rollout.endDate)
+            );
+
             return;
         }
         rollouts.set(response);

@@ -325,7 +325,7 @@
   </div>
 </div>
 
-<Accordion class="gap-2 grid mt-10" multiple>
+<Accordion class="gap-2 grid mt-10" flush multiple>
   {#key $rollouts}
     <AccordionItem class="rounded-lg" open>
       <div slot="header" class="flex">
@@ -363,5 +363,7 @@
 </Accordion>
 
 <div class="flex justify-end mt-4 gap-4">
+  <!-- Reset -->
+  <Button color="alternative" on:click={() => initialLoad = true}>Reset</Button>
   <Button on:click={() => handleInputSave()}>Save</Button>
 </div>
