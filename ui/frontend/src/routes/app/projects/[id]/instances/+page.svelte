@@ -3,10 +3,11 @@
   import { autoScroll } from "$lib/utils/autoScroll";
   import { getRolloutStatus } from "$lib/utils/rollouts";
   import { Accordion, AccordionItem, Button, Heading, P } from "flowbite-svelte";
-  import { Box, FileDown } from "lucide-svelte";
+  import { Box, FileDown, RefreshCcw } from "lucide-svelte";
   import { onDestroy } from "svelte";
   import Highlight, { LineNumbers } from "svelte-highlight";
   import prolog from "svelte-highlight/languages/prolog";
+  import atomOneDark from "svelte-highlight/styles/atom-one-dark";
 
   let podNames: string[] = [];
 
@@ -50,7 +51,7 @@
 
   function startLogStream(podName: string) {
     const projectId = $currentRollout?.project;
-    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:8090' : '';
+    const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8090" : "";
     const url = `${baseUrl}/rollouts/${projectId}/${podName}/logs`;
     const eventSource = new EventSource(url);
 
@@ -75,7 +76,7 @@
 </script>
 
 <svelte:head>
-  <link rel="stylesheet" href="https://unpkg.com/svelte-highlight/styles/github.css" />
+  {@html atomOneDark}
 </svelte:head>
 
 <div class="flex items-start justify-between">
@@ -85,7 +86,7 @@
   </div>
 </div>
 
-<Accordion class="gap-2 grid mt-10">
+<Accordion class="gap-2 grid mt-10" multiple>
   {#key $rollouts}
     {#each podNames as podName, i (podName)}
       <AccordionItem class="rounded-lg">
@@ -95,9 +96,9 @@
           </div>
           <span class="pt-1">{podName}</span>
         </div>
-        <div class="log-container">
+        <div class="log-container px-2 rounded-lg bg-gray-800">
           {#if logStreams[podName]}
-            <div class="log-scroll" use:autoScroll>
+            <div class="log-scroll text-sm scrollbar-none" use:autoScroll>
               <Highlight language={prolog} code={logStreams[podName].join("\n")} let:highlighted>
                 <LineNumbers {highlighted} wrapLines />
               </Highlight>
@@ -105,14 +106,18 @@
                 <p class="log-line">{log}</p>
               {/each} -->
             </div>
-
-            <Button class="mt-4" on:click={() => downloadLogs(podName)}>
-              <FileDown class="mr-2" />
-              Download Logs</Button
-            >
           {:else}
             <p class="no-logs">No logs found</p>
           {/if}
+        </div>
+        <div class="flex justify-end">
+          <Button color="alternative" class="mt-4 mr-2" on:click={() => startLogStream(podName)}>
+            <RefreshCcw class="mr-2" />
+            Refresh</Button>
+          <Button class="mt-4" on:click={() => downloadLogs(podName)}>
+            <FileDown class="mr-2" />
+            Download Logs</Button
+          >
         </div>
       </AccordionItem>
     {/each}
