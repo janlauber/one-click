@@ -73,6 +73,8 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutCreate(e, app)
+		case "autoUpdates":
+			return controller.HandleAutoUpdateCreate(e, app)
 		}
 		return nil
 	})
@@ -81,6 +83,8 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutUpdate(e, app)
+		case "autoUpdates":
+			return controller.HandleAutoUpdateUpdate(e, app)
 		}
 		return nil
 	})

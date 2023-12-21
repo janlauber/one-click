@@ -34,6 +34,8 @@ func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository s
 	// Sort the tags based on the sorting method
 	sortedTags := sortTags(filteredTags, sortMethod)
 
+	fmt.Printf("Sorted tags: %v\n", sortedTags)
+
 	if semverConstraint != "" {
 		constraint, err := semver.NewConstraint(semverConstraint)
 		if err != nil {
@@ -54,6 +56,8 @@ func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository s
 		}
 		sortedTags = constrainedTags
 	}
+
+	fmt.Printf("Filtered and sorted tags: %v\n", sortedTags)
 
 	return sortedTags, nil
 }
@@ -119,8 +123,6 @@ func filterTagsByPattern(tags []string, pattern string) []string {
 		}
 	}
 
-	log.Printf("Filtered tags: %v", filteredTags)
-
 	return filteredTags
 }
 
@@ -135,31 +137,46 @@ func sortTags(tags []string, policy string) []string {
 			return tags[i] == "latest"
 		})
 	case "semver":
-		sortSemverTags(tags)
+		return sortSemverTags(tags)
 	case "timestamp":
-		sortTimestampTags(tags)
+		return sortTimestampTags(tags)
 	}
 	return tags
 }
 
+func extractSemver(tag string) (*semver.Version, error) {
+	// Assuming the tag is a straightforward semver string like "1.2.3"
+	version, err := semver.NewVersion(tag)
+	if err != nil {
+		return nil, err
+	}
+	return version, nil
+}
+
 func sortSemverTags(tags []string) []string {
 	semverTags := make([]*semver.Version, 0, len(tags))
+	tagMap := make(map[string]string)
 
 	for _, tag := range tags {
 		version, err := extractSemver(tag)
 		if err == nil {
 			semverTags = append(semverTags, version)
+			tagMap[version.String()] = tag
+		} else {
+			log.Printf("Failed to parse semver for tag '%s': %v", tag, err)
 		}
 	}
 
 	sort.Slice(semverTags, func(i, j int) bool {
-		return semverTags[i].LessThan(semverTags[j])
+		return semverTags[i].GreaterThan(semverTags[j])
 	})
 
 	sortedTags := make([]string, len(semverTags))
-	for i, v := range semverTags {
-		sortedTags[i] = v.Original()
+	for i, version := range semverTags {
+		sortedTags[i] = tagMap[version.String()]
 	}
+
+	fmt.Printf("Sorted semver tags: %v\n", sortedTags)
 
 	return sortedTags
 }
@@ -186,18 +203,6 @@ func sortTimestampTags(tags []string) []string {
 	}
 
 	return sortedTags
-}
-
-func extractSemver(tag string) (*semver.Version, error) {
-	// Extract semver part from the tag and parse it
-	// This regex matches semver patterns in the tag
-	re := regexp.MustCompile(`\b\d+\.\d+\.\d+\b`)
-	semverPart := re.FindString(tag)
-	if semverPart == "" {
-		return nil, fmt.Errorf("no semver found")
-	}
-
-	return semver.NewVersion(semverPart)
 }
 
 func extractTimestamp(tag string) (int64, error) {
