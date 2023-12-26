@@ -2,8 +2,8 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
-  import { Button, Heading, Input, Label, P, TableSearch, Toggle } from "flowbite-svelte";
+  import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum, autoUpdates } from "$lib/stores/data";
+  import { Button, Heading, Input, Label, P, Select, TableSearch, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
   import { goto } from "$app/navigation";
@@ -18,7 +18,31 @@
   let password: string = "";
   let repository: string = "";
   let tag: string = "";
+  let tagAutoUpdateEnabled: boolean = false;
+  let tagAutoUpdateWebhookPath: string = "";
+  let tagAutoUpdateInterval: string = "5m";
+  let tagAutoUpdatePattern: string = "^\\d+\\.\\d+\\.\\d+$";
+  let tagAutoUpdatePolicy: string = "semver";
+
+  let selectIntervals = [
+    { value: "1m", name: "1 Minute"},
+    { value: "5m", name: "5 Minutes"},
+    { value: "10m", name: "10 Minutes"},
+  ]
+
   let verify: boolean = false;
+
+  let initialLoad: boolean = true;
+
+  $: if ($autoUpdates.length > 0 && initialLoad) {
+    // set the first autoUpdate for tags
+    tagAutoUpdateEnabled = true;
+    tagAutoUpdateWebhookPath = '/auto-update/'+$autoUpdates[0].id;
+    tagAutoUpdateInterval = $autoUpdates[0].interval;
+    tagAutoUpdatePattern = $autoUpdates[0].pattern;
+    tagAutoUpdatePolicy = $autoUpdates[0].policy;
+    initialLoad = false;
+  }
 
   $: if ($rollouts.length > 0) {
     // get the current rollout on following priority:
@@ -44,8 +68,8 @@
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
       registry = current_rollout.manifest?.spec.image.registry ?? "";
-      username = current_rollout.manifest?.spec.image.username ?? "";
-      password = current_rollout.manifest?.spec.image.password ?? "";
+      // username = current_rollout.manifest?.spec.image.username ?? "";
+      // password = current_rollout.manifest?.spec.image.password ?? "";
       repository = current_rollout.manifest?.spec.image.repository ?? "";
       tag = current_rollout.manifest?.spec.image.tag ?? "";
       verify = current_rollout.manifest?.spec.image.verify ?? false;
@@ -113,6 +137,77 @@
 
   async function handleInputSave() {
     if (current_rollout) {
+
+      if (tagAutoUpdateEnabled) {
+        const data = {
+          interval: tagAutoUpdateInterval,
+          pattern: tagAutoUpdatePattern,
+          policy: tagAutoUpdatePolicy,
+          project: $selectedProjectId,
+          user: client.authStore.model?.id
+        };
+
+        // only if $autoUpdates is empty, create a new autoUpdate
+        if ($autoUpdates.length === 0) {
+          toast.promise(
+            client
+              .collection("autoUpdates")
+              .create(data)
+              .then(() => {
+                updateDataStores({
+                  filter: UpdateFilterEnum.ALL,
+                  projectId: $selectedProjectId
+                });
+              }),
+            {
+              loading: "Creating auto update...",
+              success: "Auto update created.",
+              error: "Error creating auto update."
+            }
+          );
+        } else {
+          if ($autoUpdates[0]) {
+            toast.promise(
+              client
+                .collection("autoUpdates")
+                .update($autoUpdates[0].id, data)
+                .then(() => {
+                  updateDataStores({
+                    filter: UpdateFilterEnum.ALL,
+                    projectId: $selectedProjectId
+                  });
+                }),
+              {
+                loading: "Updating auto update...",
+                success: "Auto update updated.",
+                error: "Error updating auto update."
+              }
+            );
+          }
+        }
+
+      } else {
+        if ($autoUpdates[0]) {
+          toast.promise(
+            client
+              .collection("autoUpdates")
+              .delete($autoUpdates[0].id)
+              .then(() => {
+                updateDataStores({
+                  filter: UpdateFilterEnum.ALL,
+                  projectId: $selectedProjectId
+                });
+              }),
+            {
+              loading: "Deleting auto update...",
+              success: "Auto update deleted.",
+              error: "Error deleting auto update."
+            }
+          );
+        }
+      }
+
+
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
@@ -120,14 +215,17 @@
           ...current_rollout.manifest.spec,
           image: {
             registry: registry,
-            username: username,
-            password: password,
             repository: repository,
-            tag: tag,
-            verify: verify
+            tag: tag
           }
         }
       };
+
+      // check if the manifest has changed
+      if (JSON.stringify(current_rollout.manifest) === JSON.stringify(new_manifest)) {
+        return;
+      }
+
 
       const data: RolloutsRecord = {
         manifest: new_manifest,
@@ -278,7 +376,58 @@
                   <Heading tag="h5">Image Tag</Heading>
                   <P class="text-gray-500 dark:text-gray-400 text-xs">Define your image tag.</P>
                 </td><td class="whitespace-nowrap px-3 py-4 text-xs">
-                  <Label for="tag" class="block mb-2"
+                  <Label for="tagAutoUpdateEnabled" class="block mb-2">Auto Update</Label>
+                  <Toggle bind:checked={tagAutoUpdateEnabled} id="tagAutoUpdateEnabled" />
+
+                  {#if tagAutoUpdateEnabled}
+                    <Label for="" class="block mb-2 mt-4">Webhook Path</Label>
+                    <div class="flex gap-2 justify-between w-auto">
+                      <Input
+                        id="tagAutoUpdateWebhookPath"
+                        size="sm"
+                        bind:value={tagAutoUpdateWebhookPath}
+                        on:input={(e) => handleInputChange(e, "tagAutoUpdateWebhookPath")}
+                        placeholder="known after creation"
+                        disabled
+                      />
+                      <Button
+                        color="alternative"
+                        size="xs"
+                        class="inline"
+                        on:click={() => {
+                          navigator.clipboard.writeText(tagAutoUpdateWebhookPath ?? "");
+                          toast.success("Copied to clipboard.");
+                        }}
+                      >
+                        <Clipboard class="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    <Label for="tagAutoUpdateInterval" class="block mb-2 mt-4">Interval</Label>
+                    <Select bind:value={tagAutoUpdateInterval} id="tagAutoUpdateInterval" size="sm">
+                      {#each selectIntervals as interval}
+                        <option value={interval.value}>{interval.name}</option>
+                      {/each}
+                    </Select>
+                    <Label for="tagAutoUpdatePattern" class="block mb-2 mt-4">Pattern</Label>
+                    <Input
+                      id="tagAutoUpdatePattern"
+                      size="sm"
+                      bind:value={tagAutoUpdatePattern}
+                      on:input={(e) => handleInputChange(e, "tagAutoUpdatePattern")}
+                      placeholder="^\d+\.\d+\.\d+$"
+                    />
+                    <Label for="tagAutoUpdatePolicy" class="block mb-2 mt-4">Policy</Label>
+                    <Input
+                      id="tagAutoUpdatePolicy"
+                      size="sm"
+                      bind:value={tagAutoUpdatePolicy}
+                      on:input={(e) => handleInputChange(e, "tagAutoUpdatePolicy")}
+                      placeholder="semver"
+                    />
+                  {/if}
+
+                  <Label for="tag" class="block mb-2 mt-4"
                     >Tag
                     <span
                       class="
@@ -293,8 +442,9 @@
                     on:input={(e) => handleInputChange(e, "tag")}
                     placeholder="latest"
                     class="
-                    {tag === '' ? 'border-red-500' : 'border-green-500'}
+                    {tag === '' && !tagAutoUpdateEnabled ? 'border-red-500' : 'border-green-500'}
                     "
+                    disabled={tagAutoUpdateEnabled}
                   />
                 </td>
               </tr>
