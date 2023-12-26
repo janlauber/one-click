@@ -5,8 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
+	"github.com/madflojo/tasks"
 	"github.com/natrontech/one-click/hooks"
 	"github.com/natrontech/one-click/pkg/controller"
 	"github.com/natrontech/one-click/pkg/env"
@@ -73,8 +75,6 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutCreate(e, app)
-		case "autoUpdates":
-			return controller.HandleAutoUpdateCreate(e, app)
 		}
 		return nil
 	})
@@ -83,8 +83,6 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutUpdate(e, app)
-		case "autoUpdates":
-			return controller.HandleAutoUpdateUpdate(e, app)
 		}
 		return nil
 	})
@@ -129,13 +127,31 @@ func main() {
 			return k8s.GetRolloutLogs(c.Response().Writer, projectId, podName)
 		})
 
-		// trigger image auto update
-		e.Router.POST("/auto-update", func(c echo.Context) error {
-			return controller.HandleAutoUpdate(c, app)
+		e.Router.POST("/auto-update/:autoUpdateId", func(c echo.Context) error {
+			autoUpdateId := c.PathParam("autoUpdateId")
+
+			return controller.HandleAutoUpdate(c, app, autoUpdateId)
 		})
 
 		return nil
 	})
+
+	scheduler := tasks.New()
+	defer scheduler.Stop()
+
+	// Add a task
+	_, err := scheduler.Add(&tasks.Task{
+		Interval: 1 * time.Minute,
+		TaskFunc: func() error {
+
+			err := controller.AutoUpdateController(app)
+
+			return err
+		},
+	})
+	if err != nil {
+		log.Println(err)
+	}
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -48,7 +47,6 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 
 	// if there is another rollout in the same project with no endDate, set endDate to now on that rollout
 	if running_rollout != nil {
-		fmt.Println("running_rollout", running_rollout)
 		running_rollout.Set("endDate", time.Now().UTC().Format(time.RFC3339))
 		err = app.Dao().SaveRecord(running_rollout)
 		if err != nil {

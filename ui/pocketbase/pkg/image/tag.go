@@ -34,8 +34,6 @@ func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository s
 	// Sort the tags based on the sorting method
 	sortedTags := sortTags(filteredTags, sortMethod)
 
-	fmt.Printf("Sorted tags: %v\n", sortedTags)
-
 	if semverConstraint != "" {
 		constraint, err := semver.NewConstraint(semverConstraint)
 		if err != nil {
@@ -56,8 +54,6 @@ func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository s
 		}
 		sortedTags = constrainedTags
 	}
-
-	fmt.Printf("Filtered and sorted tags: %v\n", sortedTags)
 
 	return sortedTags, nil
 }
@@ -107,8 +103,6 @@ func fetchTags(registry string, repository string) ([]string, error) {
 }
 
 func filterTagsByPattern(tags []string, pattern string) []string {
-
-	fmt.Printf("Filtering tags by pattern: %v\n", pattern)
 
 	re, err := regexp.Compile(pattern)
 	if err != nil {
@@ -175,8 +169,6 @@ func sortSemverTags(tags []string) []string {
 	for i, version := range semverTags {
 		sortedTags[i] = tagMap[version.String()]
 	}
-
-	fmt.Printf("Sorted semver tags: %v\n", sortedTags)
 
 	return sortedTags
 }
