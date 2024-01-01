@@ -8,3 +8,4 @@
 one-click
 vendor/
 .rollouts/
+.DS_Store

@@ -35,7 +35,6 @@ func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 	err = k8s.DeleteNamespace(e.Record.GetString("id"))
 	if err != nil {
 		log.Println(err)
-		return err
 	}
 
 	return nil

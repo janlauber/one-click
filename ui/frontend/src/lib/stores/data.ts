@@ -3,12 +3,16 @@ import type {
     RolloutsResponse,
     ProjectsResponse,
     FrameworksResponse,
-    PlansResponse
+    PlansResponse,
+    AutoUpdatesResponse
 } from "$lib/pocketbase/generated-types";
 import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
+// Frameworks //
 export const frameworks: Writable<FrameworksResponse[]> = writable<FrameworksResponse[]>([]);
+
+// Rollouts //
 export type Rexpand = {
     spec: any;
     project: ProjectsResponse;
@@ -19,20 +23,29 @@ export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
 export const currentRollout: Writable<RolloutsResponse<Rexpand> | undefined> = writable<
     RolloutsResponse<Rexpand> | undefined
 >(undefined);
+
+// Projects //
 export type Pexpand = {
     framework: FrameworksResponse;
 };
 export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
     ProjectsResponse<Pexpand>[]
 >([]);
+export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
+    ProjectsResponse<Pexpand> | undefined
+>(undefined);
+
+// Plans //
 export type Plexpand = {
     framework: FrameworksResponse;
 };
 export const plans: Writable<PlansResponse<Plexpand>[]> = writable<PlansResponse<Plexpand>[]>([]);
 
-export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
-    ProjectsResponse<Pexpand> | undefined
->(undefined);
+// Auto Updates //
+export type Aexpand = {
+    project: ProjectsResponse;
+}
+export const autoUpdates: Writable<AutoUpdatesResponse<Aexpand>[]> = writable<AutoUpdatesResponse<Aexpand>[]>([]);
 
 export enum UpdateFilterEnum {
     ALL = "all"
@@ -49,6 +62,7 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
         await updateProjects(filter.projectId);
         await updateRollouts(filter.projectId);
         await updatePlans();
+        await updateAutoUpdates(filter.projectId);
     }
 }
 
@@ -137,4 +151,29 @@ async function fetchPlans(): Promise<PlansResponse<Plexpand>[]> {
     };
 
     return await client.collection("plans").getFullList<PlansResponse<Plexpand>>(queryOptions);
+}
+
+export async function updateAutoUpdates(projectId?: string) {
+    try {
+        const response = await fetchAutoUpdates();
+        if (projectId) {
+            // set selected project
+            selectedProjectId.set(projectId);
+            // @ts-ignore
+            autoUpdates.set(response.filter((update) => update.project === projectId));
+            return;
+        }
+        autoUpdates.set(response);
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchAutoUpdates(): Promise<AutoUpdatesResponse<Aexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "project"
+    };
+
+    return await client.collection("autoUpdates").getFullList<AutoUpdatesResponse<Aexpand>>(queryOptions);
 }

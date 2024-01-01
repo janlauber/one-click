@@ -339,7 +339,7 @@
       <div class="h-64 overflow-y-auto border border-gray-700 rounded-lg p-2 bg-gray-800">
         <MonacoEditor
           bind:value={envValue}
-          options={{ language: "shell", automaticLayout: false }}
+          options={{ language: "shell", automaticLayout: false, minimap: { enabled: false } }}
           theme="vs-dark"
         />
       </div>

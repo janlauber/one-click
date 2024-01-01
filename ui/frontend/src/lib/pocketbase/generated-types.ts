@@ -6,6 +6,7 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export enum Collections {
+	AutoUpdates = "autoUpdates",
 	Frameworks = "frameworks",
 	Plans = "plans",
 	Projects = "projects",
@@ -36,6 +37,14 @@ export type AuthSystemFields<T = never> = {
 } & BaseSystemFields<T>
 
 // Record types for each collection
+
+export type AutoUpdatesRecord = {
+	interval: string
+	pattern?: string
+	policy?: string
+	project: RecordIdString
+	user: RecordIdString
+}
 
 export type FrameworksRecord<Tsettings = unknown> = {
 	application?: boolean
@@ -77,6 +86,7 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
+export type AutoUpdatesResponse<Texpand = unknown> = Required<AutoUpdatesRecord> & BaseSystemFields<Texpand>
 export type FrameworksResponse<Tsettings = unknown, Texpand = unknown> = Required<FrameworksRecord<Tsettings>> & BaseSystemFields<Texpand>
 export type PlansResponse<Tmanifest = unknown, Texpand = unknown> = Required<PlansRecord<Tmanifest>> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
@@ -86,6 +96,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	autoUpdates: AutoUpdatesRecord
 	frameworks: FrameworksRecord
 	plans: PlansRecord
 	projects: ProjectsRecord
@@ -94,6 +105,7 @@ export type CollectionRecords = {
 }
 
 export type CollectionResponses = {
+	autoUpdates: AutoUpdatesResponse
 	frameworks: FrameworksResponse
 	plans: PlansResponse
 	projects: ProjectsResponse
@@ -105,6 +117,7 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'autoUpdates'): RecordService<AutoUpdatesResponse>
 	collection(idOrName: 'frameworks'): RecordService<FrameworksResponse>
 	collection(idOrName: 'plans'): RecordService<PlansResponse>
 	collection(idOrName: 'projects'): RecordService<ProjectsResponse>
