@@ -13,9 +13,117 @@ rules:
   - create
   - patch
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - one-click.io
   resources:
-  - deployment
+  - rollouts
   verbs:
   - create
   - delete
@@ -27,195 +135,13 @@ rules:
 - apiGroups:
   - one-click.io
   resources:
-  - deployment/finalizers
+  - rollouts/finalizers
   verbs:
   - update
 - apiGroups:
   - one-click.io
   resources:
-  - deployment/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - frameworks
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - frameworks/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - frameworks/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - hpa
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - hpa/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - hpa/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - ingress
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - ingress/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - ingress/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - persistentvolumeclaim
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - persistentvolumeclaim/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - persistentvolumeclaim/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - secret
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - secret/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - secret/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - service
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - service/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - service/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - serviceaccount
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - one-click.io
-  resources:
-  - serviceaccount/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - one-click.io
-  resources:
-  - serviceaccount/status
+  - rollouts/status
   verbs:
   - get
   - patch
