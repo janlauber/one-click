@@ -38,7 +38,7 @@
       {
         "mountPath": "/data",
         "name": "data",
-        "size": "0.1Gi",
+        "size": "1Gi",
         "storageClass": "standard"
       }
     ]
