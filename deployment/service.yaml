@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: one-click-service
+spec:
+  selector:
+    app: one-click
+  ports:
+    - protocol: TCP
+      port: 8090

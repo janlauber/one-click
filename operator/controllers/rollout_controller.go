@@ -40,31 +40,30 @@ type RolloutReconciler struct {
 	Recorder record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=one-click.io,resources=frameworks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=frameworks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=frameworks/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=hpa,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=hpa/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=hpa/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=service,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=service/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=service/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=ingress,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=ingress/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=ingress/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=secret,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=secret/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=secret/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=deployment,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=deployment/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=deployment/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=serviceaccount/finalizers,verbs=update
-//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=persistentvolumeclaim/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.io,resources=rollouts,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.io,resources=rollouts/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.io,resources=rollouts/finalizers,verbs=update
+
+//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch
+
+//+kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=services/status,verbs=get;update;patch
+
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses/status,verbs=get;update;patch
+
+//+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
+
+//+kubebuilder:rbac:groups=core,resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
+
+//+kubebuilder:rbac:groups=autoscaling,resources=horizontalpodautoscalers,verbs=get;list;watch;create;update;patch;delete
+
+//+kubebuilder:rbac:groups=core,resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
+
 //+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+
+//+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 
 func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
