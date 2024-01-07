@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: one-click-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/private-key-rotation-policy: Always
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: one-click.lauber.digital
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: one-click-service
+            port:
+              number: 8090
+  tls:
+  - hosts:
+    - one-click.lauber.digital
+    secretName: one-click-tls

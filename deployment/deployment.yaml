@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: one-click
+  namespace: one-click
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: one-click
+  template:
+    metadata:
+      labels:
+        app: one-click
+    spec:
+      serviceAccountName: one-click-admin
+      containers:
+      - name: one-click
+        image: ghcr.io/janlauber/one-click:latest
+        ports:
+        - containerPort: 8090
+        volumeMounts:
+          - name: one-click-data
+            mountPath: /app/one-click/pb_data
+        envFrom:
+        - configMapRef:
+            name: one-click-config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+        - name: one-click-data
+          persistentVolumeClaim:
+            claimName: one-click-data

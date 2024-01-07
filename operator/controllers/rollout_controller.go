@@ -63,6 +63,8 @@ type RolloutReconciler struct {
 
 //+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
+//+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
+
 func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
