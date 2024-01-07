@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { Chart, Card } from "flowbite-svelte";
+  import { Chart, Card, Skeleton, WidgetPlaceholder, Spinner } from "flowbite-svelte";
+    import { onMount } from "svelte";
 
   export let title = "CPU";
   export let limits = 0;
   export let requests = 0;
   export let usage = 0;
 
-  let options: any;
+  let options: any = {};
+
+  let loading = true;
 
   $: series = [usage, requests, limits];
 
@@ -71,6 +74,13 @@
       show: true
     }
   };
+
+  // random loading between 0.2 and 0.8s
+  onMount(() => {
+    setTimeout(() => {
+      loading = false;
+    }, Math.random() * 600 + 200);
+  });
 </script>
 
 <Card size="xl">
@@ -83,5 +93,13 @@
       </div>
     </div>
   </div>
-  <Chart {options} />
+  {#if !loading}
+    <Chart {options} />
+  {:else}
+    <div class="flex justify-center items-center w-full"
+      style="height: 225px;"
+    >
+      <Spinner color="primary" />
+    </div>
+  {/if}
 </Card>
