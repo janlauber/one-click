@@ -1,10 +1,9 @@
 <script>
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
-  import Stats from "$lib/components/dashboard/Stats.svelte";
   import { Badge, Heading } from "flowbite-svelte";
   import { cubicOut } from "svelte/easing";
-  import { fly, slide } from "svelte/transition";
+  import { slide } from "svelte/transition";
 </script>
 
 <div>
@@ -13,7 +12,7 @@
   </div>
 
   <div class="absolute top-14 left-0 right-0 bottom-0">
-    {#if !$page.url.pathname.startsWith("/app/projects/")}
+    {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/blueprints/")}
       <div
         class="bg-primary-600 w-full p-4 relative"
         in:slide={{ duration: 200, easing: cubicOut }}
@@ -32,13 +31,6 @@
             The <b>Open Source Platform</b> to manage your <b>Software Rollouts</b>
           </span>
         </div>
-        <!-- <div
-          class="absolute left-1/2 -translate-x-1/2 -bottom-12"
-          in:fly={{ duration: 200, delay: 200, y: -100, easing: cubicOut }}
-          out:fly={{ duration: 0, opacity: 0 }}
-        >
-          <Stats />
-        </div> -->
       </div>
     {/if}
     <slot />
