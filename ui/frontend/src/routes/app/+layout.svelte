@@ -28,7 +28,7 @@
           <span
             class="bg-white text-primary-500 text-sm font-extralight px-2 py-1 rounded-full mt-2"
           >
-            The <b>Open Source Platform</b> to manage your <b>Software Rollouts</b>
+            The <b>Open Source Platform</b> to manage your <b>Container Deployments</b>
           </span>
         </div>
       </div>
