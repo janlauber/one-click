@@ -5,9 +5,9 @@
   import { rollouts } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
-  import { frameworkLogoUrl } from "$lib/utils/framework.utils";
+  import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
-  import { ArrowRight, ChevronRight, Tag } from "lucide-svelte";
+  import { ArrowRight, Tag } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();
@@ -24,19 +24,26 @@
 <div class="rounded-xl border border-gray-200 ov">
   <div class="flex items-center gap-x-4 border-b border-gray-900/5 p-6">
     <div class="relative">
-      <img
-        src={frameworkLogoUrl(project.expand?.framework)}
-        alt="Tuple"
-        class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
-      />
+      {#if project.avatar}
+        <img
+          src={recordLogoUrl(project)}
+          alt="Tuple"
+          class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
+        />
+      {:else}
+        <img
+          src={recordLogoUrl(project.expand?.blueprint)}
+          alt="Tuple"
+          class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
+        />
+      {/if}
       <Indicator
         color="dark"
         size="xl"
         placement="top-right"
         class="text-xs font-bold text-white cursor-default"
         >{these_rollouts.length || 0}
-        </Indicator
-      >
+      </Indicator>
       <Tooltip>Rollouts</Tooltip>
     </div>
     <div class="text-sm font-medium leading-6">{project.name}</div>
@@ -79,9 +86,7 @@
         </dt>
         <dd class="items-start gap-y-2 space-x-2">
           {#each [...tags] as tag (tag)}
-            <Badge color="dark" large class="cursor-default"
-              >{tag.charAt(0) + tag.slice(1)}</Badge
-            >
+            <Badge color="dark" large class="cursor-default">{tag.charAt(0) + tag.slice(1)}</Badge>
           {/each}
 
           <!-- {#each tags as tag (tag)}

@@ -8,7 +8,7 @@
     selectedProject,
     updateDataStores
   } from "$lib/stores/data";
-  import { Button, Heading, Input, Label, Modal, P } from "flowbite-svelte";
+  import { Button, Fileupload, Heading, Input, Label, Modal, P } from "flowbite-svelte";
   import { ExclamationCircleOutline } from "flowbite-svelte-icons";
   import { XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
@@ -18,6 +18,7 @@
   let projectName: string = "";
   let inFocus = false;
   let modalOpen = false;
+  let avatar: File;
 
   $: {
     // update tags
@@ -151,6 +152,30 @@
         toast.error(error.message);
       });
   }
+
+  async function handleAvatarUpload(event: any) {
+    if (!event.target.files[0]) return;
+    if (!$selectedProject) return;
+
+    avatar = event.target.files[0];
+
+    let formData = new FormData();
+
+    formData.append("avatar", avatar);
+
+    client
+      .collection("projects")
+      .update($selectedProject.id, formData)
+      .then(() => {
+        toast.success("Avatar updated");
+        updateDataStores({
+          filter: UpdateFilterEnum.ALL
+        });
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  }
 </script>
 
 <div class="flex items-start justify-between">
@@ -220,6 +245,11 @@
       </div>
     {/if}
   {/key}
+
+  <div>
+    <Label class="pb-2">Change Avatar</Label>
+    <Fileupload on:change={handleAvatarUpload} size="xs" />
+  </div>
 </div>
 
 <!-- Danger Zone -> Delete Project -->

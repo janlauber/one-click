@@ -23,7 +23,7 @@
   // @ts-ignore
   const projectSettings: ProjectSettings = $projects.find(
     (project) => project.id === $selectedProjectId
-  )?.expand?.framework.settings;
+  )?.expand?.blueprint.settings;
 
   // Return navigation items based on project settings
   const generateItems = (projectId: string) => {

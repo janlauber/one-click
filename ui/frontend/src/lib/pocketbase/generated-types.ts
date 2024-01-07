@@ -7,8 +7,7 @@ import type { RecordService } from 'pocketbase'
 
 export enum Collections {
 	AutoUpdates = "autoUpdates",
-	Frameworks = "frameworks",
-	Plans = "plans",
+	Blueprints = "blueprints",
 	Projects = "projects",
 	Rollouts = "rollouts",
 	Users = "users",
@@ -46,28 +45,21 @@ export type AutoUpdatesRecord = {
 	user: RecordIdString
 }
 
-export type FrameworksRecord<Tsettings = unknown> = {
-	application?: boolean
-	logo: string
-	name: string
-	settings: null | Tsettings
-	url: string
-}
-
-export type PlansRecord<Tmanifest = unknown> = {
-	description: string
-	framework?: RecordIdString
+export type BlueprintsRecord<Tmanifest = unknown, Tsettings = unknown> = {
+	avatar: string
+	description?: string
 	manifest: null | Tmanifest
 	name: string
-	price?: number
+	owner: RecordIdString
+	settings: null | Tsettings
+	users?: RecordIdString[]
 }
 
 export type ProjectsRecord = {
 	avatar?: string
+	blueprint?: RecordIdString
 	description?: string
-	framework: RecordIdString
 	name: string
-	selectedPlan?: RecordIdString
 	tags?: string
 	user: RecordIdString
 }
@@ -87,8 +79,7 @@ export type UsersRecord = {
 
 // Response types include system fields and match responses from the PocketBase API
 export type AutoUpdatesResponse<Texpand = unknown> = Required<AutoUpdatesRecord> & BaseSystemFields<Texpand>
-export type FrameworksResponse<Tsettings = unknown, Texpand = unknown> = Required<FrameworksRecord<Tsettings>> & BaseSystemFields<Texpand>
-export type PlansResponse<Tmanifest = unknown, Texpand = unknown> = Required<PlansRecord<Tmanifest>> & BaseSystemFields<Texpand>
+export type BlueprintsResponse<Tmanifest = unknown, Tsettings = unknown, Texpand = unknown> = Required<BlueprintsRecord<Tmanifest, Tsettings>> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
 export type RolloutsResponse<Tmanifest = unknown, Texpand = unknown> = Required<RolloutsRecord<Tmanifest>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
@@ -97,8 +88,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 
 export type CollectionRecords = {
 	autoUpdates: AutoUpdatesRecord
-	frameworks: FrameworksRecord
-	plans: PlansRecord
+	blueprints: BlueprintsRecord
 	projects: ProjectsRecord
 	rollouts: RolloutsRecord
 	users: UsersRecord
@@ -106,8 +96,7 @@ export type CollectionRecords = {
 
 export type CollectionResponses = {
 	autoUpdates: AutoUpdatesResponse
-	frameworks: FrameworksResponse
-	plans: PlansResponse
+	blueprints: BlueprintsResponse
 	projects: ProjectsResponse
 	rollouts: RolloutsResponse
 	users: UsersResponse
@@ -118,8 +107,7 @@ export type CollectionResponses = {
 
 export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'autoUpdates'): RecordService<AutoUpdatesResponse>
-	collection(idOrName: 'frameworks'): RecordService<FrameworksResponse>
-	collection(idOrName: 'plans'): RecordService<PlansResponse>
+	collection(idOrName: 'blueprints'): RecordService<BlueprintsResponse>
 	collection(idOrName: 'projects'): RecordService<ProjectsResponse>
 	collection(idOrName: 'rollouts'): RecordService<RolloutsResponse>
 	collection(idOrName: 'users'): RecordService<UsersResponse>

@@ -146,7 +146,7 @@
 <div class=" gap-4 space-y-4 mt-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
+      <div class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg text-primary-500">
         <Rocket
           class="w-5 h-5 text-primary-600
           justify-self-center
@@ -159,7 +159,7 @@
       </div>
     </Card>
     <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
+      <div class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg text-primary-500">
         <Copy
           class="w-5 h-5 text-primary-600
           justify-self-center
@@ -173,7 +173,7 @@
       </div>
     </Card>
     <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
+      <div class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg text-primary-500">
         <Network
           class="w-5 h-5 text-primary-600
           justify-self-center

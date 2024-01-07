@@ -1,10 +1,11 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
   import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import { projects, type Pexpand, rollouts } from "$lib/stores/data";
+  import { projects, type Pexpand, blueprints } from "$lib/stores/data";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
-  import { Plus, Tag } from "lucide-svelte";
+  import { Plus, BookDashed } from "lucide-svelte";
 
   let projectModal = false;
 
@@ -58,18 +59,31 @@
 
   <div class="max-w-6xl mx-auto px-5 pb-5 py-5 flex flex-col">
     <div class="flex mb-5">
-      <Heading tag="h5" class="flex font-normal items-center w-auto">Your Projects ({$projects.length})</Heading>
-      <Button
-        color="primary"
-        class="justify-self-end ml-auto"
-        size="sm"
-        on:click={() => {
-          projectModal = true;
-        }}
+      <Heading tag="h5" class="flex font-normal items-center w-auto"
+        >Your Projects ({$projects.length})</Heading
       >
-        <Plus class="w-4 h-4 mr-2 inline-block" />
-        Create Project
-      </Button>
+      <div class="justify-self-end ml-auto space-x-3">
+        <Button
+          color="primary"
+          size="sm"
+          on:click={() => {
+            goto("/app/blueprints/my-blueprints");
+          }}
+        >
+          <BookDashed class="w-4 h-4 mr-2 inline-block" />
+          Blueprints ({$blueprints.length})
+        </Button>
+        <Button
+          color="primary"
+          size="sm"
+          on:click={() => {
+            projectModal = true;
+          }}
+        >
+          <Plus class="w-4 h-4 mr-2 inline-block" />
+          Create Project
+        </Button>
+      </div>
     </div>
     <!-- Filter by Tags -->
     <div class="flex flex-wrap gap-x-4 gap-y-2 mb-10">
