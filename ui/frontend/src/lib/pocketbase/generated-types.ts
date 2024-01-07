@@ -72,9 +72,14 @@ export type RolloutsRecord<Tmanifest = unknown> = {
 	user: RecordIdString
 }
 
+export enum UsersRoleOptions {
+	"admin" = "admin",
+	"user" = "user",
+}
 export type UsersRecord = {
 	avatar?: string
 	name?: string
+	role: UsersRoleOptions
 }
 
 // Response types include system fields and match responses from the PocketBase API

@@ -9,7 +9,7 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
 
   import { Badge, Button, Input, Label } from "flowbite-svelte";
-  import { ArrowRight, DollarSign, ExternalLink, Group, Lock, Text, XIcon } from "lucide-svelte";
+  import { ArrowRight, BookLock, BookUser, DollarSign, ExternalLink, Group, Lock, Text, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let projectModal: boolean;
@@ -158,9 +158,9 @@
 
                 <span id="server-size-1-description-0" class=" hover:text-gray-600 mt-1">
                   {#if blueprint?.owner === client.authStore.model?.id}
-                    <Lock class="w-4 h-4 mr-1 inline-block" />
+                    <BookLock class="w-4 h-4 mr-1 inline-block" />
                   {:else}
-                    <Group class="w-4 h-4 mr-1 inline-block" />
+                    <BookUser class="w-4 h-4 mr-1 inline-block" />
                   {/if}
                   <p class="block sm:inline">
                     {blueprint?.description}

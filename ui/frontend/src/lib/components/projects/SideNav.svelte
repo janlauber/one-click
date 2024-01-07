@@ -5,7 +5,6 @@
   import type { ProjectSettings } from "$lib/utils/interfaces";
   import {
     ArrowLeft,
-    Box,
     Boxes,
     Cog,
     Database,
@@ -15,7 +14,6 @@
     History,
     LineChart,
     Network,
-    Package,
     Variable
   } from "lucide-svelte";
 

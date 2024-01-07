@@ -11,84 +11,64 @@
   $: series = [usage, requests, limits];
 
   $: options = {
-    colors: ["#1C64F2", "#16BDCA", "#FDBA8C"],
-    series,
     chart: {
-      height: 320,
-      width: "100%",
-      type: "donut"
+      height: "210px",
+      maxWidth: "100%",
+      type: "bar",
+      fontFamily: "Inter, sans-serif",
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: true
+      },
+      animations: {
+        enabled: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: false
+      }
+    },
+    fill: false,
+    dataLabels: {
+      enabled: true
     },
     stroke: {
-      colors: ["transparent"],
-      lineCap: ""
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          labels: {
-            show: true,
-            name: {
-              show: true,
-              fontFamily: "Inter, sans-serif",
-              offsetY: 20
-            },
-            total: {
-              showAlways: true,
-              show: true,
-              label: "Usage",
-              fontFamily: "Inter, sans-serif",
-              formatter: function (w: any) {
-                // Show only usage rounded to 2 decimals
-                const rounded = Math.round(w.globals.seriesTotals[0] * 100) / 100;
-
-                return `${rounded}`;
-              }
-            },
-            value: {
-              show: true,
-              fontFamily: "Inter, sans-serif",
-              offsetY: -20,
-              formatter: function (value: any) {
-                return value + "";
-              }
-            }
-          },
-          size: "80%"
-        }
-      }
+      width: 0
     },
     grid: {
+      show: true,
+      strokeDashArray: 4,
       padding: {
-        top: -2
+        left: 2,
+        right: 2,
+        top: 0
       }
     },
-    labels: ["Usage", "Requests", "Limits"],
-    dataLabels: {
-      enabled: false
-    },
-    legend: {
-      position: "bottom",
-      fontFamily: "Inter, sans-serif"
-    },
-    yaxis: {
-      labels: {
-        formatter: function (value: any) {
-          return value + "";
-        }
+    series: [
+      {
+        name: title,
+        data: series,
+        color: "#0e0e0e"
       }
-    },
+    ],
     xaxis: {
+      categories: ["Usage", "Requests", "Limits"],
       labels: {
-        formatter: function (value: any) {
-          return value + "";
-        }
-      },
-      axisTicks: {
-        show: false
+        show: true
       },
       axisBorder: {
         show: false
+      },
+      axisTicks: {
+        show: false
       }
+    },
+    yaxis: {
+      show: true
     }
   };
 </script>
@@ -103,5 +83,5 @@
       </div>
     </div>
   </div>
-  <Chart {options} class="py-6" />
+  <Chart {options} />
 </Card>

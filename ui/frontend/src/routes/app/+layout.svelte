@@ -12,7 +12,7 @@
   </div>
 
   <div class="absolute top-14 left-0 right-0 bottom-0">
-    {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/blueprints/")}
+    {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/admin/")}
       <div
         class="bg-primary-600 w-full p-4 relative"
         in:slide={{ duration: 200, easing: cubicOut }}

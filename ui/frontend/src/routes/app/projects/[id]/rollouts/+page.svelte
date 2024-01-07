@@ -6,7 +6,7 @@
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
     <Heading tag="h2">Rollouts</Heading>
-    <P class="text-gray-500 dark:text-gray-400 text-sm">Rollouts history acts just like snapshots.</P>
+    <P class="text-gray-500 dark:text-gray-400 text-sm">Rollouts history acts just like snapshots. Max. 10</P>
   </div>
 </div>
 

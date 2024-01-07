@@ -185,6 +185,11 @@
       manifestString.includes(searchTermLower) || rollout.id.toLowerCase().includes(searchTermLower)
     );
   });
+
+  // max 10 rollouts
+  // TODO: make this configurable
+  $: filteredRollouts = filteredRollouts.slice(0, 10);
+
 </script>
 
 <Drawer
@@ -369,9 +374,9 @@
                           <DropdownItem on:click={() => confirmRollback(rollout)}
                             >Rollback</DropdownItem
                           >
-                          <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
+                          <!-- <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
                             >Delete</DropdownItem
-                          >
+                          > -->
                         </Dropdown>
                       {/if}
                     </td>
