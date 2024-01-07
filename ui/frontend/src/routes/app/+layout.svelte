@@ -22,12 +22,12 @@
         <div class="text-center flex justify-center items-center flex-col space-y-4">
           <Heading tag="h3" class="flex text-background font-extralight items-center w-auto">
             Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge
-              color="primary"
-              class="text-xl font-semibold ml-2">prototype</Badge
+              color="secondary"
+              class="text-xl text-primary-500 font-semibold ml-2">prototype</Badge
             >
           </Heading>
           <span
-            class="bg-black text-background text-sm font-extralight px-2 py-1 rounded-full mt-2"
+            class="bg-white text-primary-500 text-sm font-extralight px-2 py-1 rounded-full mt-2"
           >
             The <b>Open Source Platform</b> to manage your <b>Software Rollouts</b>
           </span>
