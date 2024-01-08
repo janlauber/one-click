@@ -1,16 +1,27 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { Button, Card, Heading, Indicator } from "flowbite-svelte";
-  import { ArrowRight, Boxes, Copy, Database, HardDrive, Lock, Network, Rocket, Variable } from "lucide-svelte";
+  import {
+    ArrowRight,
+    Boxes,
+    Copy,
+    Database,
+    HardDrive,
+    History,
+    Lock,
+    Network,
+    Rocket,
+    Variable
+  } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
   import { rollouts, type Rexpand } from "$lib/stores/data";
   import { getRolloutMetrics, getRolloutStatus } from "$lib/utils/rollouts";
   import { onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
-  import { navigating, page } from "$app/stores";
+  import { navigating } from "$app/stores";
   import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
   import MetricsChart from "$lib/components/projects/MetricsChart.svelte";
-    import RolloutChart from "$lib/components/projects/RolloutChart.svelte";
+  import RolloutChart from "$lib/components/projects/RolloutChart.svelte";
 
   let current_rollout_status: RolloutStatusResponse | undefined;
   let currentRollouts: RolloutsResponse<Rexpand>[] = [];
@@ -151,7 +162,7 @@
         <div
           class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
         >
-          <Rocket
+          <History
             class="w-5 h-5 text-primary-600
           justify-self-center
         "
@@ -249,25 +260,6 @@
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
         >
-          <Lock
-            class="w-5 h-5 text-white
-          justify-self-center
-        "
-          />
-        </div>
-        <div class="flex flex-col ml-4">
-          <span class="text-sm font-light">Secrets</span>
-          <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec?.secrets?.length ?? 0}</span
-          >
-        </div>
-      </Card>
-    </a>
-    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
-      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
-        <div
-          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
-        >
           <Variable
             class="w-5 h-5 text-white
           justify-self-center
@@ -278,6 +270,25 @@
           <span class="text-sm font-light">Envs</span>
           <span class="text-sm font-semibold"
             >{currentRollout?.manifest?.spec?.env?.length ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
+        >
+          <Lock
+            class="w-5 h-5 text-white
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Secrets</span>
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec?.secrets?.length ?? 0}</span
           >
         </div>
       </Card>

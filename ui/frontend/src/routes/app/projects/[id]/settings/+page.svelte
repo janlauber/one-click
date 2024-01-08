@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
-  import type { ProjectsRecord } from "$lib/pocketbase/generated-types";
+  import type { BlueprintsRecord, ProjectsRecord } from "$lib/pocketbase/generated-types";
   import {
     UpdateFilterEnum,
     currentRollout,
@@ -9,16 +9,29 @@
     updateDataStores
   } from "$lib/stores/data";
   import { Button, Fileupload, Heading, Input, Label, Modal, P } from "flowbite-svelte";
-  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
-  import { XIcon } from "lucide-svelte";
+  import { BookDashed, Image, Trash, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
+  import MonacoEditor from "svelte-monaco";
+  // @ts-ignore
+  import yaml from "js-yaml";
 
   let localTags: Set<string> = new Set();
   let initialLoad = true;
   let projectName: string = "";
   let inFocus = false;
-  let modalOpen = false;
+  let modalBluprintOpen = false;
+  let modalDeleteOpen = false;
   let avatar: File;
+
+  let blueprintName: string = $selectedProject?.name || "";
+  let blueprintDescription: string = $selectedProject?.description || "";
+  let blueprintAvatar: string = $selectedProject?.avatar || "";
+  let blueprintAvatarFile: File;
+  let blueprintManifest: any = jsonToYaml($currentRollout?.manifest) || "";
+
+  function jsonToYaml(json: any): string {
+    return yaml.dump(json);
+  }
 
   $: {
     // update tags
@@ -91,6 +104,12 @@
       .collection("projects")
       .update($selectedProject.id, project)
       .then(() => {
+        toast.success("Tags updated");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
         // update the selected project
         if ($currentRollout) {
           updateDataStores({
@@ -98,10 +117,6 @@
             projectId: $currentRollout.project
           });
         }
-        toast.success("Tags updated");
-      })
-      .catch((error) => {
-        toast.error(error.message);
       });
   }
 
@@ -142,7 +157,7 @@
       .delete($selectedProject.id)
       .then(() => {
         toast.success("Project deleted");
-        modalOpen = false;
+        modalDeleteOpen = false;
         updateDataStores({
           filter: UpdateFilterEnum.ALL
         });
@@ -174,6 +189,71 @@
       })
       .catch((error) => {
         toast.error(error.message);
+      });
+  }
+
+  async function handleCreateBlueprint() {
+    if (!$selectedProject) return;
+
+    if (!blueprintName) {
+      toast.error("Blueprint name is required");
+      return;
+    }
+
+    if (!blueprintDescription) {
+      toast.error("Blueprint description is required");
+      return;
+    }
+
+    if (!blueprintAvatar) {
+      toast.error("Blueprint avatar is required");
+      return;
+    }
+
+    if (!blueprintManifest) {
+      toast.error("Blueprint manifest is required");
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append("avatar", blueprintAvatarFile);
+
+    // parse the manifest yaml to json
+    const parsedManifest = yaml.load(blueprintManifest);
+
+    let data: BlueprintsRecord = {
+      name: blueprintName,
+      description: blueprintDescription,
+      manifest: parsedManifest,
+      owner: client.authStore?.model?.id
+    };
+
+    client
+      .collection("blueprints")
+      .create(data)
+      .then((response) => {
+        client
+          .collection("blueprints")
+          .update(response?.id ?? "", formData)
+          .catch((error) => {
+            toast.error(error.message);
+          });
+
+        toast.success("Blueprint created");
+
+        goto(`/app/blueprints/my-blueprints`);
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        // update the selected project
+        if ($currentRollout) {
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $currentRollout.project
+          });
+        }
       });
   }
 </script>
@@ -248,8 +328,52 @@
 
   <div>
     <Label class="pb-2">Change Avatar</Label>
-    <Fileupload on:change={handleAvatarUpload} size="xs" />
+    <label
+      for="avatar"
+      class="cursor-pointer flex justify-center items-center w-full px-4 py-2 border-primary-700 dark:border-gray-400 border-2 rounded-lg text-sm font-medium text-primary-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+    >
+      <Image class="w-6 h-6 inline-block mr-1" />
+      Choose a file (max 1MB)
+      <input
+        type="file"
+        name="avatar"
+        id="avatar"
+        class="w-full border-gray-300 border-2"
+        on:change={handleAvatarUpload}
+      />
+    </label>
   </div>
+</div>
+
+<!-- Create a blueprint -->
+
+<div class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-primary-500">
+  <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+    <tbody class="divide-y divide-gray-200 dark:divide-gray-600 dark:bg-transparent">
+      <tr class="">
+        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
+          <Heading tag="h5" color="text-white">Blueprint</Heading>
+          <P color="text-white" class="text-xs">Create a blueprint from your project.</P>
+        </td>
+        <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
+          <!-- Modified: Added 'text-right' class -->
+          <Button
+            color="light"
+            size="xs"
+            class="whitespace-nowrap"
+            on:click={() => {
+              if (!$selectedProject) return;
+
+              modalBluprintOpen = true;
+            }}
+          >
+            <BookDashed class="w-4 h-4 inline-block mr-1" />
+            New blueprint
+          </Button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- Danger Zone -> Delete Project -->
@@ -273,9 +397,10 @@
             on:click={() => {
               if (!$selectedProject) return;
 
-              modalOpen = true;
+              modalDeleteOpen = true;
             }}
           >
+            <Trash class="w-4 h-4 inline-block mr-1" />
             Delete project
           </Button>
         </td>
@@ -284,9 +409,9 @@
   </table>
 </div>
 
-<Modal bind:open={modalOpen} size="xs" autoclose>
+<Modal bind:open={modalDeleteOpen} size="xs" autoclose>
   <div class="text-center">
-    <ExclamationCircleOutline class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
+    <Trash class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       Are you sure you want to delete this project?
     </h3>
@@ -294,3 +419,47 @@
     <Button color="alternative">No, cancel</Button>
   </div>
 </Modal>
+
+<Modal bind:open={modalBluprintOpen} size="lg" autoclose>
+  <div class="text-center">
+    <BookDashed class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      Create a blueprint from this project
+    </h3>
+  </div>
+  <div class="space-y-2">
+    <Label class="">Name</Label>
+    <Input bind:value={blueprintName} />
+    <Label class="">Description</Label>
+    <Input bind:value={blueprintDescription} />
+    <Label class="">Avatar</Label>
+    <Fileupload
+      bind:value={blueprintAvatar}
+      on:change={(event) => {
+        // @ts-ignore
+        blueprintAvatarFile = event.target.files[0];
+      }}
+    />
+
+    <Label class="">Manifest</Label>
+    <div class=" h-96 overflow-y-auto border border-gray-700 rounded-lg p-2 bg-gray-800">
+      <MonacoEditor
+        bind:value={blueprintManifest}
+        options={{ language: "yaml", automaticLayout: false, minimap: { enabled: false } }}
+        theme="vs-dark"
+      />
+    </div>
+  </div>
+  <div class="flex justify-between">
+    <Button color="primary" class="me-2" on:click={() => handleCreateBlueprint()}
+      >Yes, I'm sure</Button
+    >
+    <Button color="alternative">No, cancel</Button>
+  </div>
+</Modal>
+
+<style>
+  input[type="file"] {
+    display: none;
+  }
+</style>

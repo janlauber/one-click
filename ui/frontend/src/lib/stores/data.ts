@@ -6,7 +6,7 @@ import type {
     BlueprintsResponse,
     UsersResponse
 } from "$lib/pocketbase/generated-types";
-import { get, writable, type Writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 
 // Blueprints //

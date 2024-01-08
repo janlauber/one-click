@@ -2,6 +2,7 @@
   import { rollouts } from "$lib/stores/data";
   import { Chart, Card } from "flowbite-svelte";
   import { ChevronDownSolid, ChevronUpSolid } from "flowbite-svelte-icons";
+    import { History, Rocket } from "lucide-svelte";
 
   let filterByOptions = ["Last 7 days", "Last 30 days", "Last 90 days"];
   let selectedFilterBy = filterByOptions[0];
@@ -155,7 +156,7 @@
     data = data.reverse();
   }
 
-  let options = {
+  let options: any = {
     chart: {
       height: "400px",
       maxWidth: "100%",
@@ -230,6 +231,7 @@
   <div class="flex justify-between">
     <div>
       <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
+        <History class="w-6 h-6 inline-block mr-1 -mt-1" />
         {filteredRollouts.length}
       </h5>
       <p class="text-base font-normal text-gray-500 dark:text-gray-400">

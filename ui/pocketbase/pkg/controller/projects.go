@@ -3,7 +3,7 @@ package controller
 import (
 	"log"
 
-	"github.com/natrontech/one-click/pkg/k8s"
+	"github.com/janlauber/one-click/pkg/k8s"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"

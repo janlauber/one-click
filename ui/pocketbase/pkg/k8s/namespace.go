@@ -3,7 +3,7 @@ package k8s
 import (
 	"strings"
 
-	"github.com/natrontech/one-click/pkg/util"
+	"github.com/janlauber/one-click/pkg/util"
 	"github.com/pocketbase/pocketbase/models"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

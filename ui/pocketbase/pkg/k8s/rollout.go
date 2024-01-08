@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	yaml2 "github.com/ghodss/yaml"
-	"github.com/natrontech/one-click/pkg/models"
+	"github.com/janlauber/one-click/pkg/models"
 	pb_models "github.com/pocketbase/pocketbase/models"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

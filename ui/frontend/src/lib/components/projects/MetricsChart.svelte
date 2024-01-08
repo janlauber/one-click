@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { Chart, Card, Skeleton, WidgetPlaceholder, Spinner } from "flowbite-svelte";
-    import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
+  import selectedProjectId from "$lib/stores/project";
+  import { Chart, Card, Skeleton, WidgetPlaceholder, Spinner, Button } from "flowbite-svelte";
+  import { Cpu, Expand, MemoryStick } from "lucide-svelte";
+  import { onMount } from "svelte";
 
   export let title = "CPU";
   export let limits = 0;
@@ -11,7 +14,7 @@
 
   let loading = true;
 
-  $: series = [usage, requests, limits];
+  $: series = [usage, requests];
 
   $: options = {
     chart: {
@@ -59,7 +62,7 @@
       }
     ],
     xaxis: {
-      categories: ["Usage", "Requests", "Limits"],
+      categories: ["Usage", "Reserved"],
       labels: {
         show: true
       },
@@ -77,9 +80,12 @@
 
   // random loading between 0.2 and 0.8s
   onMount(() => {
-    setTimeout(() => {
-      loading = false;
-    }, Math.random() * 600 + 200);
+    setTimeout(
+      () => {
+        loading = false;
+      },
+      Math.random() * 600 + 200
+    );
   });
 </script>
 
@@ -88,6 +94,11 @@
     <div class="flex-col items-center">
       <div class="flex items-center mb-1">
         <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white mr-1">
+          {#if title === "Total CPU (Cores)"}
+            <Cpu class="inline -mt-1" />
+          {:else if title === "Total Memory (GB)"}
+            <MemoryStick class="inline -mt-1" />
+          {/if}
           {title}
         </h5>
       </div>
@@ -96,10 +107,21 @@
   {#if !loading}
     <Chart {options} />
   {:else}
-    <div class="flex justify-center items-center w-full"
-      style="height: 225px;"
-    >
+    <div class="flex justify-center items-center w-full" style="height: 225px;">
       <Spinner color="primary" />
     </div>
   {/if}
+
+  <Button
+    color="primary"
+    class="mt-2"
+    size="sm"
+    outline
+    on:click={() => {
+      goto(`/app/projects/${$selectedProjectId}/scale`);
+    }}
+  >
+    <Expand class="w-4 h-4 inline-block mr-1 " />
+    Scale
+  </Button>
 </Card>

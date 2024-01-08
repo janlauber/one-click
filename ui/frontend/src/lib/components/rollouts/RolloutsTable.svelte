@@ -178,6 +178,8 @@
     }, "");
   }
 
+  let filteredRollouts: RolloutsResponse<Rexpand>[] = [];
+
   $: filteredRollouts = $rollouts.filter((rollout) => {
     const searchTermLower = searchTerm.toLowerCase();
     const manifestString = rollout.manifest ? flattenObject(rollout.manifest).toLowerCase() : "";
