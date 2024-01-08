@@ -1,8 +1,8 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
-  import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { updateDataStores, type Rexpand, UpdateFilterEnum, currentRollout } from "$lib/stores/data";
-  import { Accordion, AccordionItem, Button, Input, Label, Toggle } from "flowbite-svelte";
+  import type { RolloutsRecord } from "$lib/pocketbase/generated-types";
+  import { updateDataStores, UpdateFilterEnum, currentRollout } from "$lib/stores/data";
+  import { Button, Input, Label, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
 

@@ -1,4 +1,4 @@
-apiVersion: one-click.io/v1alpha1
+apiVersion: one-click.dev/v1alpha1
 kind: Rollout
 metadata:
   name: node-red

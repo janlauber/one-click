@@ -12,7 +12,7 @@ metadata:
   name: framework-editor-role
 rules:
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - frameworks
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - frameworks/status
   verbs:

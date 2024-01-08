@@ -12,7 +12,7 @@ metadata:
   name: framework-viewer-role
 rules:
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - frameworks
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - frameworks/status
   verbs:

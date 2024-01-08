@@ -55,7 +55,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
-		Group:    "one-click.io",
+		Group:    "one-click.dev",
 		Version:  "v1alpha1",
 		Resource: "rollouts",
 	}
@@ -95,7 +95,7 @@ func CreateOrUpdateRollout(rolloutId string, user *pb_models.Record, projectId s
 func DeleteRollout(projectId string, rolloutId string) error {
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
-		Group:    "one-click.io",
+		Group:    "one-click.dev",
 		Version:  "v1alpha1",
 		Resource: "rollouts",
 	}
@@ -114,7 +114,7 @@ func DeleteRollout(projectId string, rolloutId string) error {
 func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus, error) {
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
-		Group:    "one-click.io",
+		Group:    "one-click.dev",
 		Version:  "v1alpha1",
 		Resource: "rollouts",
 	}
@@ -147,7 +147,7 @@ func GetRolloutMetrics(projectId string, rolloutId string) (*models.PodMetricsRe
 
 	// List all pods in the projectId namespaced controlled by the rolloutId deployment
 	pods, err := Clientset.CoreV1().Pods(projectId).List(Ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("rollout.one-click.io/name=%s", projectId),
+		LabelSelector: fmt.Sprintf("rollout.one-click.dev/name=%s", projectId),
 	})
 
 	if err != nil {

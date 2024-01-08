@@ -13,7 +13,7 @@ spec:
     - description: Framework is the Schema for the frameworks API
       displayName: Framework
       kind: Framework
-      name: frameworks.one-click.io
+      name: frameworks.one-click.dev
       version: v1
   description: Handles OneClick Deployments
   displayName: OneClick Operator

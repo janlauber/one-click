@@ -89,11 +89,11 @@ func (r *RolloutReconciler) reconcileService(ctx context.Context, f *oneclickiov
 
 func (r *RolloutReconciler) serviceForRollout(f *oneclickiov1alpha1.Rollout, intf oneclickiov1alpha1.InterfaceSpec) *corev1.Service {
 	labels := map[string]string{
-		"rollout.one-click.io/name": f.Name,
-		"managed-by":                "framework-operator", // Unique label to identify operator-managed services
+		"rollout.one-click.dev/name": f.Name,
+		"managed-by":                 "framework-operator", // Unique label to identify operator-managed services
 	}
 	selectorLabels := map[string]string{
-		"rollout.one-click.io/name": f.Name,
+		"rollout.one-click.dev/name": f.Name,
 	}
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{

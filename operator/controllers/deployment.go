@@ -47,7 +47,7 @@ func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, rollout *on
 }
 
 func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) *appsv1.Deployment {
-	labels := map[string]string{"rollout.one-click.io/name": f.Name}
+	labels := map[string]string{"rollout.one-click.dev/name": f.Name}
 	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
 
 	dep := &appsv1.Deployment{
@@ -131,7 +131,7 @@ func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) 
 	if dep.Spec.Template.Annotations == nil {
 		dep.Spec.Template.Annotations = make(map[string]string)
 	}
-	dep.Spec.Template.Annotations["one-click.io/secrets-checksum"] = checksum
+	dep.Spec.Template.Annotations["one-click.dev/secrets-checksum"] = checksum
 
 	ctrl.SetControllerReference(f, dep, r.Scheme)
 	return dep
