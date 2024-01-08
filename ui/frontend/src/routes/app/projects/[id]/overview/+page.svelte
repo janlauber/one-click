@@ -4,13 +4,11 @@
   import {
     ArrowRight,
     Boxes,
-    Copy,
     Database,
     HardDrive,
     History,
     Lock,
     Network,
-    Rocket,
     Variable
   } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
@@ -128,6 +126,7 @@
   $: if ($navigating) {
     updateCurrentRollout();
   }
+
 </script>
 
 <div class="flex items-start justify-between">
@@ -150,7 +149,7 @@
         <Indicator size="sm" color={rollout_status_color} class="mr-1.5 animate-ping" />
       {/if}
     </div>
-    Current rollout
+    Current rollout (Status: {current_rollout_status?.deployment.status ?? "Unknown"})
     <ArrowRight class="w-4 h-4 ml-2" />
   </Button>
 </div>
