@@ -214,8 +214,6 @@
         user: client.authStore.model?.id
       };
 
-      console.log("data", data);
-
       client
         .collection("rollouts")
         .create(data)

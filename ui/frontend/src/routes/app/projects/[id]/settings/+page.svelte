@@ -98,8 +98,6 @@
       tags: setToString(localTags)
     };
 
-    console.log(project);
-
     client
       .collection("projects")
       .update($selectedProject.id, project)

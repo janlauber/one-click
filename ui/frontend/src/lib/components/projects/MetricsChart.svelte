@@ -62,7 +62,7 @@
       }
     ],
     xaxis: {
-      categories: ["Usage", "Reserved"],
+      categories: ["Live Usage", "Reserved"],
       labels: {
         show: true
       },

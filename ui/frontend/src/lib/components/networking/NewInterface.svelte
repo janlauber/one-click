@@ -105,8 +105,6 @@
       };
     }
 
-    console.log(new_manifest);
-
     const data: RolloutsRecord = {
       manifest: new_manifest,
       startDate: $currentRollout.startDate,

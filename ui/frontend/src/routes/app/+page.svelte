@@ -107,8 +107,6 @@
             selectedTags = new Set();
 
             filteredProjects = $projects;
-
-            console.log(selectedTags);
           }}
         >
           <Badge
