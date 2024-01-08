@@ -379,12 +379,15 @@
                   >
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
                     <HardDrive class="w-5 h-5" />
+                    <Tooltip>Image</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
                     <Network class="w-5 h-5" />
+                    <Tooltip>Interfaces</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
                     <Database class="w-5 h-5" />
+                    <Tooltip>Volumes</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Status</th>
