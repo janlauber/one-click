@@ -34,8 +34,6 @@
     | "teal"
     | undefined;
 
-  $: console.log(rollout_status_color);
-
   const determineRolloutColor = (status: string) => {
     switch (status) {
       case "Pending":
