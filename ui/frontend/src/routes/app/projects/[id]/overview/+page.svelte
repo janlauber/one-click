@@ -1,15 +1,25 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { Button, Card, Heading, Indicator } from "flowbite-svelte";
-  import { ArrowRight, Copy, Network, Rocket } from "lucide-svelte";
+  import {
+    ArrowRight,
+    Boxes,
+    Database,
+    HardDrive,
+    History,
+    Lock,
+    Network,
+    Variable
+  } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
   import { rollouts, type Rexpand } from "$lib/stores/data";
   import { getRolloutMetrics, getRolloutStatus } from "$lib/utils/rollouts";
   import { onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
-  import { navigating, page } from "$app/stores";
+  import { navigating } from "$app/stores";
   import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
   import MetricsChart from "$lib/components/projects/MetricsChart.svelte";
+  import RolloutChart from "$lib/components/projects/RolloutChart.svelte";
 
   let current_rollout_status: RolloutStatusResponse | undefined;
   let currentRollouts: RolloutsResponse<Rexpand>[] = [];
@@ -116,6 +126,7 @@
   $: if ($navigating) {
     updateCurrentRollout();
   }
+
 </script>
 
 <div class="flex items-start justify-between">
@@ -138,56 +149,150 @@
         <Indicator size="sm" color={rollout_status_color} class="mr-1.5 animate-ping" />
       {/if}
     </div>
-    Current rollout
+    Current rollout (Status: {current_rollout_status?.deployment.status ?? "Unknown"})
     <ArrowRight class="w-4 h-4 ml-2" />
   </Button>
 </div>
 
 <div class=" gap-4 space-y-4 mt-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
-        <Rocket
-          class="w-5 h-5 text-primary-600
-          justify-self-center
-        "
-        />
-      </div>
-      <div class="flex flex-col ml-4">
-        <span class="text-sm font-light">Rollouts</span>
-        <span class="text-sm font-semibold">{currentRollouts.length}</span>
-      </div>
-    </Card>
-    <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
-        <Copy
-          class="w-5 h-5 text-primary-600
-          justify-self-center
-        "
-        />
-      </div>
-      <div class="flex flex-col ml-4">
-        <span class="text-sm font-light">Replicas</span>
-        <span class="text-sm font-semibold">{current_rollout_status?.deployment?.replicas ?? 0}</span
+    <a href={`/app/projects/${$selectedProjectId}/rollouts`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
         >
-      </div>
-    </Card>
-    <Card size="xl" class="flex flex-row p-2" padding="none">
-      <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg text-blue-500">
-        <Network
-          class="w-5 h-5 text-primary-600
+          <History
+            class="w-5 h-5 text-primary-600
           justify-self-center
         "
-        />
-      </div>
-      <div class="flex flex-col ml-4">
-        <span class="text-sm font-light">Services</span>
-        <span class="text-sm font-semibold">{current_rollout_status?.services?.length ?? 0}</span>
-      </div>
-    </Card>
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Rollouts</span>
+          <span class="text-sm font-semibold">{currentRollouts.length}</span>
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/instances`}>
+      <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
+        >
+          <Boxes
+            class="w-5 h-5 text-primary-600
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Instances</span>
+          <span class="text-sm font-semibold"
+            >{current_rollout_status?.deployment?.replicas ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/network`}>
+      <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
+        >
+          <Network
+            class="w-5 h-5 text-primary-600
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Interfaces</span>
+          <span class="text-sm font-semibold">{current_rollout_status?.services?.length ?? 0}</span>
+        </div>
+      </Card>
+    </a>
   </div>
 
-  <Heading tag="h3">Live Metrics</Heading>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4" style="grid-template-rows: auto 1fr">
+    <a href={`/app/projects/${$selectedProjectId}/rollouts`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
+        >
+          <HardDrive
+            class="w-5 h-5 text-white
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Image</span>
+
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec.image.repository.replace(/^library\//, "") ??
+              ""}{currentRollout?.manifest?.spec.image.tag
+              ? `:${currentRollout?.manifest?.spec.image.tag}`
+              : ""}</span
+          >
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/volumes`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
+        >
+          <Database
+            class="w-5 h-5 text-white
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Volumes</span>
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec?.volumes?.length ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
+        >
+          <Variable
+            class="w-5 h-5 text-white
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Envs</span>
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec?.env?.length ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
+    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
+        >
+          <Lock
+            class="w-5 h-5 text-white
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Secrets</span>
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec?.secrets?.length ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
+  </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {#if currentRollout}
@@ -195,15 +300,16 @@
         usage={cpuUsage}
         requests={cpuRequests}
         limits={cpuLimits}
-        title="CPU (Cores)"
+        title="Total CPU (Cores)"
       />
 
       <MetricsChart
         usage={memoryUsage}
         requests={memoryRequests}
         limits={memoryLimits}
-        title="Memory (GB)"
+        title="Total Memory (GB)"
       />
     {/if}
   </div>
+  <RolloutChart />
 </div>

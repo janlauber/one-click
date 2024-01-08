@@ -15,7 +15,7 @@
     Indicator,
     Tooltip
   } from "flowbite-svelte";
-  import { frameworkLogoUrl } from "$lib/utils/framework.utils";
+  import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { onMount } from "svelte";
@@ -75,11 +75,20 @@
         {#key $selectedProjectId}
           <div class="flex items-center">
             <div class="relative">
-              <img
-                src={frameworkLogoUrl(selectedProject?.expand.framework)}
-                alt="Tuple"
-                class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-white p-1"
-              />
+              {#if selectedProject?.avatar}
+                <img
+                  src={recordLogoUrl(selectedProject)}
+                  alt="Tuple"
+                  class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-white p-1"
+                />
+              {:else}
+                <img
+                  src={recordLogoUrl(selectedProject?.expand.blueprint)}
+                  alt="Tuple"
+                  class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-white p-1"
+                />
+              {/if}
+
               <Indicator
                 size="xl"
                 placement="top-right"

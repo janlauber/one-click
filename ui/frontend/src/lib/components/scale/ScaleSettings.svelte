@@ -3,9 +3,11 @@
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
   import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
-  import { Button, Heading, Input, Label, P } from "flowbite-svelte";
+  import { Badge, Button, Heading, Input, Label, P, Radio, Range } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
+  import CpuSettings from "./CPUSettings.svelte";
+  import MemorySettings from "./MemorySettings.svelte";
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
   let lastUpdatedRollout: RolloutsResponse<Rexpand> | undefined;
@@ -15,13 +17,7 @@
   let maxInstances: number = 1;
   let targetCPUUtilizationPercentage: number = 80;
 
-  let cpuLimits: string = "200m";
-  let cpuLimitsFloat: number = 0.2;
-  let memoryLimits: string = "256Mi";
-  let memoryLimitsInt: number = 256;
-  let cpuRequests: string = "100m";
   let cpuRequestsFloat: number = 0.1;
-  let memoryRequests: string = "128Mi";
   let memoryRequestsInt: number = 128;
 
   function convertFloatToCpuString(value: number): string {
@@ -64,14 +60,12 @@
       targetCPUUtilizationPercentage =
         current_rollout.manifest?.spec.horizontalScale.targetCPUUtilizationPercentage ?? 80;
       lastUpdatedRollout = current_rollout;
-      cpuLimits = current_rollout.manifest?.spec.resources?.limits?.cpu ?? "200m";
-      memoryLimits = current_rollout.manifest?.spec.resources?.limits?.memory ?? "256Mi";
-      cpuRequests = current_rollout.manifest?.spec.resources?.requests?.cpu ?? "100m";
-      memoryRequests = current_rollout.manifest?.spec.resources?.requests?.memory ?? "128Mi";
-      cpuLimitsFloat = convertCpuStringToFloat(cpuLimits);
-      memoryLimitsInt = parseInt(memoryLimits.replace("Mi", ""));
-      cpuRequestsFloat = convertCpuStringToFloat(cpuRequests);
-      memoryRequestsInt = parseInt(memoryRequests.replace("Mi", ""));
+      cpuRequestsFloat = convertCpuStringToFloat(
+        current_rollout.manifest?.spec.resources?.requests?.cpu ?? "0m"
+      );
+      memoryRequestsInt = parseInt(
+        current_rollout.manifest?.spec.resources?.requests?.memory?.replace("Mi", "") ?? "0"
+      );
     }
 
     hadRolloutsOnLastPage = true;
@@ -96,12 +90,6 @@
     minInstances = 1;
     maxInstances = 1;
     targetCPUUtilizationPercentage = 80;
-    cpuLimits = "200m";
-    memoryLimits = "256Mi";
-    cpuRequests = "100m";
-    memoryRequests = "128Mi";
-    cpuLimitsFloat = 0.2;
-    memoryLimitsInt = 256;
     cpuRequestsFloat = 0.1;
     memoryRequestsInt = 128;
   }
@@ -111,14 +99,12 @@
     maxInstances = current_rollout?.manifest?.spec.horizontalScale.maxReplicas ?? 1;
     targetCPUUtilizationPercentage =
       current_rollout?.manifest?.spec.horizontalScale.targetCPUUtilizationPercentage ?? 80;
-    cpuLimits = current_rollout?.manifest?.spec.resources?.limits?.cpu ?? "200m";
-    memoryLimits = current_rollout?.manifest?.spec.resources?.limits?.memory ?? "256Mi";
-    cpuRequests = current_rollout?.manifest?.spec.resources?.requests?.cpu ?? "100m";
-    memoryRequests = current_rollout?.manifest?.spec.resources?.requests?.memory ?? "128Mi";
-    cpuLimitsFloat = convertCpuStringToFloat(cpuLimits);
-    memoryLimitsInt = parseInt(memoryLimits.replace("Mi", ""));
-    cpuRequestsFloat = convertCpuStringToFloat(cpuRequests);
-    memoryRequestsInt = parseInt(memoryRequests.replace("Mi", ""));
+    cpuRequestsFloat = convertCpuStringToFloat(
+      current_rollout?.manifest?.spec.resources?.requests?.cpu ?? "0m"
+    );
+    memoryRequestsInt = parseInt(
+      current_rollout?.manifest?.spec.resources?.requests?.memory?.replace("Mi", "") ?? "0"
+    );
   }
 
   function handleInputChange(event: any, field: any) {
@@ -131,18 +117,6 @@
         break;
       case "targetCPUUtilizationPercentage":
         targetCPUUtilizationPercentage = event.target.value;
-        break;
-      case "cpuLimits":
-        cpuLimits = event.target.value;
-        break;
-      case "memoryLimits":
-        memoryLimits = event.target.value;
-        break;
-      case "cpuRequests":
-        cpuRequests = event.target.value;
-        break;
-      case "memoryRequests":
-        memoryRequests = event.target.value;
         break;
     }
   }
@@ -169,16 +143,6 @@
         return;
       }
 
-      if (cpuLimitsFloat <= 0) {
-        toast.error("CPU limits must be greater than 0.");
-        return;
-      }
-
-      if (memoryLimitsInt <= 0) {
-        toast.error("Memory limits must be greater than 0.");
-        return;
-      }
-
       if (cpuRequestsFloat <= 0) {
         toast.error("CPU requests must be greater than 0.");
         return;
@@ -186,16 +150,6 @@
 
       if (memoryRequestsInt <= 0) {
         toast.error("Memory requests must be greater than 0.");
-        return;
-      }
-
-      if (cpuLimitsFloat < cpuRequestsFloat) {
-        toast.error("CPU limits must be greater or equal than CPU requests.");
-        return;
-      }
-
-      if (memoryLimitsInt < memoryRequestsInt) {
-        toast.error("Memory limits must be greater or equal than memory requests.");
         return;
       }
 
@@ -211,8 +165,8 @@
           },
           resources: {
             limits: {
-              cpu: convertFloatToCpuString(cpuLimitsFloat),
-              memory: `${memoryLimitsInt}Mi`
+              cpu: convertFloatToCpuString(cpuRequestsFloat),
+              memory: `${memoryRequestsInt}Mi`
             },
             requests: {
               cpu: convertFloatToCpuString(cpuRequestsFloat),
@@ -321,20 +275,30 @@
                 </td><td class="whitespace-nowrap px-3 py-4 text-xs">
                   <Label for="tag" class="block "
                     >Percentage %
-                    <span class={targetCPUUtilizationPercentage < 40 ? "text-red-500" : "text-green-500"}>
+                    <span
+                      class={targetCPUUtilizationPercentage < 40
+                        ? "text-red-500"
+                        : "text-green-500"}
+                    >
                       *
                     </span>
                   </Label>
-                  <Input
+                  <p class="text-xs text-gray-500 dark:text-gray-400 pb-2">
+                    <Badge
+                      color={targetCPUUtilizationPercentage < 40 ? "red" : "green"}
+                      class="text-xs mt-2"
+                    >
+                      {targetCPUUtilizationPercentage}%
+                    </Badge>
+                  </p>
+
+                  <Range
                     id="targetCPUUtilizationPercentage"
-                    size="sm"
-                    type="number"
                     bind:value={targetCPUUtilizationPercentage}
                     on:input={(e) => handleInputChange(e, "targetCPUUtilizationPercentage")}
-                    placeholder="1"
-                    class="
-                    {targetCPUUtilizationPercentage < 40 ? 'border-red-500' : 'border-green-500'}
-                    "
+                    min="1"
+                    max="100"
+                    step="1"
                   />
                 </td>
               </tr>
@@ -363,7 +327,10 @@
   </div>
 </div>
 
-<Heading tag="h3" class="mt-8">Vertical Scaling</Heading>
+<Heading tag="h3" class="mt-8">Reserved Resources</Heading>
+<P class="text-gray-500 dark:text-gray-400 text-xs">
+  The reserved resources for <b>each</b> instance.
+</P>
 
 <div class="mt-4 dark:text-white">
   <div class="flow-root">
@@ -375,34 +342,13 @@
               class="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-transparent"
             >
               <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
-                  <Heading tag="h5">Reserved</Heading>
-                  <P class="text-gray-500 dark:text-gray-400 text-xs">
-                    The reserved resources for each instance.
-                  </P>
-                </td><td class="whitespace-nowrap px-3 py-4 text-xs">
-                  <Label for="tag" class="block ">CPU</Label>
-                  <Input
-                    id="cpuRequest"
-                    size="sm"
-                    type="number"
-                    bind:value={cpuRequestsFloat}
-                    on:input={(e) => handleInputChange(e, "cpuRequest")}
-                    placeholder="0.1"
-                  />
+                <td class="whitespace-nowrap px-3 py-4 text-xs space-y-2">
+                  <CpuSettings bind:cpuRequestsFloat={cpuRequestsFloat} />
 
-                  <Label for="tag" class="block mt-2">Memory</Label>
-                  <Input
-                    id="memoryRequest"
-                    size="sm"
-                    type="number"
-                    bind:value={memoryRequestsInt}
-                    on:input={(e) => handleInputChange(e, "memoryRequest")}
-                    placeholder="128"
-                  />
+                  <MemorySettings bind:memoryRequestsInt={memoryRequestsInt} />
                 </td>
               </tr>
-              <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+              <!-- <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
                   <Heading tag="h5">Limits</Heading>
                   <P class="text-gray-500 dark:text-gray-400 text-xs">
@@ -429,7 +375,7 @@
                     placeholder="256"
                   />
                 </td>
-              </tr>
+              </tr> -->
             </tbody>
           </table>
           <!-- Reset & Save Button bottom right -->

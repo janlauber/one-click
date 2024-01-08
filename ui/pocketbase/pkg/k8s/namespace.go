@@ -3,7 +3,7 @@ package k8s
 import (
 	"strings"
 
-	"github.com/natrontech/one-click/pkg/util"
+	"github.com/janlauber/one-click/pkg/util"
 	"github.com/pocketbase/pocketbase/models"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,10 +19,10 @@ func CreateNamespace(params NamespaceParams) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: params.Name,
 			Labels: map[string]string{
-				"project.one-click.io/name":        params.Name,
-				"project.one-click.io/userId":      params.UserRecord.GetString("id"),
-				"project.one-click.io/username":    params.UserRecord.GetString("username"),
-				"project.one-click.io/displayName": util.StringParser(params.UserRecord.GetString("name")),
+				"project.one-click.dev/name":        params.Name,
+				"project.one-click.dev/userId":      params.UserRecord.GetString("id"),
+				"project.one-click.dev/username":    params.UserRecord.GetString("username"),
+				"project.one-click.dev/displayName": util.StringParser(params.UserRecord.GetString("name")),
 			},
 		},
 	}

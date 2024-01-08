@@ -5,7 +5,7 @@ metadata:
     alm-examples: |-
       [
         {
-          "apiVersion": "one-click.io/v1",
+          "apiVersion": "one-click.dev/v1",
           "kind": "Framework",
           "metadata": {
             "labels": {
@@ -33,7 +33,7 @@ spec:
     - description: Framework is the Schema for the frameworks API
       displayName: Framework
       kind: Framework
-      name: frameworks.one-click.io
+      name: frameworks.one-click.dev
       version: v1
   description: Handles OneClick Deployments
   displayName: OneClick Operator
@@ -45,7 +45,7 @@ spec:
       clusterPermissions:
       - rules:
         - apiGroups:
-          - one-click.io
+          - one-click.dev
           resources:
           - frameworks
           verbs:
@@ -57,13 +57,13 @@ spec:
           - update
           - watch
         - apiGroups:
-          - one-click.io
+          - one-click.dev
           resources:
           - frameworks/finalizers
           verbs:
           - update
         - apiGroups:
-          - one-click.io
+          - one-click.dev
           resources:
           - frameworks/status
           verbs:

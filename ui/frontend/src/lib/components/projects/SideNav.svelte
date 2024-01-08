@@ -1,29 +1,18 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
-  import type { ProjectSettings } from "$lib/utils/interfaces";
   import {
     ArrowLeft,
-    Box,
     Boxes,
     Cog,
     Database,
     Expand,
-    FileText,
     HardDrive,
     History,
     LineChart,
     Network,
-    Package,
     Variable
   } from "lucide-svelte";
-
-  // Get current project settings
-  // @ts-ignore
-  const projectSettings: ProjectSettings = $projects.find(
-    (project) => project.id === $selectedProjectId
-  )?.expand?.framework.settings;
 
   // Return navigation items based on project settings
   const generateItems = (projectId: string) => {
@@ -33,12 +22,6 @@
         href: `/app/projects/${projectId}/overview`,
         current: false,
         icon: LineChart
-      },
-      {
-        name: "Logs",
-        href: `/app/projects/${projectId}/logs`,
-        current: false,
-        icon: FileText
       },
       {
         name: "Rollouts",
@@ -89,74 +72,6 @@
         icon: Cog
       }
     ];
-
-    // Remove items based on project settings
-    if (!projectSettings?.overview) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Overview")
-      );
-    }
-    if (!projectSettings?.logs) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Logs")
-      );
-    }
-    if (!projectSettings?.rollouts) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Rollouts")
-      );
-    }
-    if (!projectSettings?.image) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Image")
-      );
-    }
-    if (!projectSettings?.scale) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Scale")
-      );
-    }
-    if (!projectSettings?.network) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Network")
-      );
-    }
-    if (!projectSettings?.volumes) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Volumes")
-      );
-    }
-    if (!projectSettings?.instances) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Instances")
-      );
-    }
-    if (!projectSettings?.envs) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Envs & Secrets")
-      );
-    }
-    if (!projectSettings?.settings) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Settings")
-      );
-    }
-    if (!projectSettings?.logs && !projectSettings?.rollouts) {
-      removeItem(
-        items,
-        items.find((item) => item.name === "Logs")
-      );
-    }
 
     return items;
   };

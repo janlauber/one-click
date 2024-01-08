@@ -40,9 +40,9 @@ type RolloutReconciler struct {
 	Recorder record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=one-click.io,resources=rollouts,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=one-click.io,resources=rollouts/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=one-click.io,resources=rollouts/finalizers,verbs=update
+//+kubebuilder:rbac:groups=one-click.dev,resources=rollouts,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=one-click.dev,resources=rollouts/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=one-click.dev,resources=rollouts/finalizers,verbs=update
 
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/janlauber/one-click/pkg/k8s"
+	"github.com/janlauber/one-click/pkg/util"
 	"github.com/labstack/echo/v5"
-	"github.com/natrontech/one-click/pkg/k8s"
-	"github.com/natrontech/one-click/pkg/util"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"

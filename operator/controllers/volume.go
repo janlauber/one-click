@@ -119,7 +119,7 @@ func allowsVolumeExpansion(sc *storagev1.StorageClass) bool {
 
 func (r *RolloutReconciler) constructPVCForRollout(rollout *oneclickiov1alpha1.Rollout, volSpec oneclickiov1alpha1.VolumeSpec) *corev1.PersistentVolumeClaim {
 	labels := map[string]string{
-		"rollout.one-click.io/name": rollout.Name,
+		"rollout.one-click.dev/name": rollout.Name,
 	}
 
 	pvc := &corev1.PersistentVolumeClaim{

@@ -98,5 +98,3 @@ async function fetchRolloutEvents(projectId: string, rolloutId: string) {
 
     return events;
 }
-
-// get rollout logs from specific pod as EventSource from /rollouts/{projectId}/{podName}/logs

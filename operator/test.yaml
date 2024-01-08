@@ -1,4 +1,4 @@
-apiVersion: one-click.io/v1alpha1
+apiVersion: one-click.dev/v1alpha1
 kind: Rollout
 metadata:
   name: nginx
@@ -8,14 +8,6 @@ spec:
     registry: "docker.io"
     repository: "nginx"
     tag: "latest"
-    autoUpdate:
-      enabled: true
-      regexPattern: "^\\d+\\.\\d+\\.\\d+$" # Example: only allow semantic version tags
-      sortType: "semver" # Options could be "timestamp" or "semver"
-      interval: "60s" # Interval in seconds
-    authConfig:
-      username: "admin"
-      password: "admin" # could also be a token
   horizontalScale:
     minReplicas: 1
     maxReplicas: 3
@@ -37,11 +29,11 @@ spec:
       value: "admin"
     - name: "ANOTHER_SECRET"
       value: "122"
-  # volumes:
-  #   - name: "data"
-  #     mountPath: "/data"
-  #     size: "2Gi"
-  #     storageClass: "standard"
+  volumes:
+    - name: "data"
+      mountPath: "/data"
+      size: "2Gi"
+      storageClass: "standard"
   interfaces:
     - name: "http"
       port: 80

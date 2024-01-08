@@ -6,7 +6,9 @@
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
     <Heading tag="h2">Rollouts</Heading>
-    <P class="text-gray-500 dark:text-gray-400 text-sm">Rollouts history acts just like snapshots.</P>
+    <P class="text-gray-500 dark:text-gray-400 text-sm">
+      Each time you change the configuration of a project, a new rollout is created. You can see maximum 15 rollouts.
+    </P>
   </div>
 </div>
 
