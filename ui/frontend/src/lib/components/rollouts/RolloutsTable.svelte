@@ -26,7 +26,7 @@
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsHorizontalOutline, InfoCircleSolid } from "flowbite-svelte-icons";
-  import { Copy, HardDrive, PanelRightOpen } from "lucide-svelte";
+  import { Copy, Database, HardDrive, Network, PanelRightOpen } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
   import DiffLines from "../base/DiffLines.svelte";
@@ -377,7 +377,15 @@
                   <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6"
                     >ID</th
                   >
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Image</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
+                    <HardDrive class="w-5 h-5" />
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
+                    <Network class="w-5 h-5" />
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
+                    <Database class="w-5 h-5" />
+                  </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Status</th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -393,13 +401,23 @@
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6"
                       >{rollout.id}</td
                     ><td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {#if rollout.manifest}
-                        {rollout.manifest.spec.image.registry}/{rollout.manifest.spec.image
+                      {#if rollout.manifest}{rollout.manifest.spec.image
                           .repository}:{rollout.manifest.spec.image.tag}
                       {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      <div>{formatDateTime(rollout.created)}</div>
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.interfaces.length ?? "None"}
+                      {/if}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.volumes.length ?? "None"}
+                      {/if}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      <div>{timeAgo(rollout.created)}</div>
+                      <Tooltip>{formatDateTime(rollout.created)}</Tooltip>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                       {#if rollout.endDate == ""}
