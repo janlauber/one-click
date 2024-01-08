@@ -30,7 +30,7 @@
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
   import DiffLines from "../base/DiffLines.svelte";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { navigating } from "$app/stores";
 
   let hidden6 = true;
@@ -100,7 +100,11 @@
   }
 
   // update rollout status every 5 seconds
-  setInterval(updateCurrentRollout, 5000);
+  onMount(() => {
+    setInterval(() => {
+      updateCurrentRollout();
+    }, 5000);
+  });
 
   async function toggleSidebar(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;

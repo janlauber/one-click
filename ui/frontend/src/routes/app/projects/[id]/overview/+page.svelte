@@ -25,11 +25,9 @@
   let currentRollouts: RolloutsResponse<Rexpand>[] = [];
   let currentRollout: RolloutsResponse<Rexpand> | undefined;
 
-  let cpuLimits = 0;
   let cpuRequests = 0;
   let cpuUsage = 0;
 
-  let memoryLimits = 0;
   let memoryRequests = 0;
   let memoryUsage = 0;
 
@@ -77,16 +75,9 @@
         rollout_status_color = determineRolloutColor(
           current_rollout_status?.deployment.status ?? ""
         );
-        cpuLimits = Number(current_rollout_status?.deployment.resources.limitSum.cpu);
-        // round to 3 decimal places
-        cpuLimits = Math.round((cpuLimits + Number.EPSILON) * 1000) / 1000;
         cpuRequests = Number(current_rollout_status?.deployment.resources.requestSum.cpu);
         // round to 3 decimal places
         cpuRequests = Math.round((cpuRequests + Number.EPSILON) * 1000) / 1000;
-        memoryLimits =
-          Number(current_rollout_status?.deployment.resources.limitSum.memory) / 1024 / 1024 / 1024;
-        // round to 3 decimal places
-        memoryLimits = Math.round((memoryLimits + Number.EPSILON) * 1000) / 1000;
         memoryRequests =
           Number(current_rollout_status?.deployment.resources.requestSum.memory) /
           1024 /
@@ -299,14 +290,12 @@
       <MetricsChart
         usage={cpuUsage}
         requests={cpuRequests}
-        limits={cpuLimits}
         title="Total CPU (Cores)"
       />
 
       <MetricsChart
         usage={memoryUsage}
         requests={memoryRequests}
-        limits={memoryLimits}
         title="Total Memory (GB)"
       />
     {/if}

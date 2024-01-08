@@ -6,7 +6,6 @@
   import { onMount } from "svelte";
 
   export let title = "CPU";
-  export let limits = 0;
   export let requests = 0;
   export let usage = 0;
 

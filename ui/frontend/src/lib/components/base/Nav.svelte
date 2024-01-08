@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { navigating, page } from "$app/stores";
   import { client, logout } from "$lib/pocketbase";
-  import { projects, rollouts } from "$lib/stores/data";
+  import { currentRollout, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { avatarUrl } from "$lib/utils/user.utils";
   import {
@@ -11,25 +11,72 @@
     DropdownItem,
     DropdownHeader,
     DropdownDivider,
-    type SelectOptionType,
     Indicator,
     Tooltip
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
+  import { getRolloutStatus } from "$lib/utils/rollouts";
   import { onMount } from "svelte";
+  import type { RolloutStatusResponse } from "$lib/types/status";
 
   let avatarUrlString: any = avatarUrl();
-  let projectsChoices: SelectOptionType<any>[] | undefined;
+  let current_rollout_status: RolloutStatusResponse | undefined;
+  let rollout_status_color:
+    | "gray"
+    | "red"
+    | "yellow"
+    | "green"
+    | "indigo"
+    | "purple"
+    | "blue"
+    | "dark"
+    | "orange"
+    | "none"
+    | "teal"
+    | undefined;
 
-  projects.subscribe((value) => {
-    projectsChoices = value.map((project) => {
-      return {
-        name: project.name,
-        value: project.id
-      };
-    });
+  const determineRolloutColor = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return "yellow";
+      case "Not Ready":
+        return "yellow";
+      case "Error":
+        return "red";
+      case "OK":
+        return "green";
+      default:
+        return "gray";
+    }
+  };
+
+  const updateCurrentRollout = () => {
+    getRolloutStatus($selectedProjectId, $currentRollout?.id ?? "")
+      .then((response) => {
+        current_rollout_status = response;
+        rollout_status_color = determineRolloutColor(
+          current_rollout_status?.deployment?.status ?? ""
+        );
+      })
+      .catch(() => {
+        current_rollout_status = undefined;
+        rollout_status_color = "yellow";
+      });
+  };
+
+  onMount(updateCurrentRollout);
+
+  $: if ($navigating) {
+    updateCurrentRollout();
+  }
+
+  // update rollout status every 5 seconds
+  onMount(() => {
+    setInterval(() => {
+      updateCurrentRollout();
+    }, 5000);
   });
 
   $: {
@@ -59,17 +106,6 @@
     <a href="/app" class="justify-start">
       <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
     </a>
-    <!-- display only when under /app/projects/{id} -->
-    <!-- {#if $page.url.pathname.startsWith("/app/projects/")}
-      <div class="flex items-center justify-center md:order-1 cursor-pointer active:scale-105">
-        <Select
-          placeholder="Choose Project"
-          size="sm"
-          items={projectsChoices}
-          bind:value={$selectedProjectId}
-        ></Select>
-      </div>
-    {/if} -->
     {#if $page.url.pathname.startsWith("/app/projects/")}
       <div in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
         {#key $selectedProjectId}
@@ -79,23 +115,19 @@
                 <img
                   src={recordLogoUrl(selectedProject)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-white p-1"
+                  class="h-12 w-12 flex-none rounded-lg object-cover ring-2 ring-{rollout_status_color}-500 p-1"
                 />
               {:else}
                 <img
                   src={recordLogoUrl(selectedProject?.expand.blueprint)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-white p-1"
+                  class="h-12 w-12 flex-none rounded-lg object-cover ring-2 ring-{rollout_status_color}-500 p-1"
                 />
               {/if}
 
-              <Indicator
-                size="xl"
-                placement="top-right"
-                class="text-xs font-bold bg-white cursor-default"
-                >{$rollouts.filter((r) => r.expand?.project.id === $selectedProjectId).length || 0}
-              </Indicator>
-              <Tooltip>Rollouts</Tooltip>
+              <Tooltip>
+                Status: {current_rollout_status?.deployment.status ?? "Unknown"}
+              </Tooltip>
             </div>
             <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
           </div>

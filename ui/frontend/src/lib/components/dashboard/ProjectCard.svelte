@@ -8,12 +8,78 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
   import { ArrowRight, Tag } from "lucide-svelte";
+  import type { RolloutStatusResponse } from "$lib/types/status";
+  import { getRolloutStatus } from "$lib/utils/rollouts";
+  import { onMount } from "svelte";
+  import { navigating } from "$app/stores";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();
   if (project.tags) {
     tags = new Set(project.tags.split(","));
   }
+
+  let current_rollout_status: RolloutStatusResponse | undefined;
+  let rollout_status_color:
+    | "gray"
+    | "red"
+    | "yellow"
+    | "green"
+    | "indigo"
+    | "purple"
+    | "blue"
+    | "dark"
+    | "orange"
+    | "none"
+    | "teal"
+    | undefined;
+
+  $: console.log(rollout_status_color);
+
+  const determineRolloutColor = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return "yellow";
+      case "Not Ready":
+        return "yellow";
+      case "Error":
+        return "red";
+      case "OK":
+        return "green";
+      default:
+        return "gray";
+    }
+  };
+
+  const updateCurrentRollout = () => {
+    // find the rollout with no endDate of the selected project
+    let currentRollout = $rollouts.find((r) => r.project === project.id && !r.endDate);
+
+    getRolloutStatus($selectedProjectId, currentRollout?.id ?? "")
+      .then((response) => {
+        current_rollout_status = response;
+        rollout_status_color = determineRolloutColor(
+          current_rollout_status?.deployment?.status ?? ""
+        );
+      })
+      .catch(() => {
+        current_rollout_status = undefined;
+        rollout_status_color = "yellow";
+      });
+  };
+
+  onMount(updateCurrentRollout);
+
+  $: if ($navigating) {
+    updateCurrentRollout();
+  }
+
+  // update rollout status every 5 seconds
+  onMount(() => {
+    setInterval(() => {
+      updateCurrentRollout();
+    }, 5000);
+  });
 
   // filter $rollouts by $rollouts.expand.project
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];
@@ -73,12 +139,19 @@
         </dd>
       </div>
     {/if}
-    <!-- <div class="flex justify-between gap-x-4 py-3">
+    <div class="flex justify-between gap-x-4 py-3">
       <dt class="">Status</dt>
       <dd class="flex items-start gap-x-2">
-        <span class="font-medium">{project.expand?.status}</span>
+        <Badge color={rollout_status_color} large class="cursor-default">
+          <Indicator
+            color={rollout_status_color}
+            size="sm"
+            class="mr-2"
+          />
+          {current_rollout_status?.deployment?.status ?? "Unknown"}
+        </Badge>
       </dd>
-    </div> -->
+    </div>
     {#if tags}
       <div class="flex justify-between gap-x-4 py-3">
         <dt class="">

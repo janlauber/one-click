@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
-    import { client } from "$lib/pocketbase";
+  import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { projects, type Pexpand, blueprints } from "$lib/stores/data";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
