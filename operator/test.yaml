@@ -8,6 +8,8 @@ spec:
     registry: "docker.io"
     repository: "nginx"
     tag: "latest"
+    username: "test"
+    password: "test3"
   horizontalScale:
     minReplicas: 1
     maxReplicas: 3

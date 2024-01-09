@@ -326,7 +326,9 @@ func (r *RolloutReconciler) reconcileImagePullSecret(ctx context.Context, rollou
 		foundSecret := &corev1.Secret{}
 		err := r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: rollout.Namespace}, foundSecret)
 		if err == nil {
-			return r.Delete(ctx, foundSecret)
+			if metav1.IsControlledBy(foundSecret, rollout) {
+				return r.Delete(ctx, foundSecret)
+			}
 		}
 		return nil
 	}
@@ -356,6 +358,9 @@ func (r *RolloutReconciler) reconcileImagePullSecret(ctx context.Context, rollou
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
 			Namespace: rollout.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(rollout, rollout.GroupVersionKind()),
+			},
 		},
 		Type: corev1.SecretTypeDockerConfigJson,
 		Data: secretData,
