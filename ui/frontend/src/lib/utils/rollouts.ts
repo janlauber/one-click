@@ -50,7 +50,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
             );
             metrics = await response.json();
         } catch (error) {
-            // Handle error
+            // Handle error silently
         }
 
         return metrics;
@@ -60,7 +60,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
         const response = await fetch(`/rollouts/${projectId}/${rolloutId}/metrics`);
         metrics = await response.json();
     } catch (error) {
-        // Handle error
+        // Handle error silently
     }
 
     return metrics;

@@ -80,11 +80,15 @@ spec:
                 type: object
               image:
                 properties:
+                  password:
+                    type: string
                   registry:
                     type: string
                   repository:
                     type: string
                   tag:
+                    type: string
+                  username:
                     type: string
                 required:
                 - registry

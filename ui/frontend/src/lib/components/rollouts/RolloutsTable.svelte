@@ -93,17 +93,22 @@
       });
   };
 
-  onMount(updateCurrentRollout);
-
   $: if ($navigating) {
     updateCurrentRollout();
   }
 
+  let intervalId: any;
+
   // update rollout status every 5 seconds
   onMount(() => {
-    setInterval(() => {
+    updateCurrentRollout();
+    intervalId = setInterval(() => {
       updateCurrentRollout();
     }, 5000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
   });
 
   async function toggleSidebar(rollout: RolloutsResponse<Rexpand>) {
@@ -381,16 +386,16 @@
                   <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6"
                     >ID</th
                   >
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                    <HardDrive class="w-5 h-5" />
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <HardDrive class="w-5 h-5 mx-auto" />
                     <Tooltip>Image</Tooltip>
                   </th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                    <Network class="w-5 h-5" />
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Network class="w-5 h-5 mx-auto" />
                     <Tooltip>Interfaces</Tooltip>
                   </th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                    <Database class="w-5 h-5" />
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Database class="w-5 h-5 mx-auto" />
                     <Tooltip>Volumes</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
@@ -408,8 +413,8 @@
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6"
                       >{rollout.id}</td
                     ><td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {#if rollout.manifest}{rollout.manifest.spec.image
-                          .repository}:{rollout.manifest.spec.image.tag}
+                      {#if rollout.manifest}{rollout.manifest.spec.image.repository}:{rollout
+                          .manifest.spec.image.tag}
                       {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">

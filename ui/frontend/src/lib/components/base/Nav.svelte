@@ -11,14 +11,13 @@
     DropdownItem,
     DropdownHeader,
     DropdownDivider,
-    Indicator,
     Tooltip
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { getRolloutStatus } from "$lib/utils/rollouts";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
 
   let avatarUrlString: any = avatarUrl();
@@ -66,17 +65,22 @@
       });
   };
 
-  onMount(updateCurrentRollout);
-
   $: if ($navigating) {
     updateCurrentRollout();
   }
 
+  let intervalId: any;
+
   // update rollout status every 5 seconds
   onMount(() => {
-    setInterval(() => {
+    updateCurrentRollout();
+    intervalId = setInterval(() => {
       updateCurrentRollout();
     }, 5000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
   });
 
   $: {
