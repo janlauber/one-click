@@ -100,6 +100,8 @@ func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		// get status of a specific rollout
 		e.Router.GET("/rollouts/:projectId/:rolloutId/status", func(c echo.Context) error {
+			// TODO: Auth
+
 			projectId := c.PathParam("projectId")
 			rolloutId := c.PathParam("rolloutId")
 
@@ -107,6 +109,8 @@ func main() {
 		})
 
 		e.Router.GET("/rollouts/:projectId/:rolloutId/metrics", func(c echo.Context) error {
+			// TODO: Auth
+
 			projectId := c.PathParam("projectId")
 			rolloutId := c.PathParam("rolloutId")
 
@@ -114,6 +118,8 @@ func main() {
 		})
 
 		e.Router.GET("/rollouts/:projectId/:rolloutId/events", func(c echo.Context) error {
+			// TODO: Auth
+
 			projectId := c.PathParam("projectId")
 			rolloutId := c.PathParam("rolloutId")
 
@@ -121,6 +127,8 @@ func main() {
 		})
 
 		e.Router.GET("/rollouts/:projectId/:podName/logs", func(c echo.Context) error {
+			// TODO: Auth
+
 			projectId := c.PathParam("projectId")
 			podName := c.PathParam("podName")
 
@@ -128,6 +136,8 @@ func main() {
 		})
 
 		e.Router.POST("/auto-update/:autoUpdateId", func(c echo.Context) error {
+			// TODO: Auth
+
 			autoUpdateId := c.PathParam("autoUpdateId")
 
 			return controller.HandleAutoUpdate(c, app, autoUpdateId)

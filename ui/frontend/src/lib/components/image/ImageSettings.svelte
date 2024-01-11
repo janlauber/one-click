@@ -30,8 +30,6 @@
     { value: "10m", name: "10 Minutes"},
   ]
 
-  let verify: boolean = false;
-
   let initialLoad: boolean = true;
 
   $: if ($autoUpdates.length > 0 && initialLoad) {
@@ -72,7 +70,6 @@
       // password = current_rollout.manifest?.spec.image.password ?? "";
       repository = current_rollout.manifest?.spec.image.repository ?? "";
       tag = current_rollout.manifest?.spec.image.tag ?? "";
-      verify = current_rollout.manifest?.spec.image.verify ?? false;
       lastUpdatedRollout = current_rollout;
     }
 
@@ -100,7 +97,6 @@
     password = "";
     repository = "";
     tag = "";
-    verify = false;
   }
 
   function resetInput() {
@@ -109,7 +105,6 @@
     password = current_rollout?.manifest?.spec.image.password ?? "";
     repository = current_rollout?.manifest?.spec.image.repository ?? "";
     tag = current_rollout?.manifest?.spec.image.tag ?? "";
-    verify = current_rollout?.manifest?.spec.image.verify ?? false;
   }
 
   function handleInputChange(event: any, field: any) {
@@ -128,9 +123,6 @@
         break;
       case "tag":
         tag = event.target.value;
-        break;
-      case "verify":
-        verify = event.target.checked;
         break;
     }
   }
@@ -446,16 +438,6 @@
                     "
                     disabled={tagAutoUpdateEnabled}
                   />
-                </td>
-              </tr>
-              <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
-                  <Heading tag="h5">Verify Image</Heading>
-                  <P class="text-gray-500 dark:text-gray-400 text-xs">
-                    Verify your image before deploying.
-                  </P>
-                </td><td class="whitespace-nowrap px-3 py-4 text-xs">
-                  <Toggle bind:checked={verify} id="verify" />
                 </td>
               </tr>
             </tbody>
