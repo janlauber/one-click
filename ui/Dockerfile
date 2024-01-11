@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine AS backend-builder
+FROM golang:1.21-alpine AS backend-builder
 WORKDIR /build
 COPY pocketbase/go.mod pocketbase/go.sum pocketbase/main.go ./
 COPY pocketbase/hooks ./hooks
