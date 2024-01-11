@@ -1,7 +1,13 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { rollouts, type Rexpand, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
+  import {
+    rollouts,
+    type Rexpand,
+    updateDataStores,
+    UpdateFilterEnum,
+    currentRollout
+  } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
@@ -20,10 +26,12 @@
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsHorizontalOutline, InfoCircleSolid } from "flowbite-svelte-icons";
-  import { Copy, HardDrive, PanelRightOpen } from "lucide-svelte";
+  import { Copy, Database, HardDrive, Network, PanelRightOpen } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
   import DiffLines from "../base/DiffLines.svelte";
+  import { onDestroy, onMount } from "svelte";
+  import { navigating } from "$app/stores";
 
   let hidden6 = true;
   let defaultModal = false;
@@ -39,9 +47,69 @@
   let selectedRolloutEvents: RolloutEventsResponse | undefined;
   let loadingStatus: boolean = false;
   let loadingEvents: boolean = false;
-  let currentRollout: RolloutsResponse<Rexpand> | undefined;
   let modalTitle1: string = "";
   let modalTitle2: string = "";
+  let current_rollout_status: RolloutStatusResponse | undefined;
+  let rollout_status_color:
+    | "gray"
+    | "red"
+    | "yellow"
+    | "green"
+    | "indigo"
+    | "purple"
+    | "blue"
+    | "dark"
+    | "orange"
+    | "none"
+    | "teal"
+    | undefined;
+
+  const determineRolloutColor = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return "yellow";
+      case "Not Ready":
+        return "yellow";
+      case "Error":
+        return "red";
+      case "OK":
+        return "green";
+      default:
+        return "gray";
+    }
+  };
+
+  const updateCurrentRollout = () => {
+    getRolloutStatus($selectedProjectId, $currentRollout?.id ?? "")
+      .then((response) => {
+        current_rollout_status = response;
+        rollout_status_color = determineRolloutColor(
+          current_rollout_status?.deployment?.status ?? ""
+        );
+      })
+      .catch(() => {
+        current_rollout_status = undefined;
+        rollout_status_color = "yellow";
+      });
+  };
+
+  $: if ($navigating) {
+    updateCurrentRollout();
+  }
+
+  let intervalId: any;
+
+  // update rollout status every 5 seconds
+  onMount(() => {
+    updateCurrentRollout();
+    intervalId = setInterval(() => {
+      updateCurrentRollout();
+    }, 5000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   async function toggleSidebar(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
@@ -83,14 +151,14 @@
 
   function confirmRollback(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
-    currentRollout = $rollouts.find((r) => !r.endDate);
+    $currentRollout = $rollouts.find((r) => !r.endDate);
 
-    if (currentRollout == undefined) {
+    if ($currentRollout == undefined) {
       toast.error("There is no rollout to rollback to.");
       return;
     }
 
-    if (currentRollout.manifest == undefined) {
+    if ($currentRollout.manifest == undefined) {
       toast.error("The current rollout has no manifest.");
       return;
     }
@@ -100,7 +168,7 @@
       return;
     }
 
-    modalTitle1 = currentRollout.id;
+    modalTitle1 = $currentRollout.id;
     modalTitle2 = rollout.id;
 
     defaultModal = true;
@@ -135,6 +203,7 @@
             filter: UpdateFilterEnum.ALL,
             projectId: $selectedProjectId
           });
+          updateCurrentRollout();
         }),
       {
         loading: "Deploying rollout...",
@@ -178,6 +247,8 @@
     }, "");
   }
 
+  let filteredRollouts: RolloutsResponse<Rexpand>[] = [];
+
   $: filteredRollouts = $rollouts.filter((rollout) => {
     const searchTermLower = searchTerm.toLowerCase();
     const manifestString = rollout.manifest ? flattenObject(rollout.manifest).toLowerCase() : "";
@@ -185,6 +256,10 @@
       manifestString.includes(searchTermLower) || rollout.id.toLowerCase().includes(searchTermLower)
     );
   });
+
+  // max 15 rollouts
+  // TODO: make this configurable
+  $: filteredRollouts = filteredRollouts.slice(0, 10);
 </script>
 
 <Drawer
@@ -277,7 +352,7 @@
 
 <Modal title="Compare Rollouts" bind:open={defaultModal} size="xl" autoclose>
   <DiffLines
-    jsonObject1={currentRollout?.manifest ?? {}}
+    jsonObject1={$currentRollout?.manifest ?? {}}
     jsonObject2={selectedRollout?.manifest ?? {}}
     title1={modalTitle1}
     title2={modalTitle2}
@@ -311,10 +386,20 @@
                   <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6"
                     >ID</th
                   >
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Image</th>
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <HardDrive class="w-5 h-5 mx-auto" />
+                    <Tooltip>Image</Tooltip>
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Network class="w-5 h-5 mx-auto" />
+                    <Tooltip>Interfaces</Tooltip>
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Database class="w-5 h-5 mx-auto" />
+                    <Tooltip>Volumes</Tooltip>
+                  </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Started</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Ended</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Status</th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Edit</span>
                   </th>
@@ -328,28 +413,49 @@
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6"
                       >{rollout.id}</td
                     ><td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {#if rollout.manifest}
-                        {rollout.manifest.spec.image.registry}/{rollout.manifest.spec.image
-                          .repository}:{rollout.manifest.spec.image.tag}
+                      {#if rollout.manifest}{rollout.manifest.spec.image.repository}:{rollout
+                          .manifest.spec.image.tag}
                       {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      <div>{formatDateTime(rollout.created)}</div>
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.interfaces.length ?? "None"}
+                      {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      <div>{timeAgo(rollout.startDate)}</div>
-                      <Tooltip>{formatDateTime(rollout.startDate)}</Tooltip>
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.volumes.length ?? "None"}
+                      {/if}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      <div>{timeAgo(rollout.created)}</div>
+                      <Tooltip>{formatDateTime(rollout.created)}</Tooltip>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                       {#if rollout.endDate == ""}
-                        <Badge border color="green" class="relative pl-6 mr-2">
+                        <Badge border color={rollout_status_color} class="relative pl-6 mr-2">
+                          <Indicator
+                            size="sm"
+                            color={rollout_status_color}
+                            class="absolute left-2"
+                          />
+                          <Indicator
+                            size="sm"
+                            color={rollout_status_color}
+                            class="absolute animate-ping left-2"
+                          />
+                          {current_rollout_status?.deployment?.status ?? "Unknown"}
+                        </Badge>
+
+                        <!-- <Badge border color="green" class="relative pl-6 mr-2">
                           <Indicator size="sm" color="green" class="absolute left-2" />
                           <Indicator size="sm" color="green" class="absolute animate-ping left-2" />
                           Deployed</Badge
-                        >
+                        > -->
+                      {:else}
+                        <div>Ended {timeAgo(rollout.endDate)}</div>
+                        <Tooltip>{formatDateTime(rollout.endDate)}</Tooltip>
                       {/if}
-                      <div>{timeAgo(rollout.endDate)}</div>
-                      <Tooltip>{formatDateTime(rollout.endDate)}</Tooltip>
                     </td>
                     <td class="relative whitespace-nowrap pr-4 text-right text-sm font-medium">
                       {#if rollout.endDate == ""}
@@ -369,9 +475,9 @@
                           <DropdownItem on:click={() => confirmRollback(rollout)}
                             >Rollback</DropdownItem
                           >
-                          <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
+                          <!-- <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
                             >Delete</DropdownItem
-                          >
+                          > -->
                         </Dropdown>
                       {/if}
                     </td>

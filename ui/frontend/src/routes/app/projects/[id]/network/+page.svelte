@@ -21,7 +21,7 @@
     Toggle
   } from "flowbite-svelte";
   import { ExclamationCircleOutline } from "flowbite-svelte-icons";
-  import { Network, Plus } from "lucide-svelte";
+  import { ExternalLink, Network, Plus } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
@@ -214,8 +214,6 @@
         user: client.authStore.model?.id
       };
 
-      console.log("data", data);
-
       client
         .collection("rollouts")
         .create(data)
@@ -278,7 +276,23 @@
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
             <Network class="w-4 h-4" />
           </div>
-          <span class="pt-1">{inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span>
+          <span class="pt-1 inline"
+            >{inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span
+          >
+          {#if inf.host}
+            <a
+              href={(inf.tls ? "https://" : "http://") +
+                inf.host +
+                (inf.port ? ":" + inf.port : "") +
+                (inf.path ? inf.path : "")}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ml-2 text-blue-500 hover:underline mt-1"
+            >
+              {inf.host}
+              <ExternalLink class="w-4 h-4 inline-block ml-1" />
+            </a>
+          {/if}
         </div>
         <div class="">
           <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">

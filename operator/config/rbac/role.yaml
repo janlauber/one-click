@@ -129,7 +129,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - rollouts
   verbs:
@@ -141,13 +141,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - rollouts/finalizers
   verbs:
   - update
 - apiGroups:
-  - one-click.io
+  - one-click.dev
   resources:
   - rollouts/status
   verbs:

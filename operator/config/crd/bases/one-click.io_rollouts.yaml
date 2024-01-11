@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
-  name: rollouts.one-click.io
+  name: rollouts.one-click.dev
 spec:
-  group: one-click.io
+  group: one-click.dev
   names:
     kind: Rollout
     listKind: RolloutList

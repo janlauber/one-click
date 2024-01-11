@@ -1,96 +1,91 @@
 <script lang="ts">
-  import { Chart, Card } from "flowbite-svelte";
+  import { goto } from "$app/navigation";
+  import selectedProjectId from "$lib/stores/project";
+  import { Chart, Card, Skeleton, WidgetPlaceholder, Spinner, Button } from "flowbite-svelte";
+  import { Cpu, Expand, MemoryStick } from "lucide-svelte";
+  import { onMount } from "svelte";
 
   export let title = "CPU";
-  export let limits = 0;
   export let requests = 0;
   export let usage = 0;
 
-  let options: any;
+  let options: any = {};
 
-  $: series = [usage, requests, limits];
+  let loading = true;
+
+  $: series = [usage, requests];
 
   $: options = {
-    colors: ["#1C64F2", "#16BDCA", "#FDBA8C"],
-    series,
     chart: {
-      height: 320,
-      width: "100%",
-      type: "donut"
+      height: "210px",
+      maxWidth: "100%",
+      type: "bar",
+      fontFamily: "Inter, sans-serif",
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: true
+      },
+      animations: {
+        enabled: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: false
+      }
+    },
+    fill: false,
+    dataLabels: {
+      enabled: true
     },
     stroke: {
-      colors: ["transparent"],
-      lineCap: ""
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          labels: {
-            show: true,
-            name: {
-              show: true,
-              fontFamily: "Inter, sans-serif",
-              offsetY: 20
-            },
-            total: {
-              showAlways: true,
-              show: true,
-              label: "Usage",
-              fontFamily: "Inter, sans-serif",
-              formatter: function (w: any) {
-                // Show only usage rounded to 2 decimals
-                const rounded = Math.round(w.globals.seriesTotals[0] * 100) / 100;
-
-                return `${rounded}`;
-              }
-            },
-            value: {
-              show: true,
-              fontFamily: "Inter, sans-serif",
-              offsetY: -20,
-              formatter: function (value: any) {
-                return value + "";
-              }
-            }
-          },
-          size: "80%"
-        }
-      }
+      width: 0
     },
     grid: {
+      show: true,
+      strokeDashArray: 4,
       padding: {
-        top: -2
+        left: 2,
+        right: 2,
+        top: 0
       }
     },
-    labels: ["Usage", "Requests", "Limits"],
-    dataLabels: {
-      enabled: false
-    },
-    legend: {
-      position: "bottom",
-      fontFamily: "Inter, sans-serif"
-    },
-    yaxis: {
-      labels: {
-        formatter: function (value: any) {
-          return value + "";
-        }
+    series: [
+      {
+        name: title,
+        data: series,
+        color: "#0e0e0e"
       }
-    },
+    ],
     xaxis: {
+      categories: ["Live Usage", "Reserved"],
       labels: {
-        formatter: function (value: any) {
-          return value + "";
-        }
-      },
-      axisTicks: {
-        show: false
+        show: true
       },
       axisBorder: {
         show: false
+      },
+      axisTicks: {
+        show: false
       }
+    },
+    yaxis: {
+      show: true
     }
   };
+
+  // random loading between 0.2 and 0.8s
+  onMount(() => {
+    setTimeout(
+      () => {
+        loading = false;
+      },
+      Math.random() * 600 + 200
+    );
+  });
 </script>
 
 <Card size="xl">
@@ -98,10 +93,34 @@
     <div class="flex-col items-center">
       <div class="flex items-center mb-1">
         <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white mr-1">
+          {#if title === "Total CPU (Cores)"}
+            <Cpu class="inline -mt-1" />
+          {:else if title === "Total Memory (GB)"}
+            <MemoryStick class="inline -mt-1" />
+          {/if}
           {title}
         </h5>
       </div>
     </div>
   </div>
-  <Chart {options} class="py-6" />
+  {#if !loading}
+    <Chart {options} />
+  {:else}
+    <div class="flex justify-center items-center w-full" style="height: 225px;">
+      <Spinner color="primary" />
+    </div>
+  {/if}
+
+  <Button
+    color="primary"
+    class="mt-2"
+    size="sm"
+    outline
+    on:click={() => {
+      goto(`/app/projects/${$selectedProjectId}/scale`);
+    }}
+  >
+    <Expand class="w-4 h-4 inline-block mr-1 " />
+    Scale
+  </Button>
 </Card>

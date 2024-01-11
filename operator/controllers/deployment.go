@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -11,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
@@ -20,7 +23,7 @@ import (
 func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, rollout *oneclickiov1alpha1.Rollout) error {
 	log := log.FromContext(ctx)
 
-	desiredDeployment := r.deploymentForRollout(rollout)
+	desiredDeployment := r.deploymentForRollout(ctx, rollout)
 
 	currentDeployment := &appsv1.Deployment{}
 	err := r.Get(ctx, types.NamespacedName{Name: rollout.Name, Namespace: rollout.Namespace}, currentDeployment)
@@ -46,8 +49,9 @@ func (r *RolloutReconciler) reconcileDeployment(ctx context.Context, rollout *on
 	return nil
 }
 
-func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) *appsv1.Deployment {
-	labels := map[string]string{"rollout.one-click.io/name": f.Name}
+func (r *RolloutReconciler) deploymentForRollout(ctx context.Context, f *oneclickiov1alpha1.Rollout) *appsv1.Deployment {
+	log := log.FromContext(context.Background())
+	labels := map[string]string{"rollout.one-click.dev/name": f.Name}
 	replicas := int32(f.Spec.HorizontalScale.MinReplicas)
 
 	dep := &appsv1.Deployment{
@@ -100,6 +104,32 @@ func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) 
 		}
 	}
 
+	// Check if Username and Password are provided
+	if f.Spec.Image.Username != "" && f.Spec.Image.Password != "" {
+		// Logic to create or get existing secret
+		secretName := f.Name + "-imagepullsecret"
+		if err := r.reconcileImagePullSecret(ctx, f, secretName); err != nil {
+			log.Error(err, "Failed to reconcile Image Pull Secret")
+			// Handle error, possibly return it
+		}
+
+		// Attach the image pull secret to the deployment
+		dep.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
+			{
+				Name: secretName,
+			},
+		}
+	} else {
+		// Remove image pull secret from deployment
+		dep.Spec.Template.Spec.ImagePullSecrets = nil
+		// Logic to create or get existing secret
+		secretName := f.Name + "-imagepullsecret"
+		if err := r.reconcileImagePullSecret(ctx, f, secretName); err != nil {
+			log.Error(err, "Failed to reconcile Image Pull Secret")
+			// Handle error, possibly return it
+		}
+	}
+
 	// Update volumes and volume mounts
 	if len(f.Spec.Volumes) > 0 {
 		var volumes []corev1.Volume
@@ -131,7 +161,7 @@ func (r *RolloutReconciler) deploymentForRollout(f *oneclickiov1alpha1.Rollout) 
 	if dep.Spec.Template.Annotations == nil {
 		dep.Spec.Template.Annotations = make(map[string]string)
 	}
-	dep.Spec.Template.Annotations["one-click.io/secrets-checksum"] = checksum
+	dep.Spec.Template.Annotations["one-click.dev/secrets-checksum"] = checksum
 
 	ctrl.SetControllerReference(f, dep, r.Scheme)
 	return dep
@@ -274,4 +304,82 @@ func createResourceRequirements(resources oneclickiov1alpha1.ResourceRequirement
 			corev1.ResourceMemory: resource.MustParse(resources.Limits.Memory),
 		},
 	}
+}
+
+type dockerConfigEntry struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Auth     string `json:"auth"`
+}
+
+type dockerConfigJSON struct {
+	Auths map[string]dockerConfigEntry `json:"auths"`
+}
+
+func (r *RolloutReconciler) reconcileImagePullSecret(ctx context.Context, rollout *oneclickiov1alpha1.Rollout, secretName string) error {
+	registry := rollout.Spec.Image.Registry
+	username := rollout.Spec.Image.Username
+	password := rollout.Spec.Image.Password
+
+	// Check if username and password are empty, delete the secret if it exists
+	if username == "" && password == "" {
+		foundSecret := &corev1.Secret{}
+		err := r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: rollout.Namespace}, foundSecret)
+		if err == nil {
+			if metav1.IsControlledBy(foundSecret, rollout) {
+				return r.Delete(ctx, foundSecret)
+			}
+		}
+		return nil
+	}
+
+	auth := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+	dockerConfigEntryData := dockerConfigEntry{
+		Username: username,
+		Password: password,
+		Auth:     auth,
+	}
+	dockerConfigJSON := dockerConfigJSON{
+		Auths: map[string]dockerConfigEntry{
+			registry: dockerConfigEntryData,
+		},
+	}
+
+	dockerConfigJSONBytes, err := json.Marshal(dockerConfigJSON)
+	if err != nil {
+		return err
+	}
+
+	secretData := map[string][]byte{
+		".dockerconfigjson": dockerConfigJSONBytes,
+	}
+
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: rollout.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(rollout, rollout.GroupVersionKind()),
+			},
+		},
+		Type: corev1.SecretTypeDockerConfigJson,
+		Data: secretData,
+	}
+
+	// Check if secret already exists, if not, create it
+	foundSecret := &corev1.Secret{}
+	err = r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: rollout.Namespace}, foundSecret)
+	if err != nil && errors.IsNotFound(err) {
+		// Secret not found, create it
+		return r.Create(ctx, secret)
+	} else if err != nil {
+		// Error occurred while checking for secret
+		return err
+	}
+
+	// Secret found, update it
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		foundSecret.Data = secretData
+		return r.Update(ctx, foundSecret)
+	})
 }

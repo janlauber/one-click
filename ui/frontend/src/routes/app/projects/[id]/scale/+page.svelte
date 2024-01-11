@@ -10,16 +10,6 @@
       Scale your rollout to a specific number of instances.
     </P>
   </div>
-  <!-- <Button
-    color="primary"
-    size="xs"
-    class="whitespace-nowrap self-start"
-    on:click={() => {
-    }}
-  >
-    <Plus class="w-4 h-4 mr-2" />
-    New image
-  </Button> -->
 </div>
 
 <div>

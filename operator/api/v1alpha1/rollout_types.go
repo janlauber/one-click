@@ -27,6 +27,8 @@ type ImageSpec struct {
 	Registry   string `json:"registry"`
 	Repository string `json:"repository"`
 	Tag        string `json:"tag"`
+	Username   string `json:"username,omitempty"`
+	Password   string `json:"password,omitempty"`
 }
 
 type HorizontalScaleSpec struct {

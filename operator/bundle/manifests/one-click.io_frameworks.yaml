@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
-  name: frameworks.one-click.io
+  name: frameworks.one-click.dev
 spec:
-  group: one-click.io
+  group: one-click.dev
   names:
     kind: Framework
     listKind: FrameworkList
