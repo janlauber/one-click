@@ -91,6 +91,36 @@ func (r *RolloutReconciler) deploymentForRollout(ctx context.Context, f *oneclic
 		},
 	}
 
+	// if security context is defined, add it to the pod security context
+	if !reflect.DeepEqual(f.Spec.SecurityContext, oneclickiov1alpha1.SecurityContextSpec{}) {
+		dep.Spec.Template.Spec.SecurityContext = &corev1.PodSecurityContext{
+			FSGroup:    &f.Spec.SecurityContext.FsGroup,
+			RunAsUser:  &f.Spec.SecurityContext.RunAsUser,
+			RunAsGroup: &f.Spec.SecurityContext.RunAsGroup,
+		}
+
+		capabilities := make([]corev1.Capability, len(f.Spec.SecurityContext.Capabilities.Add))
+		for i, cap := range f.Spec.SecurityContext.Capabilities.Add {
+			capabilities[i] = corev1.Capability(cap)
+		}
+
+		dropCapabilities := make([]corev1.Capability, len(f.Spec.SecurityContext.Capabilities.Drop))
+		for i, cap := range f.Spec.SecurityContext.Capabilities.Drop {
+			dropCapabilities[i] = corev1.Capability(cap)
+		}
+
+		dep.Spec.Template.Spec.Containers[0].SecurityContext = &corev1.SecurityContext{
+			Privileged:               &f.Spec.SecurityContext.Privileged,
+			ReadOnlyRootFilesystem:   &f.Spec.SecurityContext.ReadOnlyRootFilesystem,
+			RunAsNonRoot:             &f.Spec.SecurityContext.RunAsNonRoot,
+			AllowPrivilegeEscalation: &f.Spec.SecurityContext.AllowPrivilegeEscalation,
+			Capabilities: &corev1.Capabilities{
+				Add:  capabilities,
+				Drop: dropCapabilities,
+			},
+		}
+	}
+
 	// if secrets are defined, add the secret f.Name + "-secrets" as envFrom
 	if len(f.Spec.Secrets) > 0 {
 		dep.Spec.Template.Spec.Containers[0].EnvFrom = []corev1.EnvFromSource{
@@ -191,6 +221,29 @@ func getEnvVars(envVars []oneclickiov1alpha1.EnvVar) []corev1.EnvVar {
 func needsUpdate(current *appsv1.Deployment, f *oneclickiov1alpha1.Rollout) bool {
 	// Check replicas
 	if *current.Spec.Replicas != int32(f.Spec.HorizontalScale.MinReplicas) {
+		return true
+	}
+
+	// Check security context
+	if !reflect.DeepEqual(current.Spec.Template.Spec.SecurityContext, &corev1.PodSecurityContext{
+		FSGroup:    &f.Spec.SecurityContext.FsGroup,
+		RunAsUser:  &f.Spec.SecurityContext.RunAsUser,
+		RunAsGroup: &f.Spec.SecurityContext.RunAsGroup,
+	}) {
+		return true
+	}
+
+	// Check container security context
+	if !reflect.DeepEqual(current.Spec.Template.Spec.Containers[0].SecurityContext, &corev1.SecurityContext{
+		Privileged:               &f.Spec.SecurityContext.Privileged,
+		ReadOnlyRootFilesystem:   &f.Spec.SecurityContext.ReadOnlyRootFilesystem,
+		RunAsNonRoot:             &f.Spec.SecurityContext.RunAsNonRoot,
+		AllowPrivilegeEscalation: &f.Spec.SecurityContext.AllowPrivilegeEscalation,
+		Capabilities: &corev1.Capabilities{
+			Add:  []corev1.Capability{},
+			Drop: []corev1.Capability{},
+		},
+	}) {
 		return true
 	}
 

@@ -31,6 +31,22 @@ type ImageSpec struct {
 	Password   string `json:"password,omitempty"`
 }
 
+type SecurityContextSpec struct {
+	FsGroup                  int64            `json:"fsGroup,omitempty"`
+	RunAsUser                int64            `json:"runAsUser,omitempty"`
+	RunAsGroup               int64            `json:"runAsGroup,omitempty"`
+	AllowPrivilegeEscalation bool             `json:"allowPrivilegeEscalation,omitempty"`
+	RunAsNonRoot             bool             `json:"runAsNonRoot,omitempty"`
+	ReadOnlyRootFilesystem   bool             `json:"readOnlyRootFilesystem,omitempty"`
+	Privileged               bool             `json:"privileged,omitempty"`
+	Capabilities             CapabilitiesSpec `json:"capabilities,omitempty"`
+}
+
+type CapabilitiesSpec struct {
+	Add  []string `json:"add,omitempty"`
+	Drop []string `json:"drop,omitempty"`
+}
+
 type HorizontalScaleSpec struct {
 	MinReplicas                    int32 `json:"minReplicas"`
 	MaxReplicas                    int32 `json:"maxReplicas"`
@@ -85,6 +101,7 @@ type IngressRule struct {
 // RolloutSpec defines the desired state of Rollout
 type RolloutSpec struct {
 	Image              ImageSpec            `json:"image"`
+	SecurityContext    SecurityContextSpec  `json:"securityContext,omitempty"`
 	HorizontalScale    HorizontalScaleSpec  `json:"horizontalScale"`
 	Resources          ResourceRequirements `json:"resources"`
 	Env                []EnvVar             `json:"env,omitempty"`

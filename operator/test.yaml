@@ -10,6 +10,19 @@ spec:
     tag: "latest"
     username: "test"
     password: "test3"
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    privileged: false
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE
   horizontalScale:
     minReplicas: 1
     maxReplicas: 3
