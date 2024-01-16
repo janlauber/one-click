@@ -132,7 +132,7 @@ func main() {
 			autoUpdateId := c.PathParam("autoUpdateId")
 
 			return controller.HandleAutoUpdate(c, app, autoUpdateId)
-		}, apis.RequireRecordAuth("users"))
+		})
 
 		return nil
 	})

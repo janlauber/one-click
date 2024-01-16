@@ -6,8 +6,10 @@ import type {
     BlueprintsResponse,
     UsersResponse
 } from "$lib/pocketbase/generated-types";
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
+import type { RolloutStatusResponse } from "$lib/types/status";
+import { getRolloutStatus } from "$lib/utils/rollouts";
 
 // Blueprints //
 export type Bexpand = {
@@ -26,6 +28,11 @@ export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
 >([]);
 export const currentRollout: Writable<RolloutsResponse<Rexpand> | undefined> = writable<
     RolloutsResponse<Rexpand> | undefined
+>(undefined);
+
+// Rollout Status //
+export const currentRolloutStatus: Writable<RolloutStatusResponse | undefined> = writable<
+    RolloutStatusResponse | undefined
 >(undefined);
 
 // Projects //
@@ -93,12 +100,25 @@ export async function updateRollouts(projectId?: string) {
                 response.find((rollout) => rollout.project === projectId && !rollout.endDate)
             );
 
+            if (currentRollout && projectId && get(currentRollout) !== undefined) {
+                const response = await getRolloutStatus(projectId, get(currentRollout)!.id);
+                currentRolloutStatus.set(response);
+            } else {
+                currentRolloutStatus.set(undefined);
+            }
+
             return;
         }
         rollouts.set(response);
     } catch (error) {
         // Handle error
     }
+}
+
+export async function updateCurrentRolloutStatus(projectId: string) {
+    const rolloutId = get(currentRollout)!.id;
+    const response = await getRolloutStatus(projectId, rolloutId);
+    currentRolloutStatus.set(response);
 }
 
 async function fetchRollouts(): Promise<RolloutsResponse<Rexpand>[]> {

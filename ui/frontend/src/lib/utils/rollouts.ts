@@ -27,7 +27,6 @@ async function fetchRolloutStatus(projectId: string, rolloutId: string) {
             );
             status = await response.json();
         } catch (error) {
-            // Handle error
         }
 
         return status;

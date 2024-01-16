@@ -71,9 +71,9 @@ func AutoUpdateController(app *pocketbase.PocketBase) error {
 func constructRegistryURL(registry string) (string, error) {
 	switch {
 	case strings.Contains(registry, "docker"):
-		return "https://registry.hub.docker.com/v2/repositories", nil
+		return "docker.io", nil
 	case strings.Contains(registry, "ghcr"):
-		return "https://ghcr.io/v2", nil
+		return "ghcr.io", nil
 	default:
 		return "", fmt.Errorf("unsupported registry: %s", registry)
 	}
@@ -150,7 +150,15 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 		repository = "library/" + repository
 	}
 
-	tags, err := image.FilterAndSortTags(app, registryURL, repository, filterTags)
+	// check if username and password are set on the manifest
+	username := ""
+	password := ""
+	if specImage["username"] != nil && specImage["password"] != nil {
+		username = specImage["username"].(string)
+		password = specImage["password"].(string)
+	}
+
+	tags, err := image.FilterAndSortTags(app, registryURL, repository, filterTags, username, password)
 	if err != nil {
 		log.Printf("Error filtering and sorting tags: %v\n", err)
 		return err

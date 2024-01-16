@@ -31,6 +31,21 @@ func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		}
 	}
 
+	// Get autoUpdate from autoUpdates collection
+	expr = dbx.NewExp("project = {:project}", dbx.Params{"project": e.Record.GetString("id")})
+	autoUpdates, err := app.Dao().FindRecordsByExpr("autoUpdates", expr)
+	if err != nil {
+		return err
+	}
+
+	// Delete all autoUpdates in database
+	for _, autoUpdate := range autoUpdates {
+		err = app.Dao().DeleteRecord(autoUpdate)
+		if err != nil {
+			return err
+		}
+	}
+
 	// delete namespace in k8s
 	err = k8s.DeleteNamespace(e.Record.GetString("id"))
 	if err != nil {

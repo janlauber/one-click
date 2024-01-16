@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { navigating, page } from "$app/stores";
+  import { page } from "$app/stores";
   import { client, logout } from "$lib/pocketbase";
-  import { currentRollout, projects } from "$lib/stores/data";
+  import { currentRolloutStatus, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { avatarUrl } from "$lib/utils/user.utils";
   import {
@@ -16,27 +16,10 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
-  import { getRolloutStatus } from "$lib/utils/rollouts";
-  import { onDestroy, onMount } from "svelte";
-  import type { RolloutStatusResponse } from "$lib/types/status";
 
   let avatarUrlString: any = avatarUrl();
-  let current_rollout_status: RolloutStatusResponse | undefined;
-  let rollout_status_color:
-    | "gray"
-    | "red"
-    | "yellow"
-    | "green"
-    | "indigo"
-    | "purple"
-    | "blue"
-    | "dark"
-    | "orange"
-    | "none"
-    | "teal"
-    | undefined;
 
-  const determineRolloutColor = (status: string) => {
+  const determineRolloutColor = (status?: string) => {
     switch (status) {
       case "Pending":
         return "yellow";
@@ -50,38 +33,6 @@
         return "gray";
     }
   };
-
-  const updateCurrentRollout = () => {
-    getRolloutStatus($selectedProjectId, $currentRollout?.id ?? "")
-      .then((response) => {
-        current_rollout_status = response;
-        rollout_status_color = determineRolloutColor(
-          current_rollout_status?.deployment?.status ?? ""
-        );
-      })
-      .catch(() => {
-        current_rollout_status = undefined;
-        rollout_status_color = "yellow";
-      });
-  };
-
-  $: if ($navigating) {
-    updateCurrentRollout();
-  }
-
-  let intervalId: any;
-
-  // update rollout status every 5 seconds
-  onMount(() => {
-    updateCurrentRollout();
-    intervalId = setInterval(() => {
-      updateCurrentRollout();
-    }, 5000);
-  });
-
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
 
   $: {
     if ($page.url.pathname.startsWith("/app/projects/")) {
@@ -114,26 +65,29 @@
       <div in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
         {#key $selectedProjectId}
           <div class="flex items-center">
-            <div class="relative">
+            <div class="relative border-2 rounded-lg border-{determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}-500">
               {#if selectedProject?.avatar}
                 <img
                   src={recordLogoUrl(selectedProject)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover ring-2 ring-{rollout_status_color}-500 p-1"
+                  class="h-12 w-12 flex-none rounded-lg object-cover p-1"
                 />
               {:else}
                 <img
                   src={recordLogoUrl(selectedProject?.expand.blueprint)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover ring-2 ring-{rollout_status_color}-500 p-1"
+                  class="h-12 w-12 flex-none rounded-lg object-cover p-1"
                 />
               {/if}
-
-              <Tooltip>
-                Status: {current_rollout_status?.deployment.status ?? "Unknown"}
+              <Tooltip
+                class="cursor-default bg-{determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}-500"
+              >
+                Status:
+                {$currentRolloutStatus?.deployment?.status ?? "Unknown"}
               </Tooltip>
             </div>
             <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
+
           </div>
         {/key}
       </div>
