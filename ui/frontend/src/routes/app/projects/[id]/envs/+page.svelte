@@ -238,7 +238,7 @@
       }
     } else {
       if ($currentRollout && $currentRollout.manifest) {
-        $currentRollout.manifest.spec.env = parsedSecrets;
+        $currentRollout.manifest.spec.secrets = parsedSecrets;
       }
     }
 

@@ -197,7 +197,7 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4" style="grid-template-rows: auto 1fr">
-    <a href={`/app/projects/${$selectedProjectId}/rollouts`} class="flex flex-col justify-between">
+    <a href={`/app/projects/${$selectedProjectId}/image`} class="flex flex-col justify-between">
       <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"

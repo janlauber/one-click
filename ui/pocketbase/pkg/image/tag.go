@@ -1,16 +1,17 @@
 package image
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/google/go-containerregistry/pkg/authn"
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/pocketbase/pocketbase"
 )
 
@@ -19,9 +20,28 @@ type FilterTags struct {
 	Policy  string `json:"policy"` // asc, desc, latest, semver, timestamp
 }
 
-func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository string, filterTags FilterTags) ([]string, error) {
+func FilterAndSortTags(app *pocketbase.PocketBase, registry string, repository string, filterTags FilterTags, username string, password string) ([]string, error) {
 
-	tags, err := fetchTags(registry, repository)
+	var options []remote.Option
+	var auth authn.Authenticator
+	if username != "" && password != "" {
+		auth = &authn.Basic{
+			Username: username,
+			Password: password,
+		}
+	}
+
+	if auth != nil {
+		options = append(options, remote.WithAuth(auth))
+	}
+
+	ref, err := name.ParseReference(registry + "/" + repository)
+	if err != nil {
+		log.Printf("Failed to parse reference: %v", err)
+		return nil, fmt.Errorf("failed to parse reference: %v", err)
+	}
+
+	tags, err := remote.List(ref.Context(), options...)
 	if err != nil {
 		log.Printf("Failed to fetch tags: %v", err)
 		return nil, fmt.Errorf("failed to fetch tags: %v", err)
@@ -74,32 +94,6 @@ func parsePolicy(policy string) (string, string) {
 		return parts[0], parts[1] // e.g., "semver", ">1.0.0"
 	}
 	return policy, "" // no semver constraint
-}
-
-func fetchTags(registry string, repository string) ([]string, error) {
-	url := fmt.Sprintf("%s/%s/tags?page_size=1000", registry, repository)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch tags: %v", err)
-	}
-	defer resp.Body.Close()
-
-	var data struct {
-		Results []struct {
-			Name string `json:"name"`
-		} `json:"results"`
-	}
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
-	}
-
-	tags := make([]string, len(data.Results))
-	for i, result := range data.Results {
-		tags[i] = result.Name
-	}
-
-	return tags, nil
 }
 
 func filterTagsByPattern(tags []string, pattern string) []string {
@@ -192,6 +186,11 @@ func sortTimestampTags(tags []string) []string {
 	sortedTags := make([]string, len(timestampTags))
 	for i, timestamp := range timestampTags {
 		sortedTags[i] = tagMap[timestamp]
+	}
+
+	// Reverse the order so that the latest tag is first
+	for i, j := 0, len(sortedTags)-1; i < j; i, j = i+1, j-1 {
+		sortedTags[i], sortedTags[j] = sortedTags[j], sortedTags[i]
 	}
 
 	return sortedTags

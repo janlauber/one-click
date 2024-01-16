@@ -392,7 +392,13 @@
                         size="xs"
                         class="inline"
                         on:click={() => {
-                          navigator.clipboard.writeText(tagAutoUpdateWebhookPath ?? "");
+                          let url_parts = window.location.href.split("/");
+                          let url = url_parts[0] + "//" + url_parts[2];
+                          // if url contains localhost, then url is http://localhost:8090
+                          if (url.includes("localhost")) {
+                            url = "http://localhost:8090"
+                          }
+                          navigator.clipboard.writeText(url + tagAutoUpdateWebhookPath ?? "");
                           toast.success("Copied to clipboard.");
                         }}
                       >
