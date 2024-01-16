@@ -6,7 +6,8 @@
     type Rexpand,
     updateDataStores,
     UpdateFilterEnum,
-    currentRollout
+    currentRollout,
+    currentRolloutStatus
   } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
@@ -32,6 +33,7 @@
   import DiffLines from "../base/DiffLines.svelte";
   import { onDestroy, onMount } from "svelte";
   import { navigating } from "$app/stores";
+    import { getRandomString } from "$lib/utils/random";
 
   let hidden6 = true;
   let defaultModal = false;
@@ -49,20 +51,6 @@
   let loadingEvents: boolean = false;
   let modalTitle1: string = "";
   let modalTitle2: string = "";
-  let current_rollout_status: RolloutStatusResponse | undefined;
-  let rollout_status_color:
-    | "gray"
-    | "red"
-    | "yellow"
-    | "green"
-    | "indigo"
-    | "purple"
-    | "blue"
-    | "dark"
-    | "orange"
-    | "none"
-    | "teal"
-    | undefined;
 
   const determineRolloutColor = (status: string) => {
     switch (status) {
@@ -78,38 +66,6 @@
         return "gray";
     }
   };
-
-  const updateCurrentRollout = () => {
-    getRolloutStatus($selectedProjectId, $currentRollout?.id ?? "")
-      .then((response) => {
-        current_rollout_status = response;
-        rollout_status_color = determineRolloutColor(
-          current_rollout_status?.deployment?.status ?? ""
-        );
-      })
-      .catch(() => {
-        current_rollout_status = undefined;
-        rollout_status_color = "yellow";
-      });
-  };
-
-  $: if ($navigating) {
-    updateCurrentRollout();
-  }
-
-  let intervalId: any;
-
-  // update rollout status every 5 seconds
-  onMount(() => {
-    updateCurrentRollout();
-    intervalId = setInterval(() => {
-      updateCurrentRollout();
-    }, 5000);
-  });
-
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
 
   async function toggleSidebar(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
@@ -203,7 +159,6 @@
             filter: UpdateFilterEnum.ALL,
             projectId: $selectedProjectId
           });
-          updateCurrentRollout();
         }),
       {
         loading: "Deploying rollout...",
@@ -377,6 +332,7 @@
             placeholder="Search rollouts..."
             hoverable={true}
             divClass="shadow-none"
+            id="{getRandomString(8)}"
             bind:inputValue={searchTerm}
           />
           {#if $rollouts.length > 0}
@@ -433,18 +389,18 @@
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                       {#if rollout.endDate == ""}
-                        <Badge border color={rollout_status_color} class="relative pl-6 mr-2">
+                        <Badge border color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")} class="relative pl-6 mr-2">
                           <Indicator
                             size="sm"
-                            color={rollout_status_color}
+                            color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
                             class="absolute left-2"
                           />
                           <Indicator
                             size="sm"
-                            color={rollout_status_color}
+                            color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
                             class="absolute animate-ping left-2"
                           />
-                          {current_rollout_status?.deployment?.status ?? "Unknown"}
+                          {$currentRolloutStatus?.deployment?.status ?? "Unknown"}
                         </Badge>
 
                         <!-- <Badge border color="green" class="relative pl-6 mr-2">

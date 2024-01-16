@@ -10,7 +10,7 @@
   import { ArrowRight, Cog, ExternalLink, Tag } from "lucide-svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { getRolloutStatus } from "$lib/utils/rollouts";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { navigating } from "$app/stores";
   export let project: ProjectsResponse<Pexpand>;
 
@@ -70,18 +70,9 @@
     updateCurrentRollout();
   }
 
-  let intervalId: any;
-
   // update rollout status every 5 seconds
   onMount(() => {
     updateCurrentRollout();
-    intervalId = setInterval(() => {
-      updateCurrentRollout();
-    }, 5000);
-  });
-
-  onDestroy(() => {
-    clearInterval(intervalId);
   });
 
   // filter $rollouts by $rollouts.expand.project

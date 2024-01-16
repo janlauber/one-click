@@ -2,12 +2,19 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum, autoUpdates } from "$lib/stores/data";
-  import { Button, Heading, Input, Label, P, Select, TableSearch, Toggle } from "flowbite-svelte";
+  import {
+    type Rexpand,
+    rollouts,
+    updateDataStores,
+    UpdateFilterEnum,
+    autoUpdates
+  } from "$lib/stores/data";
+  import { Button, Heading, Input, Label, P, Select, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
   import { goto } from "$app/navigation";
   import { ArrowRight, Clipboard } from "lucide-svelte";
+  import { getRandomString } from "$lib/utils/random";
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
   let lastUpdatedRollout: RolloutsResponse<Rexpand> | undefined;
@@ -25,17 +32,17 @@
   let tagAutoUpdatePolicy: string = "semver";
 
   let selectIntervals = [
-    { value: "1m", name: "1 Minute"},
-    { value: "5m", name: "5 Minutes"},
-    { value: "10m", name: "10 Minutes"},
-  ]
+    { value: "1m", name: "1 Minute" },
+    { value: "5m", name: "5 Minutes" },
+    { value: "10m", name: "10 Minutes" }
+  ];
 
   let initialLoad: boolean = true;
 
   $: if ($autoUpdates.length > 0 && initialLoad) {
     // set the first autoUpdate for tags
     tagAutoUpdateEnabled = true;
-    tagAutoUpdateWebhookPath = '/auto-update/'+$autoUpdates[0].id;
+    tagAutoUpdateWebhookPath = "/auto-update/" + $autoUpdates[0].id;
     tagAutoUpdateInterval = $autoUpdates[0].interval;
     tagAutoUpdatePattern = $autoUpdates[0].pattern;
     tagAutoUpdatePolicy = $autoUpdates[0].policy;
@@ -66,8 +73,8 @@
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
       registry = current_rollout.manifest?.spec.image.registry ?? "";
-      // username = current_rollout.manifest?.spec.image.username ?? "";
-      // password = current_rollout.manifest?.spec.image.password ?? "";
+      username = current_rollout.manifest?.spec.image.username ?? "";
+      password = current_rollout.manifest?.spec.image.password ?? "";
       repository = current_rollout.manifest?.spec.image.repository ?? "";
       tag = current_rollout.manifest?.spec.image.tag ?? "";
       lastUpdatedRollout = current_rollout;
@@ -129,7 +136,6 @@
 
   async function handleInputSave() {
     if (current_rollout) {
-
       if (tagAutoUpdateEnabled) {
         const data = {
           interval: tagAutoUpdateInterval,
@@ -177,7 +183,6 @@
             );
           }
         }
-
       } else {
         if ($autoUpdates[0]) {
           toast.promise(
@@ -199,7 +204,6 @@
         }
       }
 
-
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
@@ -208,7 +212,9 @@
           image: {
             registry: registry,
             repository: repository,
-            tag: tag
+            tag: tag,
+            username: username,
+            password: password
           }
         }
       };
@@ -217,7 +223,6 @@
       if (JSON.stringify(current_rollout.manifest) === JSON.stringify(new_manifest)) {
         return;
       }
-
 
       const data: RolloutsRecord = {
         manifest: new_manifest,
@@ -265,7 +270,7 @@
                 <td class="whitespace-nowrap px-3 py-4 text-xs">
                   <Label for="registry" class="block mb-2">ID</Label>
                   <div class="flex gap-2 justify-between w-auto">
-                    <Input id="id" size="sm" value={current_rollout?.id} disabled />
+                    <Input id={getRandomString(8)} size="sm" value={current_rollout?.id} disabled />
                     <Button
                       color="alternative"
                       size="xs"
@@ -308,7 +313,7 @@
                     >
                   </Label>
                   <Input
-                    id="registry"
+                    id={getRandomString(8)}
                     size="sm"
                     bind:value={registry}
                     on:input={(e) => handleInputChange(e, "registry")}
@@ -317,17 +322,17 @@
                     {registry === '' ? 'border-red-500' : 'border-green-500'}
                     "
                   />
-                  <Label for="username" class="block mb-2 mt-4">Username</Label>
+                  <Label class="block mb-2 mt-4">Username</Label>
                   <Input
-                    id="username"
+                    id={getRandomString(8)}
                     size="sm"
                     bind:value={username}
                     on:input={(e) => handleInputChange(e, "username")}
                     placeholder="username"
                   />
-                  <Label for="password" class="block mb-2 mt-4">Password</Label>
+                  <Label class="block mb-2 mt-4">Password</Label>
                   <Input
-                    id="password"
+                    id={getRandomString(8)}
                     type="password"
                     size="sm"
                     bind:value={password}
@@ -352,7 +357,7 @@
                     ></Label
                   >
                   <Input
-                    id="repository"
+                    id={getRandomString(8)}
                     size="sm"
                     bind:value={repository}
                     on:input={(e) => handleInputChange(e, "repository")}
@@ -375,7 +380,7 @@
                     <Label for="" class="block mb-2 mt-4">Webhook Path</Label>
                     <div class="flex gap-2 justify-between w-auto">
                       <Input
-                        id="tagAutoUpdateWebhookPath"
+                        id={getRandomString(8)}
                         size="sm"
                         bind:value={tagAutoUpdateWebhookPath}
                         on:input={(e) => handleInputChange(e, "tagAutoUpdateWebhookPath")}
@@ -401,9 +406,9 @@
                         <option value={interval.value}>{interval.name}</option>
                       {/each}
                     </Select>
-                    <Label for="tagAutoUpdatePattern" class="block mb-2 mt-4">Pattern</Label>
+                    <Label class="block mb-2 mt-4">Pattern</Label>
                     <Input
-                      id="tagAutoUpdatePattern"
+                      id={getRandomString(8)}
                       size="sm"
                       bind:value={tagAutoUpdatePattern}
                       on:input={(e) => handleInputChange(e, "tagAutoUpdatePattern")}
@@ -411,7 +416,7 @@
                     />
                     <Label for="tagAutoUpdatePolicy" class="block mb-2 mt-4">Policy</Label>
                     <Input
-                      id="tagAutoUpdatePolicy"
+                      id={getRandomString(8)}
                       size="sm"
                       bind:value={tagAutoUpdatePolicy}
                       on:input={(e) => handleInputChange(e, "tagAutoUpdatePolicy")}
@@ -428,7 +433,7 @@
                     ></Label
                   >
                   <Input
-                    id="tag"
+                    id={getRandomString(8)}
                     size="sm"
                     bind:value={tag}
                     on:input={(e) => handleInputChange(e, "tag")}

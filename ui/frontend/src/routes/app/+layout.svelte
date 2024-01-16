@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
   import { Badge, Heading } from "flowbite-svelte";

@@ -1,41 +1,16 @@
 <script lang="ts">
-  import { currentRollout, rollouts } from "$lib/stores/data";
+  import { currentRollout, currentRolloutStatus, rollouts } from "$lib/stores/data";
   import { autoScroll } from "$lib/utils/autoScroll";
-  import { getRolloutStatus } from "$lib/utils/rollouts";
   import { Accordion, AccordionItem, Button, Heading, P } from "flowbite-svelte";
   import { Box, FileDown, RefreshCcw } from "lucide-svelte";
-  import { onDestroy } from "svelte";
+    import { onMount } from "svelte";
   import Highlight, { LineNumbers } from "svelte-highlight";
   import prolog from "svelte-highlight/languages/prolog";
   import atomOneDark from "svelte-highlight/styles/atom-one-dark";
 
-  let podNames: string[] = [];
-
-  $: {
-    if ($currentRollout) {
-      getRolloutStatus($currentRollout?.project, $currentRollout.id)
-        .then((res) => {
-          if (res?.deployment.podNames) {
-            podNames = res?.deployment.podNames;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-
-    if (podNames.length > 0) {
-      podNames.forEach((podName) => {
-        if (!logStreams[podName]) {
-          startLogStream(podName);
-        }
-      });
-    }
-  }
-
   function downloadLogs(podName: string) {
-    const logs = logStreams[podName].join("\n");
-    const blob = new Blob([logs], { type: "text/plain;charset=utf-8" });
+    const logsStream = logs[podName].join("\n");
+    const blob = new Blob([logsStream], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -47,30 +22,64 @@
 
   // get rollout logs from specific pod as EventSource from /rollouts/{projectId}/{podName}/logs
   // Object to hold log streams for each pod
-  let logStreams: { [key: string]: string[] } = {};
+  let logs: { [key: string]: string[] } = {};
 
-  function startLogStream(podName: string) {
+  async function fetchLogs(podName: string) {
     const projectId = $currentRollout?.project;
     const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8090" : "";
     const url = `${baseUrl}/rollouts/${projectId}/${podName}/logs`;
-    const eventSource = new EventSource(url);
+    const token = localStorage.getItem("pocketbase_auth");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+    const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
 
-    logStreams[podName] = [];
+    // fetch logs from pod
+    const res = await fetch(url, { headers: authHeader });
 
-    eventSource.onmessage = (event) => {
-      logStreams[podName].push(event.data);
-    };
+    // if response is not ok, throw error
+    if (!res.ok) {
+      throw new Error("Error fetching logs");
+    }
 
-    eventSource.onerror = (error) => {
-      console.error(`Error with EventSource for pod ${podName}:`, error);
-      eventSource.close();
-    };
+    logs[podName] = [];
 
-    // Clean up the EventSource when the component is destroyed
-    onDestroy(() => {
-      eventSource.close();
+    // add the response to the log stream
+
+    const reader = res.body?.getReader();
+    if (!reader) {
+      throw new Error("Error reading logs");
+    }
+
+    const decoder = new TextDecoder("utf-8");
+
+    reader.read().then(function processLog({ done, value }) {
+      if (done) {
+        return;
+      }
+
+      if (value) {
+        const decoded = decoder.decode(value);
+        const lines = decoded.split("\n");
+        lines.forEach((line) => {
+          if (line) {
+            logs[podName].push(line);
+          }
+        });
+      }
+
+      reader.read().then(processLog);
     });
+
   }
+
+  onMount(() => {
+    // fetch logs for each podName
+    $currentRolloutStatus?.deployment?.podNames?.forEach((podName) => {
+      fetchLogs(podName);
+    });
+  });
 
   // Trigger log stream for each podName
 </script>
@@ -88,7 +97,7 @@
 
 <Accordion class="gap-2 grid mt-10" multiple flush>
   {#key $rollouts}
-    {#each podNames as podName, i (podName)}
+    {#each $currentRolloutStatus?.deployment?.podNames ?? [] as podName, i (podName)}
       <AccordionItem class="rounded-lg">
         <div slot="header" class="flex">
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
@@ -97,21 +106,16 @@
           <span class="pt-1">{podName}</span>
         </div>
         <div class="log-container px-2 rounded-lg bg-gray-800">
-          {#if logStreams[podName]}
+          {#if logs[podName]}
             <div class="log-scroll text-sm scrollbar-none max-h-96" use:autoScroll>
-              <Highlight language={prolog} code={logStreams[podName].join("\n")} let:highlighted>
+              <Highlight language={prolog} code={logs[podName].join("\n")} let:highlighted>
                 <LineNumbers {highlighted} wrapLines />
               </Highlight>
-              <!-- {#each logStreams[podName] as log, i}
-                <p class="log-line">{log}</p>
-              {/each} -->
             </div>
-          {:else}
-            <p class="no-logs">No logs found</p>
           {/if}
         </div>
         <div class="flex justify-end">
-          <Button size="sm" color="alternative" class="mt-4 mr-2" on:click={() => startLogStream(podName)}>
+          <Button size="sm" color="alternative" class="mt-4 mr-2" on:click={() => fetchLogs(podName)}>
             <RefreshCcw class="mr-2" />
             Refresh</Button>
           <Button size="sm" class="mt-4" on:click={() => downloadLogs(podName)}>

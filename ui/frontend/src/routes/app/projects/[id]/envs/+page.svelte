@@ -111,17 +111,39 @@
       return parsedSecrets.filter((s) => s.name === env.name).length > 0;
     });
 
-    if (duplicateEnvs.length > 0) {
+    if (
+      duplicateEnvs.length > 0 &&
+      !(parsedEnvs.length === 1 && parsedEnvs[0].name === "" && parsedEnvs[0].value === undefined)
+    ) {
       toast.error("There are duplicate envs");
       return;
     }
 
-    if (duplicateSecrets.length > 0) {
+    if (
+      duplicateSecrets.length > 0 &&
+      !(
+        parsedSecrets.length === 1 &&
+        parsedSecrets[0].name === "" &&
+        parsedSecrets[0].value === undefined
+      )
+    ) {
       toast.error("There are duplicate secrets");
       return;
     }
 
-    if (duplicateEnvSecrets.length > 0) {
+    if (
+      duplicateEnvSecrets.length > 0 &&
+      !(
+        parsedEnvs.length === 1 &&
+        parsedEnvs[0].name === "" &&
+        parsedEnvs[0].value === undefined
+      ) &&
+      !(
+        parsedSecrets.length === 1 &&
+        parsedSecrets[0].name === "" &&
+        parsedSecrets[0].value === undefined
+      )
+    ) {
       toast.error("There are duplicate envs and secrets");
       return;
     }
@@ -135,12 +157,22 @@
       return secret.name === "" || secret.value === "";
     });
 
-    if (emptyEnvs.length > 0) {
+    if (
+      emptyEnvs.length > 0 &&
+      !(parsedEnvs.length === 1 && parsedEnvs[0].name === "" && parsedEnvs[0].value === undefined)
+    ) {
       toast.error("There are empty envs");
       return;
     }
 
-    if (emptySecrets.length > 0) {
+    if (
+      emptySecrets.length > 0 &&
+      !(
+        parsedSecrets.length === 1 &&
+        parsedSecrets[0].name === "" &&
+        parsedSecrets[0].value === undefined
+      )
+    ) {
       toast.error("There are empty secrets");
       return;
     }
@@ -154,12 +186,22 @@
       return secret.name === undefined || secret.value === undefined;
     });
 
-    if (undefinedEnvs.length > 0) {
+    if (
+      undefinedEnvs.length > 0 &&
+      !(parsedEnvs.length === 1 && parsedEnvs[0].name === "" && parsedEnvs[0].value === undefined)
+    ) {
       toast.error("There are undefined envs");
       return;
     }
 
-    if (undefinedSecrets.length > 0) {
+    if (
+      undefinedSecrets.length > 0 &&
+      !(
+        parsedSecrets.length === 1 &&
+        parsedSecrets[0].name === "" &&
+        parsedSecrets[0].value === undefined
+      )
+    ) {
       toast.error("There are undefined secrets");
       return;
     }
@@ -170,11 +212,35 @@
       return;
     }
 
-    // @ts-ignore
-    $currentRollout.manifest.spec.env = parsedEnvs;
+    if (parsedEnvs.length === 1 && parsedEnvs[0].name === "" && parsedEnvs[0].value === undefined) {
+      if ($currentRollout && $currentRollout.manifest) {
+        if (!$currentRollout.manifest.spec) {
+          $currentRollout.manifest.spec = {};
+        }
+        $currentRollout.manifest.spec.env = [];
+      }
+    } else {
+      if ($currentRollout && $currentRollout.manifest) {
+        $currentRollout.manifest.spec.env = parsedEnvs;
+      }
+    }
 
-    // @ts-ignore
-    $currentRollout.manifest.spec.secrets = parsedSecrets;
+    if (
+      parsedSecrets.length === 1 &&
+      parsedSecrets[0].name === "" &&
+      parsedSecrets[0].value === undefined
+    ) {
+      if ($currentRollout && $currentRollout.manifest) {
+        if (!$currentRollout.manifest.spec) {
+          $currentRollout.manifest.spec = {};
+        }
+        $currentRollout.manifest.spec.secrets = [];
+      }
+    } else {
+      if ($currentRollout && $currentRollout.manifest) {
+        $currentRollout.manifest.spec.env = parsedSecrets;
+      }
+    }
 
     try {
       await updateManifest($currentRollout.manifest);
@@ -324,44 +390,46 @@
 </div>
 
 <Accordion class="gap-2 grid mt-10" flush multiple>
-  {#key $rollouts}
-    <AccordionItem class="rounded-lg" open>
-      <div slot="header" class="flex">
-        <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
-          <Variable class="w-4 h-4" />
-        </div>
-        <span class="pt-1">Environment Variables</span>
+  <AccordionItem class="rounded-lg" open>
+    <div slot="header" class="flex">
+      <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
+        <Variable class="w-4 h-4" />
       </div>
-      <!-- Code editor -->
+      <span class="pt-1">Environment Variables</span>
+    </div>
+    <!-- Code editor -->
 
-      <div class="h-64 overflow-y-auto border border-gray-700 rounded-lg p-2 bg-gray-800">
+    <div class="h-64 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
+      {#key $rollouts}
         <MonacoEditor
           bind:value={envValue}
           options={{ language: "shell", automaticLayout: false, minimap: { enabled: false } }}
           theme="vs-dark"
         />
+      {/key}
+    </div>
+  </AccordionItem>
+  <AccordionItem class="rounded-lg" open>
+    <div slot="header" class="flex">
+      <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
+        <Lock class="w-4 h-4" />
       </div>
-    </AccordionItem>
-    <AccordionItem class="rounded-lg" open>
-      <div slot="header" class="flex">
-        <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
-          <Lock class="w-4 h-4" />
-        </div>
-        <span class="pt-1">Secret Environment Variables</span>
-      </div>
-      <!-- Code editor -->
-      <div class="h-64 overflow-y-auto border border-gray-700 rounded-lg p-2 bg-gray-800">
+      <span class="pt-1">Secret Environment Variables</span>
+    </div>
+    <!-- Code editor -->
+    <div class="h-64 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
+      {#key $rollouts}
         <MonacoEditor
           bind:value={secretValue}
           options={{ language: "shell", automaticLayout: true }}
         />
-      </div>
-    </AccordionItem>
-  {/key}
+      {/key}
+    </div>
+  </AccordionItem>
 </Accordion>
 
 <div class="flex justify-end mt-4 gap-4">
   <!-- Reset -->
-  <Button color="alternative" on:click={() => initialLoad = true}>Reset</Button>
+  <Button color="alternative" on:click={() => (initialLoad = true)}>Reset</Button>
   <Button on:click={() => handleInputSave()}>Save</Button>
 </div>

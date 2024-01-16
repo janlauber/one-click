@@ -12,7 +12,7 @@
     Variable
   } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
-  import { rollouts, type Rexpand } from "$lib/stores/data";
+  import { rollouts, type Rexpand, currentRolloutStatus } from "$lib/stores/data";
   import { getRolloutMetrics, getRolloutStatus } from "$lib/utils/rollouts";
   import { onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
@@ -66,15 +66,11 @@
     currentRollout = currentRollouts.find((r) => !r.endDate);
     if (!currentRollout) {
       current_rollout_status = undefined;
-      rollout_status_color = "gray";
       return;
     }
     getRolloutStatus($selectedProjectId, currentRollout.id)
       .then((response) => {
         current_rollout_status = response;
-        rollout_status_color = determineRolloutColor(
-          current_rollout_status?.deployment.status ?? ""
-        );
         cpuRequests = Number(current_rollout_status?.deployment.resources.requestSum.cpu);
         // round to 3 decimal places
         cpuRequests = Math.round((cpuRequests + Number.EPSILON) * 1000) / 1000;
@@ -88,7 +84,6 @@
       })
       .catch(() => {
         current_rollout_status = undefined;
-        rollout_status_color = "gray";
       });
 
     getRolloutMetrics($selectedProjectId, currentRollout.id)
@@ -117,7 +112,6 @@
   $: if ($navigating) {
     updateCurrentRollout();
   }
-
 </script>
 
 <div class="flex items-start justify-between">
@@ -133,14 +127,14 @@
     <div class="relative">
       <Indicator
         size="sm"
-        color={rollout_status_color}
-        class="mr-1.5 {current_rollout_status ? 'absolute' : ''}"
+        color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
+        class="mr-1.5 {$currentRolloutStatus ? 'absolute' : ''}"
       />
       {#if current_rollout_status}
-        <Indicator size="sm" color={rollout_status_color} class="mr-1.5 animate-ping" />
+        <Indicator size="sm" color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")} class="mr-1.5 animate-ping" />
       {/if}
     </div>
-    Current rollout (Status: {current_rollout_status?.deployment.status ?? "Unknown"})
+    Current rollout (Status: {$currentRolloutStatus?.deployment?.status ?? "Unknown"})
     <ArrowRight class="w-4 h-4 ml-2" />
   </Button>
 </div>
@@ -287,17 +281,9 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {#if currentRollout}
-      <MetricsChart
-        usage={cpuUsage}
-        requests={cpuRequests}
-        title="Total CPU (Cores)"
-      />
+      <MetricsChart usage={cpuUsage} requests={cpuRequests} title="Total CPU (Cores)" />
 
-      <MetricsChart
-        usage={memoryUsage}
-        requests={memoryRequests}
-        title="Total Memory (GB)"
-      />
+      <MetricsChart usage={memoryUsage} requests={memoryRequests} title="Total Memory (GB)" />
     {/if}
   </div>
   <RolloutChart />

@@ -281,10 +281,7 @@
           >
           {#if inf.host}
             <a
-              href={(inf.tls ? "https://" : "http://") +
-                inf.host +
-                (inf.port ? ":" + inf.port : "") +
-                (inf.path ? inf.path : "")}
+              href={(inf.tls ? "https://" : "http://") + inf.host}
               target="_blank"
               rel="noopener noreferrer"
               class="ml-2 text-blue-500 hover:underline mt-1"

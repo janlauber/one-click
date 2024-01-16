@@ -208,10 +208,6 @@ func GetRolloutEvents(projectId string, rolloutId string) (*models.EventResponse
 
 func GetRolloutLogs(w http.ResponseWriter, projectId string, podName string) error {
 
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-
 	// Get live logs
 	liveLogOptions := &corev1.PodLogOptions{
 		Follow: true,
@@ -226,7 +222,7 @@ func GetRolloutLogs(w http.ResponseWriter, projectId string, podName string) err
 	scanner := bufio.NewScanner(liveLogs)
 	for scanner.Scan() {
 		line := scanner.Text()
-		_, err := fmt.Fprintf(w, "data: %s\n\n", line)
+		_, err := fmt.Fprintf(w, "%s\n\n", line)
 		if err != nil {
 			return err
 		}
