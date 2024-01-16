@@ -131,7 +131,11 @@
         class="mr-1.5 {$currentRolloutStatus ? 'absolute' : ''}"
       />
       {#if current_rollout_status}
-        <Indicator size="sm" color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")} class="mr-1.5 animate-ping" />
+        <Indicator
+          size="sm"
+          color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
+          class="mr-1.5 animate-ping"
+        />
       {/if}
     </div>
     Current rollout (Status: {$currentRolloutStatus?.deployment?.status ?? "Unknown"})
@@ -140,7 +144,7 @@
 </div>
 
 <div class=" gap-4 space-y-4 mt-4">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
     <a href={`/app/projects/${$selectedProjectId}/rollouts`} class="flex flex-col justify-between">
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
         <div
@@ -194,10 +198,29 @@
         </div>
       </Card>
     </a>
+    <a href={`/app/projects/${$selectedProjectId}/volumes`} class="flex flex-col justify-between">
+      <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
+        <div
+          class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-black"
+        >
+          <Database
+            class="w-5 h-5 text-black
+          justify-self-center
+        "
+          />
+        </div>
+        <div class="flex flex-col ml-4">
+          <span class="text-sm font-light">Volumes</span>
+          <span class="text-sm font-semibold"
+            >{currentRollout?.manifest?.spec?.volumes?.length ?? 0}</span
+          >
+        </div>
+      </Card>
+    </a>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4" style="grid-template-rows: auto 1fr">
-    <a href={`/app/projects/${$selectedProjectId}/image`} class="flex flex-col justify-between">
+    <a href={`/app/projects/${$selectedProjectId}/image`} class="col-span-2">
       <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
@@ -210,31 +233,10 @@
         </div>
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Image</span>
-
-          <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec.image.repository.replace(/^library\//, "") ??
-              ""}{currentRollout?.manifest?.spec.image.tag
-              ? `:${currentRollout?.manifest?.spec.image.tag}`
-              : ""}</span
-          >
-        </div>
-      </Card>
-    </a>
-    <a href={`/app/projects/${$selectedProjectId}/volumes`} class="flex flex-col justify-between">
-      <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
-        <div
-          class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
-        >
-          <Database
-            class="w-5 h-5 text-white
-          justify-self-center
-        "
-          />
-        </div>
-        <div class="flex flex-col ml-4">
-          <span class="text-sm font-light">Volumes</span>
-          <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec?.volumes?.length ?? 0}</span
+          <span class="text-sm font-semibold">
+            {currentRollout?.manifest?.spec.image.registry ??
+              ""}/{currentRollout?.manifest?.spec.image.repository.replace(/^library\//, "") ??
+              ""}:{currentRollout?.manifest?.spec.image.tag ?? ""}</span
           >
         </div>
       </Card>
