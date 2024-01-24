@@ -35,11 +35,7 @@ You will need the following to run this project:
     ```
 
 2. Install the Operator
-    ```sh
-    cd operator
-    make install
-    make deploy IMG="ghcr.io/janlauber/one-click-operator:latest"
-    ```
+   Follow the installation instructions provided in the [one-click-operator repository](https://github.com/janlauber/one-click-operator).
 
 3. Install the UI & Backend
     Check out the [deployment](./deployment/) folder and change the values for your environment. Then run the following commands:
