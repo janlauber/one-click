@@ -2,6 +2,7 @@ name: Size Label
 on: pull_request
 jobs:
   size-label:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: size-label
