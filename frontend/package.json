@@ -74,7 +74,7 @@
     "svelte-local-storage-store": "^0.6.4",
     "svelte-monaco": "^0.3.0",
     "svelte-particles": "^2.12.0",
-    "svelte-tags-input": "^5.0.0",
+    "svelte-tags-input": "^6.0.0",
     "svelvet": "^8.1.0",
     "tsparticles": "^2.12.0",
     "xterm": "^5.1.0",
