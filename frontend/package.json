@@ -16,8 +16,8 @@
     "format": "prettier --plugin-search-dir . --write ."
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^2.1.0",
-    "@sveltejs/kit": "^1.27.2",
+    "@sveltejs/adapter-auto": "^3.1.1",
+    "@sveltejs/kit": "^2.5.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tailwindcss/typography": "^0.5.9",
@@ -56,8 +56,8 @@
     "@codemirror/theme-one-dark": "^6.1.2",
     "@floating-ui/dom": "^1.2.8",
     "@picocss/pico": "^1.5.10",
-    "@sveltejs/adapter-node": "^1.2.1",
-    "@sveltejs/adapter-static": "^2.0.2",
+    "@sveltejs/adapter-node": "^4.0.1",
+    "@sveltejs/adapter-static": "^3.0.1",
     "@webcontainer/api": "^1.1.4",
     "chart.js": "^4.3.0",
     "diff": "^5.1.0",
