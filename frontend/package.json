@@ -55,7 +55,7 @@
     "@codemirror/lang-javascript": "^6.2.1",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@floating-ui/dom": "^1.2.8",
-    "@picocss/pico": "^1.5.10",
+    "@picocss/pico": "^2.0.3",
     "@sveltejs/adapter-node": "^1.2.1",
     "@sveltejs/adapter-static": "^2.0.2",
     "@webcontainer/api": "^1.1.4",
