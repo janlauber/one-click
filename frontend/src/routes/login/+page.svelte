@@ -3,7 +3,7 @@
   import { client, login } from "$lib/pocketbase";
   import { alertOnFailure } from "$lib/pocketbase/ui";
   import toast from "svelte-french-toast";
-  import { Label, Input, Checkbox, Button } from "flowbite-svelte";
+  import { Label, Input, Button } from "flowbite-svelte";
   import { onMount } from "svelte";
   import type { AuthProviderInfo } from "pocketbase";
 
@@ -37,8 +37,31 @@
   });
 
   async function loginWithProvider(provider: AuthProviderInfo) {
-    const response = await client.collection("users").authWithOAuth2({ provider: provider.name });
-    console.log(response);
+    try {
+      const response = await client.collection("users").authWithOAuth2({ provider: provider.name });
+
+      const meta: any = response.meta;
+
+      if (meta.isNew) {
+        const formData = new FormData();
+
+        const response = await fetch(meta.avatarUrl);
+
+        if (response.ok) {
+          const file = await response.blob();
+          formData.append("avatar", file);
+        }
+
+        formData.append("name", meta.name);
+
+        await client.collection("users").update(client.authStore.model?.id, formData);
+      }
+
+      toast.success("Logged in successfully!");
+      goto("/app");
+    } catch (error) {
+      toast.error("Failed to log in");
+    }
   }
 </script>
 
