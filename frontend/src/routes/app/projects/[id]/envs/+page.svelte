@@ -409,7 +409,7 @@
       {/key}
     </div>
   </AccordionItem>
-  <AccordionItem class="rounded-lg" open>
+  <AccordionItem class="rounded-lg">
     <div slot="header" class="flex">
       <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
         <Lock class="w-4 h-4" />
