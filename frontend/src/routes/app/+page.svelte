@@ -2,11 +2,10 @@
   import { goto } from "$app/navigation";
   import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
-  import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { projects, type Pexpand, blueprints } from "$lib/stores/data";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
-  import { Plus, BookDashed, Settings } from "lucide-svelte";
+  import { Plus, BookDashed } from "lucide-svelte";
 
   let projectModal = false;
 
@@ -64,19 +63,6 @@
         >Your Projects ({$projects.length})</Heading
       >
       <div class="justify-self-end ml-auto space-x-3">
-        {#if client.authStore.model?.role === "admin"}
-          <Button
-            outline
-            color="primary"
-            size="sm"
-            on:click={() => {
-              goto("/app/admin");
-            }}
-          >
-            <Settings class="w-4 h-4 mr-2 inline-block" />
-            Admin Settings
-          </Button>
-        {/if}
         <Button
           color="primary"
           size="sm"
