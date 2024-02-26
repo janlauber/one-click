@@ -171,10 +171,12 @@
         port: parseInt(String(updatedInterface.port)),
         ingress: updatedInterface.host
           ? {
-              ingressClass: "nginx",
-              annotations: {
-                "nginx.ingress.kubernetes.io/ssl-redirect": updatedInterface.tls ? "true" : "false"
-              },
+              ingressClass:
+                $currentRollout.manifest?.spec.interfaces[rolloutInterfaceIndex].ingress
+                  ?.ingressClass || "nginx",
+              annotations:
+                $currentRollout.manifest?.spec.interfaces[rolloutInterfaceIndex].ingress
+                  ?.annotations,
               rules: [
                 {
                   host: updatedInterface.host,
@@ -194,8 +196,10 @@
       }
     }
 
+    console.log("Updated rollout:", $currentRollout.manifest?.spec.interfaces[0].ingress);
+
     // Save changes to the server
-    await updateManifest($currentRollout.manifest);
+    // await updateManifest($currentRollout.manifest);
 
     toast.success("Interface updated successfully.");
   }

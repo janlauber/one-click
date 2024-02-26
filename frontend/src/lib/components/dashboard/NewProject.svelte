@@ -8,8 +8,8 @@
   import { blueprints, updateDataStores } from "$lib/stores/data";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
 
-  import { Badge, Button, Input, Label } from "flowbite-svelte";
-  import { ArrowRight, BookLock, BookUser, DollarSign, ExternalLink, Group, Lock, Text, XIcon } from "lucide-svelte";
+  import { Button, Input, Label } from "flowbite-svelte";
+  import { ArrowRight, BookLock, BookUser, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let projectModal: boolean;
@@ -70,6 +70,18 @@
       user: client.authStore.model?.id,
       tags: setToString(localTags)
     };
+
+    // remove any ingresses from the blueprint manifest
+    // first, check if the manifest has interfaces:
+    if ((selectedBlueprint.manifest as any).spec.interfaces) {
+      // then, remove the ingress object from the interfaces array
+      for (let i = 0; i < (selectedBlueprint.manifest as any).spec.interfaces.length; i++) {
+        // remove the ingress object from the interfaces array
+        if ((selectedBlueprint.manifest as any).spec.interfaces[i].ingress) {
+          delete (selectedBlueprint.manifest as any).spec.interfaces[i].ingress;
+        }
+      }
+    }
 
     await client
       .collection("projects")

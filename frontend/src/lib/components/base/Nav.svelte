@@ -16,6 +16,7 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
+  import { FileQuestion } from "lucide-svelte";
 
   let avatarUrlString: any = avatarUrl();
 
@@ -65,29 +66,36 @@
       <div in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
         {#key $selectedProjectId}
           <div class="flex items-center">
-            <div class="relative border-2 rounded-lg border-{determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}-500">
+            <div
+              class="relative border-2 rounded-lg border-{determineRolloutColor(
+                $currentRolloutStatus?.deployment?.status ?? ''
+              )}-500"
+            >
               {#if selectedProject?.avatar}
                 <img
                   src={recordLogoUrl(selectedProject)}
                   alt="Tuple"
                   class="h-12 w-12 flex-none rounded-lg object-cover p-1"
                 />
-              {:else}
+              {:else if selectedProject?.expand?.blueprint}
                 <img
                   src={recordLogoUrl(selectedProject?.expand.blueprint)}
                   alt="Tuple"
                   class="h-12 w-12 flex-none rounded-lg object-cover p-1"
                 />
+              {:else}
+                <FileQuestion class="h-12 w-12 flex-none text-white rounded-lg object-cover p-1" />
               {/if}
               <Tooltip
-                class="cursor-default bg-{determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}-500"
+                class="cursor-default bg-{determineRolloutColor(
+                  $currentRolloutStatus?.deployment?.status ?? ''
+                )}-500"
               >
                 Status:
                 {$currentRolloutStatus?.deployment?.status ?? "Unknown"}
               </Tooltip>
             </div>
             <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
-
           </div>
         {/key}
       </div>
