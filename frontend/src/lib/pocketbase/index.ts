@@ -7,10 +7,6 @@ import { goto } from "$app/navigation";
 
 export const client = new PocketBase();
 
-client.authStore.onChange(function () {
-    currentUser.set(client.authStore.model);
-});
-
 export const currentUser = writable(client.authStore.model);
 
 export async function login(

@@ -7,7 +7,7 @@
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
-  import { ArrowRight, Tag } from "lucide-svelte";
+  import { ArrowRight, FileQuestion, Tag } from "lucide-svelte";
   export let project: ProjectsResponse<Pexpand>;
 
   let tags: Set<string> = new Set();
@@ -37,7 +37,7 @@
           class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
         />
       {:else}
-        <FileQuestion class="h-12 w-12 flex-none text-white rounded-lg object-cover p-1" />
+        <FileQuestion class="h-12 w-12 flex-none rounded-lg object-cover p-1" />
       {/if}
       <Indicator
         color="dark"
