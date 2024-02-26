@@ -52,13 +52,6 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 		if err != nil {
 			return err
 		}
-
-		// Delete rollout in k8s
-		err = k8s.DeleteRollout(project.Id, running_rollout.Id)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
 	}
 
 	// Create rollout in k8s
@@ -98,6 +91,15 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 		return err
 	}
 
+	// If only the hide field was updated, do nothing and return
+	if e.Record.GetBool("hide") != rollout.GetBool("hide") {
+		if e.Record.GetString("endDate") != rollout.GetString("endDate") {
+			// Continue with the rest of the code
+		} else {
+			return nil
+		}
+	}
+
 	// Check if endDate is set, if yes, delete rollout
 	if e.Record.GetString("endDate") != "" {
 		err = k8s.DeleteRollout(project.Id, rollout.Id)
@@ -124,13 +126,6 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 			running_rollout.Set("endDate", time.Now().UTC().Format(time.RFC3339))
 			err = app.Dao().SaveRecord(running_rollout)
 			if err != nil {
-				return err
-			}
-
-			// Delete rollout in k8s
-			err = k8s.DeleteRollout(project.Id, running_rollout.Id)
-			if err != nil {
-				log.Println(err)
 				return err
 			}
 		}

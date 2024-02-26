@@ -196,10 +196,9 @@
       }
     }
 
-    console.log("Updated rollout:", $currentRollout.manifest?.spec.interfaces[0].ingress);
 
     // Save changes to the server
-    // await updateManifest($currentRollout.manifest);
+    await updateManifest($currentRollout.manifest);
 
     toast.success("Interface updated successfully.");
   }
