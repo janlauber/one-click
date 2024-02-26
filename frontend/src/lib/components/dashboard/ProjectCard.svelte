@@ -113,12 +113,14 @@
           alt="Tuple"
           class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
         />
-      {:else}
+      {:else if project.expand?.blueprint}
         <img
           src={recordLogoUrl(project.expand?.blueprint)}
           alt="Tuple"
           class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
         />
+      {:else}
+        <FileQuestion class="h-12 w-12 flex-none text-white rounded-lg object-cover p-1" />
       {/if}
       <Indicator
         color="dark"
