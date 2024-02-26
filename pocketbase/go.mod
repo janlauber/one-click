@@ -135,7 +135,7 @@ require (
 	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	k8s.io/client-go v0.29.2
-	k8s.io/metrics v0.28.4
+	k8s.io/metrics v0.29.2
 	lukechampine.com/uint128 v1.3.0 // indirect
 	modernc.org/cc/v3 v3.41.0 // indirect
 	modernc.org/ccgo/v3 v3.16.15 // indirect
