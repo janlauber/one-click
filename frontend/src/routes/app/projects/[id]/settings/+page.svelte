@@ -252,6 +252,7 @@
             projectId: $currentRollout.project
           });
         }
+        modalBluprintOpen = false;
       });
   }
 </script>
@@ -418,7 +419,7 @@
   </div>
 </Modal>
 
-<Modal bind:open={modalBluprintOpen} size="lg" autoclose>
+<Modal bind:open={modalBluprintOpen} size="lg">
   <div class="text-center">
     <BookDashed class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
@@ -440,6 +441,10 @@
     />
 
     <Label class="">Manifest</Label>
+    <span class="text-xs text-gray-500 dark:text-gray-400">
+      The manifest is a YAML file that describes the blueprint. <br />
+      On project creation, the ingress resources won't be created.
+    </span>
     <div class="h-64 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
       <MonacoEditor
         bind:value={blueprintManifest}
@@ -452,7 +457,12 @@
     <Button color="primary" class="me-2" on:click={() => handleCreateBlueprint()}
       >Yes, I'm sure</Button
     >
-    <Button color="alternative">No, cancel</Button>
+    <Button
+      color="alternative"
+      on:click={() => {
+        modalBluprintOpen = false;
+      }}>No, cancel</Button
+    >
   </div>
 </Modal>
 
