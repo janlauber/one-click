@@ -1,35 +1,48 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import {
-    ArrowLeft,
-    BookLock,
-    BookUp,
-    BookUser,
-  } from "lucide-svelte";
+  import { client } from "$lib/pocketbase";
+  import { blueprints } from "$lib/stores/data";
+  import { ArrowLeft, BookLock, BookUp, BookUser } from "lucide-svelte";
 
   // Get current project settings
 
+  function getOwnedBlueprints() {
+    return $blueprints.filter(
+      (blueprint) => blueprint.owner === (client.authStore?.model?.id ?? null)
+    );
+  }
+
+  function getSharedBlueprints() {
+    return $blueprints.filter(
+      (blueprint) => blueprint.owner === client.authStore?.model?.id && blueprint.users.length > 0
+    );
+  }
+
+  function getCommunityBlueprints() {
+    return $blueprints.filter((blueprint) => blueprint.owner !== client.authStore?.model?.id);
+  }
+
   // Return navigation items based on project settings
-  const generateItems = () => {
-    const items = [
+  let generateItems = () => {
+    let items = [
       {
-        name: "My Blueprints",
+        name: `My Blueprints (${getOwnedBlueprints().length})`,
         href: `/app/blueprints/my-blueprints`,
         current: false,
         icon: BookLock
       },
       {
-        name: "Community",
+        name: `Community (${getCommunityBlueprints().length})`,
         href: `/app/blueprints/community`,
         current: false,
         icon: BookUser
       },
       {
-        name: "Shared",
+        name: `Shared (${getSharedBlueprints().length})`,
         href: `/app/blueprints/shared`,
         current: false,
         icon: BookUp
-      },
+      }
     ];
 
     return items;
