@@ -1,7 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
-  import type { BlueprintsRecord, ProjectsRecord } from "$lib/pocketbase/generated-types";
+  import type {
+    BlueprintsRecord,
+    ProjectsRecord,
+    RolloutsRecord
+  } from "$lib/pocketbase/generated-types";
   import {
     UpdateFilterEnum,
     currentRollout,
@@ -9,7 +13,7 @@
     updateDataStores
   } from "$lib/stores/data";
   import { Button, Fileupload, Heading, Input, Label, Modal, P } from "flowbite-svelte";
-  import { BookDashed, Image, Trash, XIcon } from "lucide-svelte";
+  import { BookDashed, Code2, Image, Trash, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
   // @ts-ignore
@@ -19,6 +23,7 @@
   let initialLoad = true;
   let projectName: string = "";
   let inFocus = false;
+  let modalAdvancedOpen = false;
   let modalBluprintOpen = false;
   let modalDeleteOpen = false;
   let avatar: File;
@@ -28,6 +33,7 @@
   let blueprintAvatar: string = $selectedProject?.avatar || "";
   let blueprintAvatarFile: File;
   let blueprintManifest: any = jsonToYaml($currentRollout?.manifest) || "";
+  let advancedManifest: any = jsonToYaml($currentRollout?.manifest) || "";
 
   function jsonToYaml(json: any): string {
     return yaml.dump(json);
@@ -255,6 +261,49 @@
         modalBluprintOpen = false;
       });
   }
+
+  async function handleSaveManifest() {
+    if (!$selectedProject) return;
+
+    if (!advancedManifest) {
+      toast.error("Manifest is required");
+      return;
+    }
+
+    // TODO: Validate the manifest
+
+    if (!$currentRollout) return;
+    if (!$selectedProject) return;
+
+    // parse the manifest yaml to json
+    const parsedManifest = yaml.load(advancedManifest);
+
+    const data: RolloutsRecord = {
+      manifest: parsedManifest,
+      startDate: $currentRollout.startDate,
+      endDate: "",
+      project: $selectedProject.id,
+      user: client.authStore.model?.id
+    };
+
+    toast.promise(
+      client
+        .collection("rollouts")
+        .create(data)
+        .then(() => {
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProject?.id ?? ""
+          });
+          modalAdvancedOpen = false;
+        }),
+      {
+        loading: "Creating rollout...",
+        success: "Rollout created.",
+        error: "Error creating rollout."
+      }
+    );
+  }
 </script>
 
 <div class="flex items-start justify-between">
@@ -344,6 +393,37 @@
   </div>
 </div>
 
+<!-- Advanced Editing -->
+
+<div class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-white">
+  <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+    <tbody class="divide-y divide-gray-200 dark:divide-gray-600 dark:bg-transparent">
+      <tr class="">
+        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
+          <Heading tag="h5" color="text-black">Advanced Editing</Heading>
+          <P color="text-black" class="text-xs">Edit the manifest of your project.</P>
+        </td>
+        <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
+          <!-- Modified: Added 'text-right' class -->
+          <Button
+            color="light"
+            size="xs"
+            class="whitespace-nowrap"
+            on:click={() => {
+              if (!$selectedProject) return;
+
+              modalAdvancedOpen = true;
+            }}
+          >
+            <Code2 class="w-4 h-4 inline-block mr-1" />
+            Edit manifest
+          </Button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <!-- Create a blueprint -->
 
 <div class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-primary-500">
@@ -407,6 +487,30 @@
     </tbody>
   </table>
 </div>
+
+<Modal bind:open={modalAdvancedOpen} size="lg">
+  <div class="text-center">
+    <Code2 class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      <!-- Refer to https://docs.one-click.dev for advanced documentation about the manifest values -->
+      Refer to
+      <a href="https://docs.one-click.dev" target="_blank" class="text-primary-500"
+        >docs.one-click.dev</a
+      >
+    </h3>
+  </div>
+  <div class=" h-96 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
+    <MonacoEditor
+      bind:value={advancedManifest}
+      options={{ language: "yaml", automaticLayout: false, minimap: { enabled: false } }}
+      theme="vs-dark"
+    />
+  </div>
+  <div class="flex justify-between">
+    <Button color="primary" class="me-2" on:click={() => handleSaveManifest()}>Save</Button>
+    <Button color="alternative" on:click={() => (modalAdvancedOpen = false)}>Cancel</Button>
+  </div>
+</Modal>
 
 <Modal bind:open={modalDeleteOpen} size="xs" autoclose>
   <div class="text-center">
