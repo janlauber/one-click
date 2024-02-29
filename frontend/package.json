@@ -33,7 +33,7 @@
     "flowbite": "^2.3.0",
     "flowbite-svelte": "^0.44.18",
     "flowbite-svelte-icons": "^0.4.4",
-    "pocketbase": "^0.20.3",
+    "pocketbase": "^0.21.1",
     "postcss": "^8.4.21",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
