@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -129,11 +128,14 @@ func main() {
 
 		e.Router.GET("/blueprints/:blueprintId", func(c echo.Context) error {
 			blueprintId := c.PathParam("blueprintId")
-			// get userId from the body
-			userId := c.Get("userId").(string)
-			fmt.Println("userId: ", userId)
 
 			return controller.HandleBlueprint(c, app, blueprintId)
+		}, apis.RequireRecordAuth("users"))
+
+		e.Router.POST("/blueprints/:blueprintId", func(c echo.Context) error {
+			blueprintId := c.PathParam("blueprintId")
+
+			return controller.HandleBlueprintAdd(c, app, blueprintId)
 		}, apis.RequireRecordAuth("users"))
 
 		e.Router.POST("/auto-update/:autoUpdateId", func(c echo.Context) error {
@@ -160,23 +162,6 @@ func main() {
 		scheduler.Start()
 		return nil
 	})
-
-	// scheduler := tasks.New()
-	// defer scheduler.Stop()
-
-	// Add a task
-	// _, err := scheduler.Add(&tasks.Task{
-	// 	Interval: 1 * time.Minute,
-	// 	TaskFunc: func() error {
-
-	// 		err := controller.AutoUpdateController(app)
-
-	// 		return err
-	// 	},
-	// })
-	// if err != nil {
-	// 	log.Println(err)
-	// }
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
