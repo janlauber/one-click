@@ -9,6 +9,7 @@ import (
 type config struct {
 	Local             bool   `env:"LOCAL"`
 	DefaultRolloutDir string `env:"DEFAULT_ROLLOUT_DIR" envDefault:".rollouts"`
+	CronTick          string `env:"CRON_TICK" envDefault:"*/1 * * * *"`
 }
 
 var Config config

@@ -19,8 +19,6 @@ import (
 
 func AutoUpdateController(app *pocketbase.PocketBase) error {
 
-	fmt.Println("AutoUpdateController")
-
 	autoUpdates, err := app.Dao().FindRecordsByExpr("autoUpdates")
 	if err != nil {
 		log.Printf("Error getting autoUpdates: %v\n", err)
@@ -190,13 +188,6 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 				return err
 			}
 
-			// delete the rollout in k8s
-			err = k8s.DeleteRollout(runningRollout.GetString("project"), runningRollout.GetString("id"))
-			if err != nil {
-				log.Printf("Error deleting rollout: %v\n", err)
-				return err
-			}
-
 			// create a new record for the rollout
 			record := models.NewRecord(collection)
 			// set the fields
@@ -224,6 +215,8 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 				log.Printf("Error creating or updating rollout: %v\n", err)
 				return err
 			}
+
+			log.Printf("Updated image for project: %s, rollout: %s\n", record.GetString("project"), record.Id)
 		}
 	}
 

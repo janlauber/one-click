@@ -150,7 +150,7 @@ func main() {
 		scheduler := cron.New()
 
 		// Run image update every minute
-		scheduler.MustAdd("hello", "*/1 * * * *", func() {
+		scheduler.MustAdd("autoUpdate", env.Config.CronTick, func() {
 			err := controller.AutoUpdateController(app)
 			if err != nil {
 				log.Printf("Error updating image: %v\n", err)
