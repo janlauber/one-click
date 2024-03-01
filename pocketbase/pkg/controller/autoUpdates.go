@@ -17,9 +17,9 @@ import (
 	"github.com/pocketbase/pocketbase/models"
 )
 
-// New for testing
-// I want a controller which goes through all the autoUpdates and checks if there is a new tag
 func AutoUpdateController(app *pocketbase.PocketBase) error {
+
+	fmt.Println("AutoUpdateController")
 
 	autoUpdates, err := app.Dao().FindRecordsByExpr("autoUpdates")
 	if err != nil {
