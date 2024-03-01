@@ -2,19 +2,13 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import { blueprints } from "$lib/stores/data";
-  import { ArrowLeft, BookLock, BookUp, BookUser } from "lucide-svelte";
+  import { ArrowLeft, BookLock, BookUp, BookUser, FolderGit } from "lucide-svelte";
 
   // Get current project settings
 
   function getOwnedBlueprints() {
     return $blueprints.filter(
       (blueprint) => blueprint.owner === (client.authStore?.model?.id ?? null)
-    );
-  }
-
-  function getSharedBlueprints() {
-    return $blueprints.filter(
-      (blueprint) => blueprint.owner === client.authStore?.model?.id && blueprint.users.length > 0
     );
   }
 
@@ -38,10 +32,10 @@
         icon: BookUser
       },
       {
-        name: `Shared (${getSharedBlueprints().length})`,
-        href: `/app/blueprints/shared`,
+        name: `Git`,
+        href: `/app/blueprints/git`,
         current: false,
-        icon: BookUp
+        icon: FolderGit
       }
     ];
 

@@ -16,9 +16,10 @@
     Tooltip
   } from "flowbite-svelte";
   import { DotsVerticalOutline } from "flowbite-svelte-icons";
-  import { Code2, FileQuestion, Share2, Trash, Trash2 } from "lucide-svelte";
+  import { Clipboard, Code2, FileQuestion, Share2, Trash, Trash2 } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
+  import { getRandomString } from "$lib/utils/random";
   // @ts-ignore
   import yaml from "js-yaml";
 
@@ -250,5 +251,39 @@
     </h3>
     <Button color="red" class="me-2" on:click={() => handleDelete()}>Yes, I'm sure</Button>
     <Button color="alternative">No, cancel</Button>
+  </div>
+</Modal>
+
+<Modal bind:open={confirmShareModal} size="xs" autoclose>
+  <div class="text-center">
+    <Share2 class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      Share the following link with your team to give them access to the <b>{blueprint.name}</b> blueprint.
+    </h3>
+    <div class="flex gap-2 justify-between w-auto">
+      <Input
+        id={getRandomString(8)}
+        size="sm"
+        value={window.location.href.split("/").slice(0, 3).join("/") +
+          "/app/blueprints/shared/" +
+          blueprint.id}
+        disabled
+      />
+      <Button
+        color="alternative"
+        size="xs"
+        class="inline"
+        on:click={() => {
+          navigator.clipboard.writeText(
+            window.location.href.split("/").slice(0, 3).join("/") +
+              "/app/blueprints/shared/" +
+              blueprint.id
+          );
+          toast.success("Copied to clipboard.");
+        }}
+      >
+        <Clipboard class="w-4 h-4" />
+      </Button>
+    </div>
   </div>
 </Modal>

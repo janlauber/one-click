@@ -7,7 +7,7 @@
     export let data: any;
 </script>
 
-{#if $page.url.pathname.startsWith("/app/blueprints/")}
+{#if $page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/blueprints/shared/")}
   <div
     class="relative h-full max-w-6xl mx-auto"
     in:slide={{ duration: 200, easing: cubicOut }}

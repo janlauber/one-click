@@ -126,13 +126,13 @@ func main() {
 			return k8s.GetRolloutLogs(c.Response().Writer, projectId, podName)
 		}, apis.RequireRecordAuth("users"))
 
-		e.Router.GET("/blueprints/:blueprintId", func(c echo.Context) error {
+		e.Router.GET("/pb/blueprints/:blueprintId", func(c echo.Context) error {
 			blueprintId := c.PathParam("blueprintId")
 
 			return controller.HandleBlueprint(c, app, blueprintId)
 		}, apis.RequireRecordAuth("users"))
 
-		e.Router.POST("/blueprints/:blueprintId", func(c echo.Context) error {
+		e.Router.POST("/pb/blueprints/shared/:blueprintId", func(c echo.Context) error {
 			blueprintId := c.PathParam("blueprintId")
 
 			return controller.HandleBlueprintAdd(c, app, blueprintId)
