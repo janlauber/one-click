@@ -7,7 +7,7 @@
   <div class="flex flex-col">
     <Heading tag="h2">Rollouts</Heading>
     <P class="text-gray-500 dark:text-gray-400 text-sm">
-      Each time you change the configuration of a project, a new rollout is created. You can see maximum 15 rollouts.
+      Each time you change the configuration of a project, a new rollout is created.
     </P>
   </div>
 </div>

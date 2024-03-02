@@ -38,8 +38,7 @@
     History,
     Network,
     PanelRightOpen,
-    Pause,
-    Play
+    Pause
   } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
@@ -227,9 +226,6 @@
     );
   });
 
-  // max 15 rollouts
-  // TODO: make this configurable
-  $: filteredRollouts = filteredRollouts.slice(0, 10);
 </script>
 
 <Drawer
