@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Card, Avatar, Button } from "flowbite-svelte";
-  import { blueprints } from "$lib/stores/data";
+  import { UpdateFilterEnum, blueprints, updateDataStores } from "$lib/stores/data";
   import type { BlueprintsResponse } from "$lib/pocketbase/generated-types";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import { ArrowRight, BookPlus, Lock } from "lucide-svelte";
@@ -19,7 +19,13 @@
     if (response) {
       if (response.status === 200) {
         toast.success("Blueprint added to your community blueprints");
-        goto("/app/blueprints/community");
+
+        // refresh blueprints
+        updateDataStores({
+          filter: UpdateFilterEnum.ALL
+        }).then(() => {
+          goto("/app/blueprints/community");
+        });
       } else {
         console.error("Error adding blueprint to your blueprints", response);
         toast.error("Error adding blueprint to your community blueprints");
@@ -77,8 +83,7 @@
         {blueprint?.name || "Private Blueprint"}
       </h5>
       <span class="text-sm text-gray-500 dark:text-gray-400">
-        {blueprint?.description ||
-          "Ask the owner of this blueprint to make it public"}
+        {blueprint?.description || "Ask the owner of this blueprint to make it public"}
       </span>
       {#if blueprint !== undefined}
         <div class="flex mt-4 space-x-3 rtl:space-x-reverse lg:mt-6">
@@ -88,7 +93,11 @@
               <ArrowRight class="w-5 h-5 ml-2 inline" />
             </Button>
           {:else if blueprint?.users.includes(client.authStore?.model?.id)}
-            <Button on:click={() => goto(`/app/blueprints/community`)}>
+            <Button
+              on:click={() => {
+                goto(`/app/blueprints/community`);
+              }}
+            >
               View
               <ArrowRight class="w-5 h-5 ml-2 inline" />
             </Button>
