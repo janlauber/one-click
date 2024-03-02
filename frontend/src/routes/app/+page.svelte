@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
+  import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { projects, type Pexpand, blueprints } from "$lib/stores/data";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
@@ -50,6 +51,23 @@
 
     selectedTags = new Set(selectedTags);
   }
+
+  function getOwnedBlueprints() {
+    return $blueprints.filter(
+      (blueprint) => blueprint.owner === (client.authStore?.model?.id ?? null)
+    );
+  }
+
+  function getCommunityBlueprints() {
+    return $blueprints.filter(
+      (blueprint) =>
+        blueprint.owner !== client.authStore?.model?.id &&
+        blueprint.users.some((user) => user === client.authStore?.model?.id)
+    );
+  }
+
+  // getOwnedBlueprints() + getCommunityBlueprints() = filtered_blueprints
+  let filtered_blueprints = getOwnedBlueprints().concat(getCommunityBlueprints());
 </script>
 
 <div class="absolute w-full top-28 bottom-0 overflow-y-scroll scrollbar-none">
@@ -71,7 +89,7 @@
           }}
         >
           <BookDashed class="w-4 h-4 mr-2 inline-block" />
-          Blueprints ({$blueprints.length})
+          Blueprints ({filtered_blueprints.length})
         </Button>
         <Button
           color="primary"

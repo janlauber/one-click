@@ -26,4 +26,6 @@
       </div>
     {/key}
   </div>
+{:else}
+  <slot />
 {/if}

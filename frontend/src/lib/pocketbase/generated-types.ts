@@ -51,6 +51,7 @@ export type BlueprintsRecord<Tmanifest = unknown> = {
 	manifest: null | Tmanifest
 	name: string
 	owner: RecordIdString
+	private?: boolean
 	users?: RecordIdString[]
 }
 

@@ -13,7 +13,7 @@
   }
 
   function getCommunityBlueprints() {
-    return $blueprints.filter((blueprint) => blueprint.owner !== client.authStore?.model?.id);
+    return $blueprints.filter((blueprint) => blueprint.owner !== client.authStore?.model?.id && blueprint.users.some((user) => user === client.authStore?.model?.id));
   }
 
   // Return navigation items based on project settings
