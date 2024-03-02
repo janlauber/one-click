@@ -258,17 +258,17 @@
   </div>
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-lg">
     <div class="col-span-1">
-      <Label class="">Name</Label>
+      <Label class="">Name*</Label>
       {#if !community}
-        <Input bind:value={name} />
+        <Input bind:value={name} required />
       {:else}
         <Input bind:value={name} disabled />
       {/if}
     </div>
     <div class="col-span-1">
-      <Label class="">Description</Label>
+      <Label class="">Description*</Label>
       {#if !community}
-        <Input bind:value={description} />
+        <Input bind:value={description} required />
       {:else}
         <Input bind:value={description} disabled />
       {/if}
@@ -281,7 +281,7 @@
         </Toggle>
       </div>
       <div class="col-span-2">
-        <Label class="">Avatar</Label>
+        <Label class="">Avatar*</Label>
         <Fileupload
           bind:value={avatar}
           on:change={(event) => {
