@@ -210,17 +210,21 @@
           // @ts-ignore
           ...current_rollout.manifest.spec,
           image: {
+            password: password,
             registry: registry,
             repository: repository,
             tag: tag,
-            username: username,
-            password: password
+            username: username
           }
         }
       };
 
-      // check if the manifest has changed
-      if (JSON.stringify(current_rollout.manifest) === JSON.stringify(new_manifest)) {
+      // check if the manifest has changed, it could be that the values are in different order
+      // order first by key
+      let sorted_manifest = Object.keys(current_rollout.manifest ?? {}).sort();
+      let new_sorted_manifest = Object.keys(new_manifest).sort();
+
+      if (JSON.stringify(sorted_manifest) === JSON.stringify(new_sorted_manifest)) {
         return;
       }
 
@@ -396,7 +400,7 @@
                           let url = url_parts[0] + "//" + url_parts[2];
                           // if url contains localhost, then url is http://localhost:8090
                           if (url.includes("localhost")) {
-                            url = "http://localhost:8090"
+                            url = "http://localhost:8090";
                           }
                           navigator.clipboard.writeText(url + tagAutoUpdateWebhookPath ?? "");
                           toast.success("Copied to clipboard.");

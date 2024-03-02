@@ -531,11 +531,11 @@
     </h3>
   </div>
   <div class="space-y-2">
-    <Label class="">Name</Label>
-    <Input bind:value={blueprintName} />
-    <Label class="">Description</Label>
-    <Input bind:value={blueprintDescription} />
-    <Label class="">Avatar</Label>
+    <Label class="">Name*</Label>
+    <Input bind:value={blueprintName} required />
+    <Label class="">Description*</Label>
+    <Input bind:value={blueprintDescription} required />
+    <Label class="">Avatar*</Label>
     <Fileupload
       bind:value={blueprintAvatar}
       on:change={(event) => {

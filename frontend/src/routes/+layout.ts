@@ -18,7 +18,8 @@ export const load = ({ url }) => {
                 throw redirect(307, "/app");
             }
         } else {
-            if (pathname === "/app/") {
+            // if pathname contains "/app" and user is not logged in, redirect to login
+            if (pathname.includes("/app")) {
                 throw redirect(307, "/login");
             }
         }

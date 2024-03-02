@@ -1,15 +1,17 @@
 import { browser } from "$app/environment";
 import { client } from "$lib/pocketbase";
-import { updateDataStores } from "$lib/stores/data";
+import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
 import toast from "svelte-french-toast";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async () => {
-    if (browser) {
-        if (client.authStore.model) {
-            await updateDataStores().catch((error) => {
-                toast.error(error);
-            });
-        }
-    }
+    // if (browser) {
+    //     if (client.authStore.model) {
+    //     }
+    // }
+    await updateDataStores({
+        filter: UpdateFilterEnum.ALL
+    }).catch((error) => {
+        console.error(error);
+    });
 };

@@ -49,8 +49,10 @@ export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = 
 // Auto Updates //
 export type Aexpand = {
     project: ProjectsResponse;
-}
-export const autoUpdates: Writable<AutoUpdatesResponse<Aexpand>[]> = writable<AutoUpdatesResponse<Aexpand>[]>([]);
+};
+export const autoUpdates: Writable<AutoUpdatesResponse<Aexpand>[]> = writable<
+    AutoUpdatesResponse<Aexpand>[]
+>([]);
 
 export enum UpdateFilterEnum {
     ALL = "all"
@@ -59,18 +61,19 @@ export enum UpdateFilterEnum {
 export interface UpdateFilter {
     filter: UpdateFilterEnum;
     projectId?: string;
+    blueprintId?: string;
 }
 
 export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
     if (filter.filter === UpdateFilterEnum.ALL) {
-        await updateBlueprints();
+        await updateBlueprints(filter.blueprintId);
         await updateProjects(filter.projectId);
         await updateRollouts(filter.projectId);
         await updateAutoUpdates(filter.projectId);
     }
 }
 
-export async function updateBlueprints() {
+export async function updateBlueprints(blueprintId?: string) {
     await client
         .collection("blueprints")
         .getFullList({
@@ -78,6 +81,12 @@ export async function updateBlueprints() {
             expand: "owner,users"
         })
         .then((response: unknown) => {
+            // if blueprintId is set, set the selected blueprint filtered by the id
+            if (blueprintId) {
+                // @ts-ignore
+                blueprints.set(response.filter((blueprint) => blueprint.id === blueprintId));
+                return;
+            }
             blueprints.set(response as BlueprintsResponse[]);
         })
         .catch((error) => {
@@ -175,5 +184,7 @@ async function fetchAutoUpdates(): Promise<AutoUpdatesResponse<Aexpand>[]> {
         expand: "project"
     };
 
-    return await client.collection("autoUpdates").getFullList<AutoUpdatesResponse<Aexpand>>(queryOptions);
+    return await client
+        .collection("autoUpdates")
+        .getFullList<AutoUpdatesResponse<Aexpand>>(queryOptions);
 }
