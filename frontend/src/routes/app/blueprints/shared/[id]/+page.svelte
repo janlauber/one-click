@@ -3,7 +3,7 @@
   import { blueprints } from "$lib/stores/data";
   import type { BlueprintsResponse } from "$lib/pocketbase/generated-types";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
-  import { ArrowRight, BookPlus } from "lucide-svelte";
+  import { ArrowRight, BookPlus, Lock } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
@@ -68,31 +68,38 @@
 <div class="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
   <Card padding="lg" size="xl">
     <div class="flex flex-col items-center">
-      <Avatar size="lg" src={recordLogoUrl(blueprint)} />
+      {#if recordLogoUrl(blueprint) === ""}
+        <Lock class="w-16 h-16 text-gray-500 dark:text-gray-400" />
+      {:else}
+        <Avatar size="lg" src={recordLogoUrl(blueprint)} />
+      {/if}
       <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-        {blueprint?.name}
+        {blueprint?.name || "Private Blueprint"}
       </h5>
       <span class="text-sm text-gray-500 dark:text-gray-400">
-        {blueprint?.description}
+        {blueprint?.description ||
+          "Ask the owner of this blueprint to make it public"}
       </span>
-      <div class="flex mt-4 space-x-3 rtl:space-x-reverse lg:mt-6">
-        {#if blueprint?.owner == client.authStore?.model?.id}
-          <Button on:click={() => goto(`/app/blueprints/my-blueprints`)}>
-            Edit
-            <ArrowRight class="w-5 h-5 ml-2 inline" />
-          </Button>
-        {:else if blueprint?.users.includes(client.authStore?.model?.id)}
-          <Button on:click={() => goto(`/app/blueprints/community`)}>
-            View
-            <ArrowRight class="w-5 h-5 ml-2 inline" />
-          </Button>
-        {:else}
-          <Button on:click={() => handleAddToBlueprints(blueprint?.id)}>
-            <BookPlus class="w-5 h-5 mr-2 -ml-1 inline" />
-            Add to blueprints
-          </Button>
-        {/if}
-      </div>
+      {#if blueprint !== undefined}
+        <div class="flex mt-4 space-x-3 rtl:space-x-reverse lg:mt-6">
+          {#if blueprint?.owner == client.authStore?.model?.id}
+            <Button on:click={() => goto(`/app/blueprints/my-blueprints`)}>
+              Edit
+              <ArrowRight class="w-5 h-5 ml-2 inline" />
+            </Button>
+          {:else if blueprint?.users.includes(client.authStore?.model?.id)}
+            <Button on:click={() => goto(`/app/blueprints/community`)}>
+              View
+              <ArrowRight class="w-5 h-5 ml-2 inline" />
+            </Button>
+          {:else}
+            <Button on:click={() => handleAddToBlueprints(blueprint?.id)}>
+              <BookPlus class="w-5 h-5 mr-2 -ml-1 inline" />
+              Add to blueprints
+            </Button>
+          {/if}
+        </div>
+      {/if}
     </div>
   </Card>
 </div>

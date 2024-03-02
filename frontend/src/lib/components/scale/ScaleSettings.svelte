@@ -159,8 +159,8 @@
           // @ts-ignore
           ...current_rollout.manifest.spec,
           horizontalScale: {
-            minReplicas: parseInt(minInstances.toString()),
             maxReplicas: parseInt(maxInstances.toString()),
+            minReplicas: parseInt(minInstances.toString()),
             targetCPUUtilizationPercentage: parseInt(targetCPUUtilizationPercentage.toString())
           },
           resources: {
@@ -183,6 +183,11 @@
         project: $selectedProjectId,
         user: client.authStore.model?.id
       };
+
+      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest)) {
+        toast.dismiss("No changes detected.");
+        return;
+      }
 
       toast.promise(
         client
@@ -343,9 +348,9 @@
             >
               <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td class="whitespace-nowrap px-3 py-4 text-xs space-y-2">
-                  <CpuSettings bind:cpuRequestsFloat={cpuRequestsFloat} />
+                  <CpuSettings bind:cpuRequestsFloat />
 
-                  <MemorySettings bind:memoryRequestsInt={memoryRequestsInt} />
+                  <MemorySettings bind:memoryRequestsInt />
                 </td>
               </tr>
               <!-- <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">

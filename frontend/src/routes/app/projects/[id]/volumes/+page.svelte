@@ -1,8 +1,14 @@
 <script lang="ts">
-    import NewVolume from "$lib/components/volumes/NewVolume.svelte";
-    import { client } from "$lib/pocketbase";
+  import NewVolume from "$lib/components/volumes/NewVolume.svelte";
+  import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { currentRollout, rollouts, type Rexpand, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
+  import {
+    currentRollout,
+    rollouts,
+    type Rexpand,
+    updateDataStores,
+    UpdateFilterEnum
+  } from "$lib/stores/data";
   import {
     Accordion,
     AccordionItem,
@@ -14,14 +20,14 @@
     P,
     Toggle
   } from "flowbite-svelte";
-    import { ExclamationCircleOutline } from "flowbite-svelte-icons";
+  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
   import { HardDrive, Plus } from "lucide-svelte";
-    import toast from "svelte-french-toast";
+  import toast from "svelte-french-toast";
 
   interface Volume {
     id: string;
-    name: string;
     mountPath: string;
+    name: string;
     size: string;
     storageClass: string;
   }
@@ -29,11 +35,12 @@
   export let modal: boolean;
   let deleteModal: boolean = false;
   let selectedVolumeId: string = "";
+  let temp_rollout: RolloutsResponse<Rexpand> | undefined = $currentRollout;
 
   let volumes: Volume[] = [];
 
   $: {
-    parseManifestsToVolumes($currentRollout);
+    parseManifestsToVolumes(temp_rollout);
   }
 
   function parseManifestsToVolumes(rollout: RolloutsResponse<Rexpand> | undefined) {
@@ -67,22 +74,22 @@
 
     volumes.splice(volumeIndex, 1); // Remove the volume from the array
 
-    if (!$currentRollout) {
+    if (!temp_rollout) {
       toast.error("No rollout selected");
       return;
     }
 
-    if (!$currentRollout.manifest) {
+    if (!temp_rollout.manifest) {
       toast.error("No manifest found");
       return;
     }
 
     // Remove the volume from the manifest
-    $currentRollout.manifest.spec.volumes.splice(volumeIndex, 1);
+    temp_rollout.manifest.spec.volumes.splice(volumeIndex, 1);
 
     // Save the manifest
     try {
-      await updateManifest($currentRollout.manifest);
+      await updateManifest(temp_rollout.manifest);
       toast.success("Volume deleted successfully");
     } catch (error) {
       toast.error("Failed to delete volume");
@@ -92,7 +99,7 @@
 
   async function handleInputSave(id: string) {
     const volumeIndex = volumes.findIndex((volume) => volume.id === id);
-    if (!$currentRollout) {
+    if (!temp_rollout) {
       toast.error("No rollout selected");
       return;
     }
@@ -111,14 +118,14 @@
 
     // Find the index of the current volume based on its unique identifier (id)
     // @ts-ignore
-    const currentVolumeIndex = $currentRollout.manifest.spec.volumes.findIndex(
+    const currentVolumeIndex = temp_rollout.manifest.spec.volumes.findIndex(
       (volume: any) => volume.id === updatedVolume.id
     );
 
     if (currentVolumeIndex === -1) {
       // Check if there's another volume with the same name or mount path. Make sure it's not the same volume
       // @ts-ignore
-      const existingVolume = $currentRollout.manifest.spec.volumes.find(
+      const existingVolume = temp_rollout.manifest.spec.volumes.find(
         (volume: any) =>
           (volume.name === updatedVolume.name || volume.mountPath === updatedVolume.mountPath) &&
           volume.id !== updatedVolume.id
@@ -127,41 +134,49 @@
       // exclude if the volume is the same as the updated volume
       // and if there is only one volume
       // @ts-ignore
-      if (existingVolume && $currentRollout.manifest.spec.volumes.length > 1) {
+      if (existingVolume && temp_rollout.manifest.spec.volumes.length > 1) {
         toast.error("A volume with the same name or mount path already exists");
         return;
       }
     }
 
-    // Update the volume in $currentRollout
+    // Update the volume in temp_rollout
     // @ts-ignore
-    const rolloutVolumeIndex = $currentRollout.manifest.spec.volumes.findIndex(
-      (volume: any) => volume.name === updatedVolume.name || volume.mountPath === updatedVolume.mountPath
+    const rolloutVolumeIndex = temp_rollout.manifest.spec.volumes.findIndex(
+      (volume: any) =>
+        volume.name === updatedVolume.name || volume.mountPath === updatedVolume.mountPath
     );
 
     if (rolloutVolumeIndex !== -1) {
       // @ts-ignore
-      $currentRollout.manifest.spec.volumes[rolloutVolumeIndex] = updatedVolume;
+      temp_rollout.manifest.spec.volumes[rolloutVolumeIndex] = updatedVolume;
     }
 
     // update the manifest
-    if (!$currentRollout) {
+    if (!temp_rollout) {
       toast.error("No rollout selected");
       return;
     }
 
     // @ts-ignore
-    if (!$currentRollout.manifest) {
+    if (!temp_rollout.manifest) {
       toast.error("No manifest found");
       return;
     }
 
+    // TODO: check if manifest is the same
+    // console.log(JSON.stringify(temp_rollout.manifest));
+    // console.log(JSON.stringify($currentRollout?.manifest));
+
+    // if (JSON.stringify(temp_rollout.manifest) === JSON.stringify($currentRollout?.manifest)) {
+    //   toast.error("No changes detected");
+    //   return;
+    // }
+
     // @ts-ignore
-    await updateManifest($currentRollout.manifest);
+    await updateManifest(temp_rollout.manifest);
 
     toast.success("Volume updated successfully");
-
-
   }
 
   async function updateManifest(manifest: any) {
@@ -202,15 +217,24 @@
         return rollouts;
       });
 
-      $currentRollout.manifest = manifest;
+      // update the $currentRollout store
+      currentRollout.update((currentRollout) => {
+        if (currentRollout) {
+          return {
+            ...currentRollout,
+            manifest: manifest
+          };
+        }
+        return currentRollout;
+      });
 
-      // Update the rollout in the store
+      temp_rollout = $currentRollout;
+
     } catch (error) {
       console.error("Failed to update manifest:", error);
       toast.error("Failed to update interface.");
     }
   }
-
 </script>
 
 <div class="flex items-start justify-between"></div>
@@ -220,9 +244,14 @@
     <Heading tag="h2">Volumes</Heading>
     <P class="text-gray-500 dark:text-gray-400 text-sm">Persistent volumes for your rollout.</P>
   </div>
-  <Button color="primary" size="xs" class="whitespace-nowrap self-start" on:click={() => {
-    modal = true;
-  }}>
+  <Button
+    color="primary"
+    size="xs"
+    class="whitespace-nowrap self-start"
+    on:click={() => {
+      modal = true;
+    }}
+  >
     <Plus class="w-4 h-4 mr-2" />
     New volume
   </Button>
@@ -276,7 +305,6 @@
                     These values cannot be changed after creation.
                   </P>
                 </td><td class="whitespace-nowrap px-3 py-4 text-xs space-y-2">
-
                   <Label for="tag" class="block ">Size</Label>
                   <Input
                     id="size"
@@ -325,12 +353,11 @@
   {/key}
 </Accordion>
 
-
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
     <ExclamationCircleOutline class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      Are you sure you want to delete this interface?
+      Are you sure you want to delete this volume?
     </h3>
     <Button color="red" class="me-2" on:click={() => handleDelete()}>Yes, I'm sure</Button>
     <Button color="alternative">No, cancel</Button>
