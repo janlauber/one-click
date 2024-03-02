@@ -2,7 +2,7 @@
   import { rollouts } from "$lib/stores/data";
   import { Chart, Card } from "flowbite-svelte";
   import { ChevronDownSolid, ChevronUpSolid } from "flowbite-svelte-icons";
-    import { History, Rocket } from "lucide-svelte";
+  import { History, Rocket } from "lucide-svelte";
 
   let filterByOptions = ["Last 7 days", "Last 30 days", "Last 90 days"];
   let selectedFilterBy = filterByOptions[0];

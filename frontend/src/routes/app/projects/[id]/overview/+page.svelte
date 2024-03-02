@@ -31,20 +31,6 @@
   let memoryRequests = 0;
   let memoryUsage = 0;
 
-  let rollout_status_color:
-    | "gray"
-    | "red"
-    | "yellow"
-    | "green"
-    | "indigo"
-    | "purple"
-    | "blue"
-    | "dark"
-    | "orange"
-    | "none"
-    | "teal"
-    | undefined;
-
   const determineRolloutColor = (status: string) => {
     switch (status) {
       case "Pending":
@@ -200,9 +186,7 @@
     </a>
     <a href={`/app/projects/${$selectedProjectId}/volumes`} class="flex flex-col justify-between">
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
-        <div
-          class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-black"
-        >
+        <div class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-black">
           <Database
             class="w-5 h-5 text-black
           justify-self-center
@@ -288,5 +272,13 @@
       <MetricsChart usage={memoryUsage} requests={memoryRequests} title="Total Memory (GB)" />
     {/if}
   </div>
-  <RolloutChart />
+  {#if !$rollouts}
+    <div class="flex items-center justify-center">
+      <div
+        class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary-500"
+      ></div>
+    </div>
+  {:else}
+    <RolloutChart />
+  {/if}
 </div>
