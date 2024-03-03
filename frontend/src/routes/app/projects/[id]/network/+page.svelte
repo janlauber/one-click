@@ -33,6 +33,7 @@
     name: string;
     port: number;
     host: string;
+    ingressClass: string;
     path: string;
     tls: boolean;
   }
@@ -57,6 +58,7 @@
             name: i.name,
             port: i.port,
             host: firstRule.host,
+            ingressClass: i.ingress.ingressClass,
             path: firstRule.path,
             tls: firstRule.tls
           };
@@ -66,6 +68,7 @@
             name: i.name,
             port: i.port,
             host: "",
+            ingressClass: "",
             path: "",
             tls: false
           };
@@ -127,6 +130,21 @@
 
     if (!updatedInterface.port) {
       toast.error("Port is required");
+      return;
+    }
+
+    if (updatedInterface.port < 1 || updatedInterface.port > 65535) {
+      toast.error("Port must be between 1 and 65535");
+      return;
+    }
+
+    if (updatedInterface.host && !updatedInterface.host.match(/^[a-z0-9.-]+$/)) {
+      toast.error("Invalid host");
+      return;
+    }
+
+    if (updatedInterface.path && !updatedInterface.path.match(/^\/[a-z0-9.-]+$/)) {
+      toast.error("Invalid path");
       return;
     }
 
@@ -334,6 +352,15 @@
                     type="text"
                     bind:value={inf.host}
                     placeholder="Enter the host"
+                    class=""
+                  />
+                  <Label for="tag" class="block ">Ingress Classname</Label>
+                  <Input
+                    id="ingress-class"
+                    size="sm"
+                    type="text"
+                    bind:value={inf.ingressClass}
+                    placeholder="Enter the ingress classname"
                     class=""
                   />
                   <Label for="tag" class="block ">Path</Label>
