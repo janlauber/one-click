@@ -8,6 +8,7 @@ import type { RecordService } from 'pocketbase'
 export enum Collections {
 	AutoUpdates = "autoUpdates",
 	Blueprints = "blueprints",
+	Policies = "policies",
 	Projects = "projects",
 	Rollouts = "rollouts",
 	Users = "users",
@@ -55,6 +56,16 @@ export type BlueprintsRecord<Tmanifest = unknown> = {
 	users?: RecordIdString[]
 }
 
+export type PoliciesRecord<Tingress_default_annotations = unknown> = {
+	ingress_annotation_keys?: string
+	ingress_classes?: string
+	ingress_default_annotations?: null | Tingress_default_annotations
+	ingress_hosts?: string
+	ingress_tls_secrets?: string
+	name?: string
+	storage_classes?: string
+}
+
 export type ProjectsRecord = {
 	avatar?: string
 	blueprint?: RecordIdString
@@ -81,6 +92,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type AutoUpdatesResponse<Texpand = unknown> = Required<AutoUpdatesRecord> & BaseSystemFields<Texpand>
 export type BlueprintsResponse<Tmanifest = unknown, Texpand = unknown> = Required<BlueprintsRecord<Tmanifest>> & BaseSystemFields<Texpand>
+export type PoliciesResponse<Tingress_default_annotations = unknown, Texpand = unknown> = Required<PoliciesRecord<Tingress_default_annotations>> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
 export type RolloutsResponse<Tmanifest = unknown, Texpand = unknown> = Required<RolloutsRecord<Tmanifest>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
@@ -90,6 +102,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 export type CollectionRecords = {
 	autoUpdates: AutoUpdatesRecord
 	blueprints: BlueprintsRecord
+	policies: PoliciesRecord
 	projects: ProjectsRecord
 	rollouts: RolloutsRecord
 	users: UsersRecord
@@ -98,6 +111,7 @@ export type CollectionRecords = {
 export type CollectionResponses = {
 	autoUpdates: AutoUpdatesResponse
 	blueprints: BlueprintsResponse
+	policies: PoliciesResponse
 	projects: ProjectsResponse
 	rollouts: RolloutsResponse
 	users: UsersResponse
@@ -109,6 +123,7 @@ export type CollectionResponses = {
 export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'autoUpdates'): RecordService<AutoUpdatesResponse>
 	collection(idOrName: 'blueprints'): RecordService<BlueprintsResponse>
+	collection(idOrName: 'policies'): RecordService<PoliciesResponse>
 	collection(idOrName: 'projects'): RecordService<ProjectsResponse>
 	collection(idOrName: 'rollouts'): RecordService<RolloutsResponse>
 	collection(idOrName: 'users'): RecordService<UsersResponse>
