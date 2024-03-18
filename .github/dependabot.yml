@@ -9,7 +9,18 @@ updates:
     directory: "frontend/" # Location of package manifests
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: ":robot:"
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "pocketbase/" # Location of package manifests
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: ":robot:"
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: ":seedling:"
