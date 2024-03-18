@@ -60,7 +60,7 @@
     "@webcontainer/api": "^1.1.4",
     "chart.js": "^4.3.0",
     "diff": "^5.2.0",
-    "diff2html": "^3.4.45",
+    "diff2html": "^3.4.47",
     "js-yaml": "^4.1.0",
     "lucide-svelte": "^0.293.0",
     "monaco-editor": "^0.45.0",
