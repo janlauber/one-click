@@ -1,0 +1,76 @@
+<script lang="ts">
+  import { client } from "$lib/pocketbase";
+  import { avatarUrlString } from "$lib/stores/avatar";
+  import { avatarUrl } from "$lib/utils/user.utils";
+  import { Card, Avatar } from "flowbite-svelte";
+  import toast from "svelte-french-toast";
+  let fileInput: any; // This will be used to store the file input element
+
+  function triggerFileSelect(node: any) {
+    // This function is an action that will be attached to the Avatar
+    node.addEventListener("click", () => {
+      if (fileInput) fileInput.click(); // Trigger the hidden file input's click event
+    });
+
+    return {
+      destroy() {
+        // Cleanup if the component is destroyed
+        node.removeEventListener("click", () => {
+          if (fileInput) fileInput.click();
+        });
+      }
+    };
+  }
+
+  async function updateProfile(event: any) {
+    const files = event.target.files;
+    if (!files?.length) {
+      toast.error("No file selected");
+      return;
+    }
+
+    let file = files[0];
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      if (!client.authStore.model) {
+        throw new Error("No user found");
+      }
+      await client.collection("users").update(client.authStore.model?.id, formData);
+      await client.collection("users").authRefresh();
+
+      toast.success("Successfully updated profile");
+      $avatarUrlString = avatarUrl(); // Update the avatar URL to reflect the new avatar
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  }
+</script>
+
+<div class="relative h-full max-w-6xl mx-auto p-5">
+  <div class="flex flex-col h-full w-full">
+    <Card size="xl">
+      <div class="flex flex-col space-y-4">
+        <div class="flex justify-between">
+          <div class="flex flex-col space-y-2">
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white">Avatar</h3>
+            <p>This is your avatar. <br /> Click on the avatar to upload a custom one from your files.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Accepted file types: .png, .jpg, .jpeg</p>
+          </div>
+          <span use:triggerFileSelect class="w-20">
+            <Avatar src={$avatarUrlString} size="lg" class="cursor-pointer " />
+          </span>
+        </div>
+        <input
+          type="file"
+          id="user_avatar"
+          accept="image/*"
+          class="hidden"
+          bind:this={fileInput}
+          on:change={updateProfile}
+        />
+      </div>
+    </Card>
+  </div>
+</div>

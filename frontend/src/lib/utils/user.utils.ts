@@ -1,6 +1,6 @@
 import { client } from "$lib/pocketbase";
 
-export function avatarUrl(): string | null {
+export function avatarUrl(): string {
     if (client.authStore) {
         return (
             "/api/files/" +
@@ -11,7 +11,7 @@ export function avatarUrl(): string | null {
             client.authStore.model?.avatar
         );
     }
-    return null;
+    return "";
 }
 
 export function avatarUrlById(collectionId: string, userId: string, avatar: string): string {

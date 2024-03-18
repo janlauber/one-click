@@ -4,7 +4,6 @@
   import { client, logout } from "$lib/pocketbase";
   import { currentRolloutStatus, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
-  import { avatarUrl } from "$lib/utils/user.utils";
   import {
     Avatar,
     Dropdown,
@@ -17,8 +16,7 @@
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { FileQuestion } from "lucide-svelte";
-
-  let avatarUrlString: any = avatarUrl();
+  import { avatarUrlString } from "$lib/stores/avatar";
 
   const determineRolloutColor = (status?: string) => {
     switch (status) {
@@ -103,7 +101,7 @@
 
     <!-- <ComboBox /> -->
     <div class="flex items-center md:order-2 cursor-pointer active:scale-105">
-      <Avatar id="avatar-menu" src={avatarUrlString} />
+      <Avatar id="avatar-menu" src={$avatarUrlString} />
     </div>
     <Dropdown placement="bottom" triggeredBy="#avatar-menu">
       <DropdownHeader>
