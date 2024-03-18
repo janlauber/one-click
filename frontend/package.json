@@ -52,7 +52,7 @@
   "type": "module",
   "dependencies": {
     "@codemirror/lang-html": "^6.4.7",
-    "@codemirror/lang-javascript": "^6.2.1",
+    "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@floating-ui/dom": "^1.6.3",
     "@sveltejs/adapter-node": "^5.0.1",
