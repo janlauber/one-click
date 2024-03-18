@@ -1,0 +1,25 @@
+apiVersion: one-click.dev/v1alpha1
+kind: Rollout
+spec:
+  env: []
+  horizontalScale:
+    maxReplicas: 3
+    minReplicas: 1
+    targetCPUUtilizationPercentage: 80
+  image:
+    registry: docker.io
+    repository: library/nginx
+    tag: 1.25.3
+  interfaces:
+    - name: http
+      port: 80
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  secrets: []
+  serviceAccountName: one-click
+  volumes: []

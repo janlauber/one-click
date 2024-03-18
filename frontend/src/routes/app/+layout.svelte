@@ -11,7 +11,7 @@
     <Nav />
   </div>
 
-  <div class="absolute top-16 left-0 right-0 bottom-0">
+  <div class="absolute top-12 left-0 right-0 bottom-0">
     {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/admin/")}
       <div
         class="bg-primary-600 w-full p-4 relative"

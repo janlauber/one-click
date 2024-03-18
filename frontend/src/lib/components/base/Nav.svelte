@@ -75,16 +75,16 @@
                 <img
                   src={recordLogoUrl(selectedProject)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover p-1"
+                  class="h-9 w-9 flex-none rounded-lg object-cover p-1"
                 />
               {:else if selectedProject?.expand?.blueprint}
                 <img
                   src={recordLogoUrl(selectedProject?.expand.blueprint)}
                   alt="Tuple"
-                  class="h-12 w-12 flex-none rounded-lg object-cover p-1"
+                  class="h-9 w-9 flex-none rounded-lg object-cover p-1"
                 />
               {:else}
-                <FileQuestion class="h-12 w-12 flex-none text-white rounded-lg object-cover p-1" />
+                <FileQuestion class="h-9 w-9 flex-none text-white rounded-lg object-cover p-1" />
               {/if}
               <Tooltip
                 class="cursor-default bg-{determineRolloutColor(
