@@ -15,12 +15,12 @@ export const load = ({ url }) => {
     if (browser) {
         if (client.authStore.model && client.authStore.isValid) {
             if (pathname === "/login/" || pathname === "/signup/") {
-                throw redirect(307, "/app");
+                redirect(307, "/app");
             }
         } else {
             // if pathname contains "/app" and user is not logged in, redirect to login
             if (pathname.includes("/app")) {
-                throw redirect(307, "/login");
+                redirect(307, "/login");
             }
         }
     }
