@@ -225,7 +225,6 @@
       (showHiddenRollouts || !rollout.hide)
     );
   });
-
 </script>
 
 <Drawer
@@ -312,7 +311,7 @@
           </div>
         </div>
       {/if}
-    {:else}{/if}
+    {/if}
   {/key}
 </Drawer>
 
