@@ -10,7 +10,7 @@ require (
 	github.com/pocketbase/dbx v1.10.1
 	github.com/pocketbase/pocketbase v0.22.3
 	k8s.io/api v0.29.2
-	k8s.io/apimachinery v0.29.2
+	k8s.io/apimachinery v0.29.3
 )
 
 require (
