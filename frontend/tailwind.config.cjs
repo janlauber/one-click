@@ -57,11 +57,6 @@ module.exports = {
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
     require("tailwind-scrollbar"),
-    require("flowbite/plugin"),
-    require("daisyui")
-  ],
-  daisyui: {
-    logs: false,
-    themes: ["emerald"]
-  }
+    require("flowbite/plugin")
+  ]
 };
