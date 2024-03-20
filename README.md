@@ -2,7 +2,14 @@
 
 ## Introduction
 
-Welcome to the One-Click OSS Deployment Platform! This project aims to simplify the deployment of open-source software frameworks and applications by using containerization technology. By leveraging the power of container orchestration platforms like Kubernetes, we provide an intuitive one-click deployment interface, making hosting accessible to everyone, regardless of their expertise in Kubernetes or hosting complexities.
+Welcome to the One-Click Deployment Platform. This project aims to provide a user-friendly interface for deploying dockerized containers on a Kubernetes cluster.  
+It's built with the following technologies:
+
+- **Frontend**: [Sveltekit](https://kit.svelte.dev/)
+- **Backend**: [Go](https://golang.org/) & [Pocketbase](https://pocketbase.io/)
+- **Operator**: [Operator SDK](https://sdk.operatorframework.io/) -> [one-click-operator](https://github.com/janlauber/one-click-operator)
+
+![One-Click](./docs/assets/images/gif/one-click.gif)
 
 ## Features
 
@@ -25,26 +32,20 @@ You will need the following to run this project:
 - [Go](https://golang.org/)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Kustomize](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/)
-- [operator-sdk](https://sdk.operatorframework.io/docs/installation/)
 
 ### Installation
 
-1. Clone the repo
-   ```sh
-   git clone
-    ```
-
-2. Install the Operator
+1. Install the Operator
    Follow the installation instructions provided in the [one-click-operator repository](https://github.com/janlauber/one-click-operator).
 
-3. Install the UI & Backend
+2. Install the UI & Backend
     Check out the [deployment](./deployment/) folder and change the values for your environment. Then run the following commands:
     ```sh
     cd deployment
     kubectl apply -k .
     ```
 
-4. Access the UI
+3. Access the UI
     ```sh
     # if you are using an ingress
     kubectl get ingress -n one-click
@@ -52,7 +53,7 @@ You will need the following to run this project:
     kubectl port-forward -n one-click svc/one-click-ui 8080:80
     ```
 
-5. Access Pocketbase on your URL or localhost:8080 with `/_` as the path. Example: `localhost:8080/_`. You should see the Pocketbase UI and set your admin user. Then create a new user under `users` collection. You can now login with your new user.
+4. Access Pocketbase on your URL or localhost:8080 with `/_` as the path. Example: `localhost:8080/_`. You should see the Pocketbase UI and set your admin user. Then create a new user under `users` collection. You can now login with your new user.
 
 ## Usage
 
@@ -64,24 +65,6 @@ Blueprints are an abstraction of a project. They contain some predefined values 
 
 Projects are the actual deployments. They are based on blueprints. You can create a project from a blueprint and customize it to your needs.
 Each configuration is stored in a rollout. A rollout is a version of a project configuration. So each time you change a configuration, a new rollout is created. You can then rollback to a previous rollout.
-
-### Settings
-
-You can change the settings of your environment in the settings page. You can change the following settings:
-
-- **Ingress Class**: The ingress class to use for ingress creation.
-- **Ingress Domain**: The domain to use for ingress creation.
-- **Ingress TLS Secret**: The secret to use for ingress creation.
-- **Ingress Annotations**: Additional annotations to use for ingress creation.
-- **Storage Class**: The storage class to use for persistent volume claims.
-- **Max Rollouts**: The maximum number of rollouts to keep for each project.
-- **Max Rollout Age**: The maximum age of a rollout in days. Older rollouts will be deleted.
-- **Max Scale**: The maximum number of replicas a project can have.
-- **Max Memory**: The maximum amount of memory a project can use.
-- **Max CPU**: The maximum amount of CPU a project can use.
-- **Max Storage**: The maximum amount of storage a project can use.
-- **Max Ingress**: The maximum number of ingresses a project can have.
-- **Max Services**: The maximum number of services a project can have.
 
 ## Roadmap
 
