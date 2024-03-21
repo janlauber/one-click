@@ -59,7 +59,8 @@ func wsK8sRolloutsHandler(c echo.Context) error {
 	log.Printf("Setting up watch for rolloutId: %s\n", request.RolloutId)
 
 	// Assuming you've set up a function to watch Kubernetes Pods as described previously:
-	go k8s.WatchPodsAndSendUpdates(ws, request.RolloutId, request.RolloutId) // Assuming "default" namespace; adjust as needed
+	// go k8s.WatchPodsAndSendUpdates(ws, request.RolloutId, request.RolloutId) // Assuming "default" namespace; adjust as needed
+	go k8s.WatchK8sResourcesAndSendUpdates(ws, request.RolloutId, request.RolloutId) // Assuming "default" namespace; adjust as needed
 
 	// Keep the WebSocket connection open
 	for {
