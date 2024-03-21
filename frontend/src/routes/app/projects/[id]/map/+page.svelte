@@ -10,6 +10,17 @@
   import { Heading, P } from "flowbite-svelte";
   import { selectedProject } from "$lib/stores/data";
 
+  import { Drawer, Button, CloseButton } from "flowbite-svelte";
+  import { InfoCircleSolid, ArrowRightOutline } from "flowbite-svelte-icons";
+  import { sineIn } from "svelte/easing";
+  import { drawerHidden, type NodeObject } from "$lib/stores/drawer";
+
+  let transitionParamsRight = {
+    x: 320,
+    duration: 200,
+    easing: sineIn
+  };
+
   const nodes = writable<Node[]>(initialNodes);
   const edges = writable<Edge[]>(initialEdges);
 
@@ -37,22 +48,13 @@
     ws.close();
   });
 
-  type Object = {
-    kind: "pod" | "service" | "ingress" | "secret" | "pvc";
-    name: string;
-    namespace: string;
-    labels: Map<string, string>;
-    status: "ADDED" | "MODIFIED" | "DELETED" | "ERROR";
-    object: any;
-  };
+  const pods = writable<NodeObject[]>([]);
+  const services = writable<NodeObject[]>([]);
+  const ingresses = writable<NodeObject[]>([]);
+  const secrets = writable<NodeObject[]>([]);
+  const pvc = writable<NodeObject[]>([]);
 
-  const pods = writable<Object[]>([]);
-  const services = writable<Object[]>([]);
-  const ingresses = writable<Object[]>([]);
-  const secrets = writable<Object[]>([]);
-  const pvc = writable<Object[]>([]);
-
-  function updateObjects(data: Object) {
+  function updateObjects(data: NodeObject) {
     if (data.status === "ADDED") {
       if (data.kind === "pod") {
         pods.update((p) => [...p, data]);
@@ -123,7 +125,7 @@
     }
   }
 
-  function createNode(data: Object): Node {
+  function createNode(data: NodeObject): Node {
     return {
       id: data.name, // Ensure this is unique
       type: "turbo", // Using the custom node type
@@ -136,7 +138,7 @@
     };
   }
 
-  function calculatePosition(data: Object): { x: number; y: number } {
+  function calculatePosition(data: NodeObject): { x: number; y: number } {
     // Calculate the position of the nodes
     // left to right: ingress -> service -> pod -> secret
     const BASE_X_POSITIONS = {
@@ -148,7 +150,6 @@
     };
 
     const Y_OFFSET = 100;
-
 
     if (data.kind === "pod") {
       let tempPosition = { x: BASE_X_POSITIONS.pod, y: 0 };
@@ -220,7 +221,7 @@
     return { x: 0, y: 0 };
   }
 
-  function addNode(data: Object) {
+  function addNode(data: NodeObject) {
     const newNode = createNode(data);
     nodes.update((n) => {
       if (!n.find((node) => node.id === newNode.id)) {
@@ -260,7 +261,7 @@
     );
   }
 
-  function updateNode(data: Object) {
+  function updateNode(data: NodeObject) {
     nodes.update((n) => {
       const nodeIndex = n.findIndex((node) => node.id === data.name);
       if (nodeIndex !== -1) {
@@ -331,18 +332,17 @@
       });
     });
 
-    // connect services to ingresses left (ingress) to right (service)
+    // connect services to ingresses left (ingress) to right (service) but only if they have the same prefix until "-ingress" & "-svc" suffix
     $services.forEach((service) => {
       addNode(service);
+      // get the prefix of the service name
+      const servicePrefix = service.object.metadata.name.split("-svc")[0];
       $ingresses.forEach((ingress) => {
-        if (service.object.metadata.labels && ingress.object.metadata.labels) {
-          if (
-            service.object.metadata.labels["app.kubernetes.io/name"] ===
-            ingress.object.metadata.labels["app.kubernetes.io/name"]
-          ) {
-            addNode(ingress);
-            addEdge(ingress.name, service.name);
-          }
+        // get the prefix of the ingress name
+        const ingressPrefix = ingress.object.metadata.name.split("-ingress")[0];
+        if (servicePrefix === ingressPrefix) {
+          addNode(ingress);
+          addEdge(ingress.name, service.name);
         }
       });
     });
@@ -357,7 +357,7 @@
 </div>
 
 <!-- load 1s -->
-{#if $pods.length > 0 && $services.length > 0 && $ingresses.length > 0 && $secrets.length > 0 }
+{#if $pods.length > 0 && $services.length > 0 && $ingresses.length > 0 && $secrets.length > 0}
   <div style="height:50vh;">
     <SvelteFlow {nodes} {nodeTypes} {edges} {edgeTypes} {defaultEdgeOptions} fitView>
       <!-- <Controls showLock={false} /> -->
@@ -376,3 +376,35 @@
     <P class="text-gray-500 dark:text-gray-400 text-sm">No resources found.</P>
   </div>
 {/if}
+
+<Drawer
+  placement="right"
+  transitionType="fly"
+  transitionParams={transitionParamsRight}
+  bind:hidden={$drawerHidden}
+  id="sidebar6"
+>
+  <div class="flex items-center">
+    <h5
+      id="drawer-label"
+      class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"
+    >
+      <InfoCircleSolid class="w-4 h-4 me-2.5" />Info
+    </h5>
+    <CloseButton on:click={() => ($drawerHidden = true)} class="mb-4 dark:text-white" />
+  </div>
+  <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
+    Supercharge your hiring by taking advantage of our <a
+      href="/"
+      class="text-primary-600 underline dark:text-primary-500 hover:no-underline"
+    >
+      limited-time sale
+    </a>
+    for Flowbite Docs + Job Board. Unlimited access to over 190K top-ranked candidates and the #1 design
+    job board.
+  </p>
+  <div class="grid grid-cols-2 gap-4">
+    <Button color="light" href="/">Learn more</Button>
+    <Button href="/" class="px-4">Get access <ArrowRightOutline class="w-3.5 h-3.5 ms-2" /></Button>
+  </div>
+</Drawer>

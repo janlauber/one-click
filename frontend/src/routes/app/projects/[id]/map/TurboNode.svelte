@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { drawerHidden } from "$lib/stores/drawer";
   import { Handle, Position, type NodeProps } from "@xyflow/svelte";
 
   import { ArrowLeftRight, Box, Database, Lock, NetworkIcon } from "lucide-svelte";
@@ -22,7 +23,15 @@
     {/if}
   </div>
 </div>
-<div class="wrapper gradient">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore missing-declaration -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+  class="wrapper gradient"
+  on:click={() => {
+    $drawerHidden = false;
+  }}
+>
   <div class="inner">
     <div class="body">
       {#if data.icon}
