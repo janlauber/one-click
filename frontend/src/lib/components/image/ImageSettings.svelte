@@ -219,14 +219,10 @@
         }
       };
 
-      // check if the manifest has changed, it could be that the values are in different order
-      // order first by key
-      let sorted_manifest = Object.keys(current_rollout.manifest ?? {}).sort();
-      let new_sorted_manifest = Object.keys(new_manifest).sort();
+      // check if the manifest has changed, it could be that the key values are in different order
+      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest))
+      return;
 
-      if (JSON.stringify(sorted_manifest) === JSON.stringify(new_sorted_manifest)) {
-        return;
-      }
 
       const data: RolloutsRecord = {
         manifest: new_manifest,

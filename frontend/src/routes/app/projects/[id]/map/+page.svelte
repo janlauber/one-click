@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { writable, type Writable } from "svelte/store";
-  import { SvelteFlow, Controls, type Node, type Edge } from "@xyflow/svelte";
+  import { SvelteFlow, Controls, type Node, type Edge, MarkerType } from "@xyflow/svelte";
   import "@xyflow/svelte/dist/style.css";
   import "./turbo.css";
   import { initialNodes, initialEdges } from "./nodes-and-edges";
@@ -20,6 +20,7 @@
     duration: 200,
     easing: sineIn
   };
+  let initialLoadComplete = false;
 
   const nodes = writable<Node[]>(initialNodes);
   const edges = writable<Edge[]>(initialEdges);
@@ -42,10 +43,20 @@
       const data = JSON.parse(event.data);
       updateObjects(data);
     };
+
+    // set initialLoadComplete to true after 0.3s
+    setTimeout(() => {
+      initialLoadComplete = true;
+    }, 300);
   });
 
   onDestroy(() => {
+    // Close the WebSocket connection
     ws.close();
+
+    // Reset the nodes and edges
+    nodes.set([]);
+    edges.set([]);
   });
 
   const pods = writable<NodeObject[]>([]);
@@ -132,7 +143,9 @@
       data: {
         title: data.name,
         subline: data.kind,
-        icon: data.kind.toLowerCase() // Adjust icon based on kind
+        icon: data.kind.toLowerCase(), // Adjust icon based on kind,
+        status: data.kind === "pod" ? data.object.status.phase : "Running",
+        containerStatuses: data.kind === "pod" ? data.object.status.containerStatuses : []
       },
       position: calculatePosition(data)
     };
@@ -237,7 +250,8 @@
       source,
       target,
       type: "turbo", // Using the custom edge type
-      animated: true
+      markerEnd: "edge-arrow",
+      animated: source.includes("ingress") || source.includes("svc") ? true : false
     };
   }
 
@@ -357,23 +371,37 @@
 </div>
 
 <!-- load 1s -->
-{#if $pods.length > 0 && $services.length > 0 && $ingresses.length > 0 && $secrets.length > 0}
-  <div style="height:50vh;">
+{#if initialLoadComplete}
+  <div style="height:70%;" class="mt-8">
     <SvelteFlow {nodes} {nodeTypes} {edges} {edgeTypes} {defaultEdgeOptions} fitView>
-      <!-- <Controls showLock={false} /> -->
       <svg>
         <defs>
           <linearGradient id="edge-gradient">
-            <stop offset="0%" stop-color="#ae53ba" />
-            <stop offset="100%" stop-color="#2a8af6" />
+            <stop offset="0%" stop-color="#28CAA3" />
+            <stop offset="100%" stop-color="#28CAA3" />
           </linearGradient>
+          <marker
+            id="edge-arrow"
+            markerWidth="10"
+            markerHeight="10"
+            refX="4"
+            refY="3"
+            orient="auto"
+            markerUnits="strokeWidth"
+          >
+            <path d="M0,0 L0,6 L6,3 z" fill="url(#edge-gradient)" />
+          </marker>
         </defs>
       </svg>
     </SvelteFlow>
   </div>
 {:else}
   <div class="flex items-center justify-center h-96">
-    <P class="text-gray-500 dark:text-gray-400 text-sm">No resources found.</P>
+    <div class="flex items-center justify-center">
+      <div
+        class="w-8 h-8 border-2 border-t-primary-500 border-b-primary-500 rounded-full animate-spin"
+      ></div>
+    </div>
   </div>
 {/if}
 

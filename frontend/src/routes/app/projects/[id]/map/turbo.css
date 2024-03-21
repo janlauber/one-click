@@ -2,11 +2,9 @@
     --bg-color: #F7F9FC;
     --text-color: rgb(17, 17, 17);
     --node-border-radius: 10px;
-    --node-box-shadow: 10px 0 15px rgba(42, 138, 246, 0.3), -10px 0 15px rgba(233, 42, 103, 0.3);
+    --node-box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1), 4px 0 6px -2px rgba(0, 0, 0, 0.05);
     background-color: var(--bg-color) !important;
     color: var(--text-color);
-    border: 2px solid var(--text-color);
-    border-radius: 10px;
 }
 
 .svelte-flow__node-turbo {
@@ -161,4 +159,40 @@
 
 .svelte-flow__attribution a {
     color: #95679e;
+}
+
+.status-problematic:before {
+    content: "";
+    position: absolute;
+    padding-bottom: calc(100% * 1.41421356237);
+    width: calc(100% * 1.41421356237);
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+}
+
+.status-pending:before {
+    content: "";
+    position: absolute;
+    padding-bottom: calc(100% * 1.41421356237);
+    width: calc(100% * 1.41421356237);
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+}
+
+.status-ok:before {
+    content: "";
+    position: absolute;
+    padding-bottom: calc(100% * 1.41421356237);
+    width: calc(100% * 1.41421356237);
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
 }
