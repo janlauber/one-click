@@ -22,7 +22,7 @@
           <Heading tag="h3" class="flex text-background font-extralight items-center w-auto">
             Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge
               color="secondary"
-              class="text-xl text-primary-500 font-semibold ml-2">prototype</Badge
+              class="text-xl text-primary-500 font-semibold ml-2">beta</Badge
             >
           </Heading>
           <span

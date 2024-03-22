@@ -372,7 +372,7 @@
 
 <!-- load 1s -->
 {#if initialLoadComplete}
-  <div style="height:70%;" class="mt-8">
+  <div  class="mt-8" style="height: 50vh;">
     <SvelteFlow {nodes} {nodeTypes} {edges} {edgeTypes} {defaultEdgeOptions} fitView>
       <svg>
         <defs>
