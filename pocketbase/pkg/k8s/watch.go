@@ -6,12 +6,18 @@ import (
 	"log"
 
 	"github.com/gorilla/websocket"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
 // Watch all k8s resources with the specified label selector and send updates over WebSocket
 func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rolloutId string) {
+
+	if projectId == "" || rolloutId == "" {
+		log.Printf("Error: projectId and rolloutId must not be empty")
+		return
+	}
 
 	// resources to watch "deployments", "replicasets", "pods", "services", "ingresses", "configmaps", "secrets", "persistentvolumeclaims", "persistentvolumes", "serviceaccounts"
 
@@ -195,7 +201,93 @@ func sendResourceUpdate(ws *websocket.Conn, event watch.Event, resourceType stri
 
 		// Send the message over WebSocket
 		if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-			log.Printf("WebSocket write error: %v", err)
+			return
+		}
+	}
+}
+
+// Watch the logs of a pod and send updates over WebSocket
+func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName string) {
+
+	if projectId == "" || podName == "" {
+		log.Printf("Error: projectId and podName must not be empty")
+		return
+	}
+	// Start watching logs of the specified pod
+	req := Clientset.CoreV1().Pods(projectId).GetLogs(podName, &v1.PodLogOptions{
+		Follow: true,
+	})
+	readCloser, err := req.Stream(Ctx)
+	if err != nil {
+		log.Printf("Error getting logs: %v", err)
+	}
+	defer readCloser.Close()
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := readCloser.Read(buf)
+		if err != nil {
+			return
+		}
+
+		// Send the message over WebSocket
+		if err := ws.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
+			return
+		}
+	}
+}
+
+// Watch the events of a rollout and send updates over WebSocket
+func WatchK8sEventsAndSendUpdates(ws *websocket.Conn, projectId string, kind string, name string) {
+
+	if projectId == "" || kind == "" || name == "" {
+		log.Printf("Error: projectId, kind and name must not be empty")
+		return
+	}
+
+	// Start watching events of the specified rollout object with the specified kind and name
+	req, err := Clientset.CoreV1().Events(projectId).Watch(Ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.kind=%s,involvedObject.name=%s", kind, name),
+	})
+	if err != nil {
+		log.Printf("Error setting up watch: %v", err)
+	}
+	defer req.Stop()
+
+	for {
+		select {
+		case event, ok := <-req.ResultChan():
+			if !ok {
+				return
+			}
+			sendEventUpdate(ws, event)
+		}
+	}
+}
+
+func sendEventUpdate(ws *websocket.Conn, event watch.Event) {
+	switch event.Type {
+	case watch.Added, watch.Modified, watch.Deleted, watch.Error:
+		eventObj, ok := event.Object.(*v1.Event)
+		if !ok {
+			log.Printf("Unexpected type")
+			return
+		}
+
+		// Prepare and marshal the event information
+		eventInfo := map[string]interface{}{
+			"reason":  eventObj.Reason,
+			"message": eventObj.Message,
+			"typus":   eventObj.Type,
+		}
+		msg, err := json.Marshal(eventInfo)
+		if err != nil {
+			log.Printf("Error marshaling event info: %v", err)
+			return
+		}
+
+		// Send the message over WebSocket
+		if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
 			return
 		}
 	}

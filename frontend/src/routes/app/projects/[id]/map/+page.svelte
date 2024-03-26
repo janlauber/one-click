@@ -1,19 +1,35 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { writable, type Writable } from "svelte/store";
-  import { SvelteFlow, Controls, type Node, type Edge, MarkerType } from "@xyflow/svelte";
+  import { writable } from "svelte/store";
+  import { SvelteFlow, type Node, type Edge } from "@xyflow/svelte";
   import "@xyflow/svelte/dist/style.css";
   import "./turbo.css";
   import { initialNodes, initialEdges } from "./nodes-and-edges";
   import TurboNode from "./TurboNode.svelte";
   import TurboEdge from "./TurboEdge.svelte";
-  import { Heading, P } from "flowbite-svelte";
+  import { Button, Heading, P, TabItem, Tabs } from "flowbite-svelte";
   import { selectedProject } from "$lib/stores/data";
-
-  import { Drawer, Button, CloseButton } from "flowbite-svelte";
-  import { InfoCircleSolid, ArrowRightOutline } from "flowbite-svelte-icons";
+  import { Drawer, CloseButton } from "flowbite-svelte";
   import { sineIn } from "svelte/easing";
-  import { drawerHidden, type NodeObject } from "$lib/stores/drawer";
+  import { drawerHidden, selectedNode, type NodeObject } from "$lib/stores/drawer";
+  import {
+    ArrowLeftRight,
+    Bell,
+    Box,
+    Database,
+    FileCode,
+    FileText,
+    Lock,
+    NetworkIcon,
+    ScrollText,
+    Terminal,
+    Trash,
+    X
+  } from "lucide-svelte";
+  import LogStream from "$lib/components/map/LogStream.svelte";
+  import KubernetesObject from "$lib/components/map/KubernetesObject.svelte";
+  import EventStream from "$lib/components/map/EventStream.svelte";
+  import toast from "svelte-french-toast";
 
   let transitionParamsRight = {
     x: 320,
@@ -39,7 +55,6 @@
       host = "localhost:8090";
     }
 
-    // Create a new WebSocket connection
     ws = new WebSocket(`ws://${host}/ws/k8s/rollouts`);
 
     ws.onopen = () => {
@@ -149,10 +164,19 @@
       id: data.name, // Ensure this is unique
       type: "turbo", // Using the custom node type
       data: {
-        title: data.name,
-        subline: data.kind,
-        icon: data.kind.toLowerCase(), // Adjust icon based on kind,
+        // kind: "pod" | "service" | "ingress" | "secret" | "pvc";
+        // name: string;
+        // namespace: string;
+        // labels: Map<string, string>;
+        // status: "ADDED" | "MODIFIED" | "DELETED" | "ERROR";
+        // object: any;
+        kind: data.kind,
+        name: data.name,
+        namespace: data.namespace,
+        labels: data.labels,
         status: data.kind === "pod" ? data.object.status.phase : "Running",
+        object: data.object,
+        icon: data.kind.toLowerCase(), // Adjust icon based on kind,
         containerStatuses: data.kind === "pod" ? data.object.status.containerStatuses : []
       },
       position: calculatePosition(data)
@@ -298,6 +322,61 @@
     });
   }
 
+  async function handleDeletePod(podName: string) {
+    const token = localStorage.getItem("pocketbase_auth");
+    if (!token) {
+      return;
+    }
+    const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
+
+    // if localhost, use localhost:8090 as base url
+    // POST /rollouts/:projectId/:podName
+    if (window.location.hostname === "localhost") {
+      try {
+        const response = await fetch(
+          `http://localhost:8090/rollouts/${$selectedProject?.id}/${podName}`,
+          {
+            method: "DELETE",
+            headers: {
+              ...authHeader,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+        if (response.status === 200) {
+          toast.success("Pod terminating...");
+          $drawerHidden = true;
+        } else {
+          console.error("Error deleting pod", response);
+          toast.error("Error deleting pod");
+        }
+      } catch (error) {
+        console.error("Error deleting pod", error);
+        toast.error("Error deleting pod");
+      }
+    } else {
+      try {
+        const response = await fetch(`/rollouts/${$selectedProject?.id}/${podName}`, {
+          method: "DELETE",
+          headers: {
+            ...authHeader,
+            "Content-Type": "application/json"
+          }
+        });
+        if (response.status === 200) {
+          toast.success("Pod terminating...");
+          $drawerHidden = true;
+        } else {
+          console.error("Error deleting pod", response);
+          toast.error("Error deleting pod");
+        }
+      } catch (error) {
+        console.error("Error deleting pod", error);
+        toast.error("Error deleting pod");
+      }
+    }
+  }
+
   $: {
     // Update nodes and edges
     $pods = $pods ?? [];
@@ -380,7 +459,7 @@
 
 <!-- load 1s -->
 {#if initialLoadComplete}
-  <div  class="mt-8" style="height: 50vh;">
+  <div class="mt-8" style="height: 50vh;">
     <SvelteFlow {nodes} {nodeTypes} {edges} {edgeTypes} {defaultEdgeOptions} fitView>
       <svg>
         <defs>
@@ -413,34 +492,82 @@
   </div>
 {/if}
 
+<!-- {#key $selectedNode} -->
 <Drawer
   placement="right"
   transitionType="fly"
+  width="w-1/2"
   transitionParams={transitionParamsRight}
   bind:hidden={$drawerHidden}
-  id="sidebar6"
 >
-  <div class="flex items-center">
-    <h5
-      id="drawer-label"
-      class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"
-    >
-      <InfoCircleSolid class="w-4 h-4 me-2.5" />Info
-    </h5>
-    <CloseButton on:click={() => ($drawerHidden = true)} class="mb-4 dark:text-white" />
-  </div>
-  <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-    Supercharge your hiring by taking advantage of our <a
-      href="/"
-      class="text-primary-600 underline dark:text-primary-500 hover:no-underline"
-    >
-      limited-time sale
-    </a>
-    for Flowbite Docs + Job Board. Unlimited access to over 190K top-ranked candidates and the #1 design
-    job board.
-  </p>
-  <div class="grid grid-cols-2 gap-4">
-    <Button color="light" href="/">Learn more</Button>
-    <Button href="/" class="px-4">Get access <ArrowRightOutline class="w-3.5 h-3.5 ms-2" /></Button>
+  <div class="flex items-center h-full relative">
+    <div class="absolute top-2 left-2">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        {#if $selectedNode?.icon === "ingress"}
+          <ArrowLeftRight class="inline" size="16" />
+        {:else if $selectedNode?.icon === "service"}
+          <NetworkIcon class="inline" size="16" />
+        {:else if $selectedNode?.icon === "pod"}
+          <Box class="inline" size="16" />
+        {:else if $selectedNode?.icon === "secret"}
+          <Lock class="inline" size="16" />
+        {:else if $selectedNode?.icon === "pvc"}
+          <Database class="inline" size="16" />
+        {/if}
+
+        {$selectedNode?.kind ?? "Node"}
+      </p>
+      <h5
+        id="drawer-label"
+        class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"
+      >
+        {$selectedNode?.name ?? "Node"}
+      </h5>
+    </div>
+    <div class="mb-4 dark:text-white absolute top-2 right-2 z-50 space-x-2">
+      {#if $selectedNode?.kind == "pod"}
+        <Button
+          color="red"
+          size="xs"
+          on:click={() => {
+            // api call to delete the object
+            handleDeletePod($selectedNode?.name ?? "");
+          }}><Trash class="inline" size="16" /></Button
+        >
+      {/if}
+      <Button color="none" size="xs" on:click={() => ($drawerHidden = true)}>
+        <X class="inline" size="16" />
+      </Button>
+    </div>
+    <div class="absolute left-0 bottom-0 top-0 pt-20 w-full h-full">
+      <Tabs style="underline">
+        <TabItem>
+          <div slot="title" class="flex items-center gap-2">
+            <!-- <UserCircleSolid size="sm" /> -->
+            <FileCode  />
+            Manifest
+          </div>
+          <KubernetesObject manifest={$selectedNode?.object} />
+        </TabItem>
+        {#if $selectedNode?.kind == "pod"}
+          <TabItem>
+            <div slot="title" class="flex items-center gap-2">
+              <ScrollText />
+              Logs
+            </div>
+            <LogStream podName={$selectedNode?.name ?? ""} />
+          </TabItem>
+          <TabItem open>
+            <div slot="title" class="flex items-center gap-2">
+              <!-- <UserCircleSolid size="sm" /> -->
+              <Bell />
+              Events
+            </div>
+            <EventStream name={$selectedNode?.name ?? ""} kind={$selectedNode?.kind ?? ""} />
+          </TabItem>
+        {/if}
+      </Tabs>
+    </div>
   </div>
 </Drawer>
+<!-- {/key} -->

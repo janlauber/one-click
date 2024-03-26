@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { drawerHidden } from "$lib/stores/drawer";
+  import { drawerHidden, selectedNode } from "$lib/stores/drawer";
+  import { metadata } from "$lib/stores/metadata";
   import { Handle, Position, type NodeProps } from "@xyflow/svelte";
 
   import { ArrowLeftRight, Box, Database, Lock, NetworkIcon } from "lucide-svelte";
@@ -13,19 +14,27 @@
   // if Running, then statusClass = "status-ok"
   // else, then statusClass = "status-problematic"
 
-  $: containerStatusClass =
-    data.containerStatuses &&
-    (data.containerStatuses as Array<any>)[0] &&
-    (data.containerStatuses as Array<any>)[0].ready === false
-      ? "status-problematic"
-      : "status-ok";
+  // if the metadata contains a key called "deletionTimestamp", then statusClass = "status-problematic"
+  // else, statusClass = "status-ok"
+  // @ts-ignore
+  $: statusClass = data.object.metadata.deletionTimestamp
+    ? "status-deleting"
+    : data.status !== "Running"
+    ? data.status === "Pending"
+      ? "status-pending"
+      : "status-problematic"
+    : "status-ok";
 
-  $: statusClass =
-    data.status !== "Running"
-      ? data.status === "Pending"
-        ? "status-pending"
-        : "status-problematic"
-      : "status-ok";
+  // @ts-ignore
+  $: containerStatusClass = data.object.metadata.deletionTimestamp
+    ? "status-deleting"
+    : data.containerStatuses &&
+      // @ts-ignore
+      data.containerStatuses[0] &&
+      // @ts-ignore
+      data.containerStatuses[0].ready === false
+    ? "status-problematic"
+    : "status-ok";
 </script>
 
 <div class="cloud {containerStatusClass}">
@@ -51,6 +60,22 @@
   class="wrapper {statusClass}"
   on:click={() => {
     $drawerHidden = false;
+    // check if data is not null
+    if (data) {
+      $selectedNode = {
+        //@ts-ignore
+        kind: data.kind,
+        //@ts-ignore
+        name: data.name,
+        //@ts-ignore
+        namespace: data.namespace,
+        //@ts-ignore
+        labels: data.labels,
+        //@ts-ignore
+        icon: data.icon,
+        object: data.object
+      };
+    }
   }}
 >
   <div class="inner">
@@ -59,9 +84,20 @@
         <div class="icon"></div>
       {/if}
       <div>
-        <div class="title">{data.title}</div>
-        {#if data.subline}
-          <div class="subline">{data.subline}</div>
+        {#if data.kind === "pod"}
+          {#if data.object.metadata.deletionTimestamp}
+            <div class="status">Terminating</div>
+          {:else if data.status === "Running"}
+            <div class="status">Running</div>
+          {:else if data.status === "Pending"}
+            <div class="status">Pending</div>
+          {:else}
+            <div class="status">Problematic</div>
+          {/if}
+        {/if}
+        <div class="title">{data.name}</div>
+        {#if data.kind}
+          <div class="subline">{data.kind}</div>
         {/if}
       </div>
     </div>

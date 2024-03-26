@@ -12,9 +12,6 @@
 
   let blueprintModalOpen = false;
 
-  function jsonToYaml(json: any): string {
-    return yaml.dump(json);
-  }
   let name: string = "";
   let description: string = "";
   let isPrivate: boolean = false;
@@ -224,7 +221,7 @@
   <div class=" h-96 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
     <MonacoEditor
       bind:value={manifest}
-      options={{ language: "yaml", automaticLayout: false, minimap: { enabled: false } }}
+      options={{ language: "yaml", automaticLayout: true, minimap: { enabled: false } }}
       theme="vs-dark"
     />
   </div>

@@ -184,7 +184,6 @@ func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId s
 	// Get rollout status
 	status, err := k8s.GetRolloutStatus(projectId, rollout)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 

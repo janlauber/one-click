@@ -403,7 +403,7 @@
       {#key $rollouts}
         <MonacoEditor
           bind:value={envValue}
-          options={{ language: "shell", automaticLayout: false, minimap: { enabled: false } }}
+          options={{ language: "shell", automaticLayout: true, minimap: { enabled: false } }}
           theme="vs-dark"
         />
       {/key}

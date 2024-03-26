@@ -198,3 +198,26 @@
     transform: translate(-50%, -50%);
     border-radius: 100%;
 }
+
+.status-deleting:before {
+    content: "";
+    position: absolute;
+    padding-bottom: calc(100% * 1.41421356237);
+    width: calc(100% * 1.41421356237);
+    /* gray */
+    background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+}
+
+/* status message */
+.status {
+    top: 0;
+    right: 0;
+    border-radius: 0 0 0 10px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1;
+}

@@ -206,6 +206,12 @@
       }
     }
 
+    // Validate when the host is set then the ingress class should be set
+    if (updatedInterface.host && !updatedInterface.ingressClassName) {
+      toast.error("Ingress class is required when host is set");
+      return;
+    }
+
     // Save changes to the server
     await updateManifest($currentRollout.manifest);
 

@@ -1,8 +1,13 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord } from "$lib/pocketbase/generated-types";
-  import { updateDataStores, UpdateFilterEnum, currentRollout } from "$lib/stores/data";
-  import { Button, Input, Label, Toggle } from "flowbite-svelte";
+  import {
+    updateDataStores,
+    UpdateFilterEnum,
+    currentRollout,
+    clusterInfo
+  } from "$lib/stores/data";
+  import { Button, Input, Label, Select, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
 
@@ -12,18 +17,22 @@
     id: string;
     name: string;
     port: number;
+    ingressClassName?: string;
     host: string;
     path: string;
     tls: boolean;
+    tlsSecretName?: string;
   }
 
   let inf: Interface = {
     id: "",
     name: "",
     port: 80,
+    ingressClassName: "",
     host: "",
-    path: "",
-    tls: false
+    path: "/",
+    tls: false,
+    tlsSecretName: ""
   };
 
   async function handleCreateInterface() {
@@ -58,7 +67,7 @@
 
     let new_manifest: any;
 
-    if (inf.host) {
+    if (inf.host && inf.ingressClassName !== "") {
       new_manifest = {
         ...$currentRollout.manifest,
         spec: {
@@ -71,7 +80,7 @@
               name: inf.name,
               port: parseInt(inf.port.toString()),
               ingress: {
-                ingressClass: "nginx",
+                ingressClass: inf.ingressClassName,
                 annotations: {
                   "nginx.ingress.kubernetes.io/ssl-redirect": "false"
                 },
@@ -79,7 +88,8 @@
                   {
                     host: inf.host,
                     path: inf.path,
-                    tls: inf.tls
+                    tls: inf.tls,
+                    tlsSecretName: inf.tls ? inf.tlsSecretName : ""
                   }
                 ]
               }
@@ -144,6 +154,24 @@
     <Input type="number" name="port" placeholder="8080" size="sm" required bind:value={inf.port} />
   </Label>
   <Label class="space-y-2">
+    <span>Ingress Class</span>
+    <Select
+      id="ingressClassName"
+      size="sm"
+      bind:value={inf.ingressClassName}
+      class=""
+    >
+      {#if !$clusterInfo}
+        <option value="">No ingress classes found</option>
+      {:else}
+        <option value="">None</option>
+        {#each $clusterInfo.ingressClasses as ingressClass}
+          <option value={ingressClass}>{ingressClass}</option>
+        {/each}
+      {/if}
+    </Select>
+  </Label>
+  <Label class="space-y-2">
     <span>Host</span>
     <Input type="text" name="host" placeholder="app.example.com" size="sm" bind:value={inf.host} />
   </Label>
@@ -155,6 +183,20 @@
     <span>TLS</span>
     <Toggle name="tls" size="small" bind:checked={inf.tls} />
   </Label>
+
+  {#if inf.tls}
+    <Label class="space-y-2">
+      <span>TLS Secret Name</span>
+      <Input
+        id="tlsSecretName"
+        size="sm"
+        type="text"
+        bind:value={inf.tlsSecretName}
+        placeholder="Enter the TLS secret name"
+        class=""
+      /></Label
+    >
+  {/if}
 
   <Button type="submit" class="w-full1" color="primary" on:click={handleCreateInterface}>
     Create interface

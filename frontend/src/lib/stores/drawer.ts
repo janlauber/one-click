@@ -5,10 +5,14 @@ export type NodeObject = {
     name: string;
     namespace: string;
     labels: Map<string, string>;
-    status: "ADDED" | "MODIFIED" | "DELETED" | "ERROR";
+    status?: "ADDED" | "MODIFIED" | "DELETED" | "ERROR";
+    containerStatusClass?: string;
+    icon?: string;
     object: any;
 };
 
 export const currentNodeObject = writable<NodeObject | null>(null);
 
 export const drawerHidden = writable<boolean>(true);
+
+export const selectedNode = writable<NodeObject | null>(null);

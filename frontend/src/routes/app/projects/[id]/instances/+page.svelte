@@ -3,7 +3,7 @@
   import { autoScroll } from "$lib/utils/autoScroll";
   import { Accordion, AccordionItem, Button, Heading, P } from "flowbite-svelte";
   import { Box, FileDown, RefreshCcw } from "lucide-svelte";
-    import { onMount } from "svelte";
+  import { onMount } from "svelte";
   import Highlight, { LineNumbers } from "svelte-highlight";
   import prolog from "svelte-highlight/languages/prolog";
   import atomOneDark from "svelte-highlight/styles/atom-one-dark";
@@ -71,7 +71,6 @@
 
       reader.read().then(processLog);
     });
-
   }
 
   onMount(() => {
@@ -115,9 +114,15 @@
           {/if}
         </div>
         <div class="flex justify-end">
-          <Button size="sm" color="alternative" class="mt-4 mr-2" on:click={() => fetchLogs(podName)}>
+          <Button
+            size="sm"
+            color="alternative"
+            class="mt-4 mr-2"
+            on:click={() => fetchLogs(podName)}
+          >
             <RefreshCcw class="mr-2" />
-            Refresh</Button>
+            Refresh</Button
+          >
           <Button size="sm" class="mt-4" on:click={() => downloadLogs(podName)}>
             <FileDown class="mr-2" />
             Download Logs</Button
