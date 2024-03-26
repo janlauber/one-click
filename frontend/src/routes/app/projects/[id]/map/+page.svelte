@@ -9,7 +9,7 @@
   import TurboEdge from "./TurboEdge.svelte";
   import { Button, Heading, P, TabItem, Tabs } from "flowbite-svelte";
   import { selectedProject } from "$lib/stores/data";
-  import { Drawer, CloseButton } from "flowbite-svelte";
+  import { Drawer } from "flowbite-svelte";
   import { sineIn } from "svelte/easing";
   import { drawerHidden, selectedNode, type NodeObject } from "$lib/stores/drawer";
   import {
@@ -58,7 +58,7 @@
     // check for tls
     let protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-    ws = new WebSocket(`${protocol}://${host}/ws/k8s/events`);
+    ws = new WebSocket(`${protocol}://${host}/ws/k8s/rollouts`);
 
     ws.onopen = () => {
       // Send any initial message if required, for example:
@@ -495,7 +495,6 @@
   </div>
 {/if}
 
-<!-- {#key $selectedNode} -->
 <Drawer
   placement="right"
   transitionType="fly"
@@ -544,9 +543,8 @@
     </div>
     <div class="absolute left-0 bottom-0 top-0 pt-20 w-full h-full">
       <Tabs style="underline">
-        <TabItem>
+        <TabItem open>
           <div slot="title" class="flex items-center gap-2">
-            <!-- <UserCircleSolid size="sm" /> -->
             <FileCode />
             Manifest
           </div>
@@ -560,9 +558,8 @@
             </div>
             <LogStream podName={$selectedNode?.name ?? ""} />
           </TabItem>
-          <TabItem open>
+          <TabItem>
             <div slot="title" class="flex items-center gap-2">
-              <!-- <UserCircleSolid size="sm" /> -->
               <Bell />
               Events
             </div>
@@ -573,4 +570,3 @@
     </div>
   </div>
 </Drawer>
-<!-- {/key} -->
