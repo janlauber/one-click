@@ -31,7 +31,10 @@
       host = "localhost:8090";
     }
 
-    ws = new WebSocket(`ws://${host}/ws/k8s/logs`);
+    // check for tls
+    let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+    ws = new WebSocket(`${protocol}://${host}/ws/k8s/events`);
 
     ws.onopen = () => {
       type LogMessage = {

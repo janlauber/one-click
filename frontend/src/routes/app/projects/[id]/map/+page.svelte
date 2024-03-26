@@ -55,7 +55,10 @@
       host = "localhost:8090";
     }
 
-    ws = new WebSocket(`ws://${host}/ws/k8s/rollouts`);
+    // check for tls
+    let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+    ws = new WebSocket(`${protocol}://${host}/ws/k8s/events`);
 
     ws.onopen = () => {
       // Send any initial message if required, for example:
@@ -544,7 +547,7 @@
         <TabItem>
           <div slot="title" class="flex items-center gap-2">
             <!-- <UserCircleSolid size="sm" /> -->
-            <FileCode  />
+            <FileCode />
             Manifest
           </div>
           <KubernetesObject manifest={$selectedNode?.object} />

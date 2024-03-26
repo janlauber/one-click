@@ -65,7 +65,10 @@
       host = "localhost:8090";
     }
 
-    ws = new WebSocket(`ws://${host}/ws/k8s/events`);
+    // check for tls
+    let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+    ws = new WebSocket(`${protocol}://${host}/ws/k8s/events`);
 
     ws.onopen = () => {
       type LogMessage = {
@@ -103,7 +106,9 @@
 </script>
 
 <div class="px-2 rounded-lg">
-  <div class="absolute top-36 bottom-0 right-0 left-0 overflow-y-auto rounded-lg p-2 bg-white dark:bg-slate-800">
+  <div
+    class="absolute top-36 bottom-0 right-0 left-0 overflow-y-auto rounded-lg p-2 bg-white dark:bg-slate-800"
+  >
     {#if event_array.length > 0 && event_array[0].message}
       <!-- <Timeline>
         <TimelineItem title="Application UI code in Tailwind CSS" date="February 2022">
