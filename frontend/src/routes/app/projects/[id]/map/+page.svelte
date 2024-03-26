@@ -32,7 +32,15 @@
   let ws: WebSocket;
 
   onMount(() => {
-    ws = new WebSocket("ws://localhost:8090/ws/k8s/rollouts");
+    // host
+    let host = window.location.host;
+
+    if (host.includes("localhost")) {
+      host = "localhost:8090";
+    }
+
+    // Create a new WebSocket connection
+    ws = new WebSocket(`ws://${host}/ws/k8s/rollouts`);
 
     ws.onopen = () => {
       // Send any initial message if required, for example:

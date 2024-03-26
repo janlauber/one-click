@@ -39,6 +39,11 @@
 
   let volumes: Volume[] = [];
 
+  // if $currentRollout changes, update temp_rollout
+  $: {
+    temp_rollout = $currentRollout;
+  }
+
   $: {
     parseManifestsToVolumes(temp_rollout);
   }

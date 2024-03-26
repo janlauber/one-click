@@ -200,6 +200,11 @@ func main() {
 			return controller.HandleAutoUpdate(c, app, autoUpdateId)
 		})
 
+		e.Router.GET("/cluster-info", func(c echo.Context) error {
+			return controller.HandleClusterInfo(c, app)
+			// }, apis.RequireRecordAuth("users"))
+		})
+
 		e.Router.GET("/ws/k8s/rollouts", wsK8sRolloutsHandler) // WebSocket handler for Kubernetes rollouts
 
 		return nil

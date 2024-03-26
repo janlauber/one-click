@@ -6,6 +6,7 @@ import type {
     BlueprintsResponse,
     UsersResponse
 } from "$lib/pocketbase/generated-types";
+import { getClusterInfo, type ClusterInfoResponse } from "$lib/utils/cluster-info";
 import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 import type { RolloutStatusResponse } from "$lib/types/status";
@@ -54,6 +55,11 @@ export const autoUpdates: Writable<AutoUpdatesResponse<Aexpand>[]> = writable<
     AutoUpdatesResponse<Aexpand>[]
 >([]);
 
+// Cluster Info //
+export const clusterInfo: Writable<ClusterInfoResponse | undefined> = writable<
+    ClusterInfoResponse | undefined
+>(undefined);
+
 export enum UpdateFilterEnum {
     ALL = "all"
 }
@@ -70,6 +76,7 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
         await updateProjects(filter.projectId);
         await updateRollouts(filter.projectId);
         await updateAutoUpdates(filter.projectId);
+        await updateClusterInfo();
     }
 }
 
@@ -187,4 +194,9 @@ async function fetchAutoUpdates(): Promise<AutoUpdatesResponse<Aexpand>[]> {
     return await client
         .collection("autoUpdates")
         .getFullList<AutoUpdatesResponse<Aexpand>>(queryOptions);
+}
+
+export async function updateClusterInfo() {
+    const response = await getClusterInfo();
+    clusterInfo.set(response);
 }
