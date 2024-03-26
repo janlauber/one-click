@@ -10,6 +10,7 @@ import (
 	"github.com/janlauber/one-click/pkg/controller"
 	"github.com/janlauber/one-click/pkg/env"
 	"github.com/janlauber/one-click/pkg/k8s"
+	"github.com/janlauber/one-click/pkg/watcher"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -144,6 +145,28 @@ func main() {
 
 			return controller.HandleAutoUpdate(c, app, autoUpdateId)
 		})
+
+		e.Router.GET("/cluster-info", func(c echo.Context) error {
+			return controller.HandleClusterInfo(c, app)
+			// }, apis.RequireRecordAuth("users"))
+		})
+
+		// delete a pod of a rollout by pod name
+		e.Router.DELETE("/rollouts/:projectId/:podName", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			podName := c.PathParam("podName")
+
+			return controller.HandlePodDelete(c, app, projectId, podName)
+		}, apis.RequireRecordAuth("users"))
+
+		// websocket for rollout status
+		e.Router.GET("/ws/k8s/rollouts", watcher.WsK8sRolloutsHandler)
+
+		// websocket for pod logs
+		e.Router.GET("/ws/k8s/logs", watcher.WsK8sRolloutLogsHandler)
+
+		// websocket for rollout events
+		e.Router.GET("/ws/k8s/events", watcher.WsK8sRolloutEventsHandler)
 
 		return nil
 	})

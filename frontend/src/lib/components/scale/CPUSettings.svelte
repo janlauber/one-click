@@ -13,14 +13,6 @@
     class="items-center w-full rounded-lg border border-gray-200 sm:flex dark:bg-gray-800 dark:border-gray-600 divide-x rtl:divide-x-reverse divide-gray-200 dark:divide-gray-600"
   >
     <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={0.1}>
-        <div class="block">
-          <p class="">Nano</p>
-          <p class="text-xs font-light">(0.1 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
       <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={0.25}>
         <div class="block">
           <p class="">Micro</p>

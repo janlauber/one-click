@@ -7,7 +7,8 @@
     currentRollout,
     type Rexpand,
     updateDataStores,
-    UpdateFilterEnum
+    UpdateFilterEnum,
+    clusterInfo
   } from "$lib/stores/data";
   import {
     Accordion,
@@ -18,10 +19,11 @@
     Label,
     Modal,
     P,
+    Select,
     Toggle
   } from "flowbite-svelte";
   import { ExclamationCircleOutline } from "flowbite-svelte-icons";
-  import { ExternalLink, Network, Plus } from "lucide-svelte";
+  import { ExternalLink, Lock, Network, Plus } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
@@ -32,9 +34,11 @@
     id: string;
     name: string;
     port: number;
+    ingressClassName?: string;
     host: string;
     path: string;
     tls: boolean;
+    tlsSecretName?: string;
   }
 
   let interfaces: Interface[] = [];
@@ -56,18 +60,22 @@
             id: interfaceId,
             name: i.name,
             port: i.port,
+            ingressClassName: i.ingress.ingressClass,
             host: firstRule.host,
             path: firstRule.path,
-            tls: firstRule.tls
+            tls: firstRule.tls,
+            tlsSecretName: firstRule.tlsSecretName
           };
         } else {
           newInterface = {
             id: interfaceId,
             name: i.name,
             port: i.port,
+            ingressClassName: "",
             host: "",
             path: "",
-            tls: false
+            tls: false,
+            tlsSecretName: ""
           };
         }
         interfaces.push(newInterface);
@@ -172,8 +180,9 @@
         ingress: updatedInterface.host
           ? {
               ingressClass:
+                updatedInterface.ingressClassName ||
                 $currentRollout.manifest?.spec.interfaces[rolloutInterfaceIndex].ingress
-                  ?.ingressClass || "nginx",
+                  ?.ingressClass,
               annotations:
                 $currentRollout.manifest?.spec.interfaces[rolloutInterfaceIndex].ingress
                   ?.annotations,
@@ -181,7 +190,8 @@
                 {
                   host: updatedInterface.host,
                   path: updatedInterface.path,
-                  tls: updatedInterface.tls
+                  tls: updatedInterface.tls,
+                  tlsSecretName: updatedInterface.tls ? updatedInterface.tlsSecretName : ""
                 }
               ]
             }
@@ -196,6 +206,11 @@
       }
     }
 
+    // Validate when the host is set then the ingress class should be set
+    if (updatedInterface.host && !updatedInterface.ingressClassName) {
+      toast.error("Ingress class is required when host is set");
+      return;
+    }
 
     // Save changes to the server
     await updateManifest($currentRollout.manifest);
@@ -276,11 +291,19 @@
     {#each interfaces as inf, i (inf.id)}
       <AccordionItem class="rounded-lg">
         <div slot="header" class="flex">
-          <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
+          <div
+            class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center relative"
+          >
             <Network class="w-4 h-4" />
+
+            {#if inf.tls}
+              <Lock
+                class="w-4 h-4 inline-block absolute -right-1 -top-2 bg-white dark:bg-slate-800"
+              />
+            {/if}
           </div>
-          <span class="pt-1 inline"
-            >{inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span
+          <span class="pt-1 inline">
+            {inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span
           >
           {#if inf.host}
             <a
@@ -327,6 +350,23 @@
                   <Heading tag="h5">Ingress</Heading>
                   <P class="text-gray-500 dark:text-gray-400 text-xs">Ingress of your interface.</P>
                 </td><td class="whitespace-nowrap px-3 py-4 text-xs space-y-2">
+                  <Label for="tag" class="block ">Ingress Class</Label>
+                  <Select
+                    id="ingressClassName"
+                    size="sm"
+                    bind:value={inf.ingressClassName}
+                    placeholder="Select the ingress class"
+                    class=""
+                  >
+                    {#if !$clusterInfo}
+                      <option value="">No ingress classes found</option>
+                    {:else}
+                      <option value="">None</option>
+                      {#each $clusterInfo.ingressClasses as ingressClass}
+                        <option value={ingressClass}>{ingressClass}</option>
+                      {/each}
+                    {/if}
+                  </Select>
                   <Label for="tag" class="block ">Host</Label>
                   <Input
                     id="host"
@@ -347,6 +387,17 @@
                   />
                   <Label for="tag" class="block ">TLS</Label>
                   <Toggle id="tls" size="small" bind:checked={inf.tls} class="" />
+                  {#if inf.tls}
+                    <Label for="tag" class="block ">TLS Secret Name</Label>
+                    <Input
+                      id="tlsSecretName"
+                      size="sm"
+                      type="text"
+                      bind:value={inf.tlsSecretName}
+                      placeholder="Enter the TLS secret name"
+                      class=""
+                    />
+                  {/if}
                 </td>
               </tr>
             </tbody>

@@ -10,7 +10,9 @@
     HardDrive,
     History,
     LineChart,
+    Map,
     Network,
+    ShipWheel,
     Variable
   } from "lucide-svelte";
 
@@ -22,6 +24,12 @@
         href: `/app/projects/${projectId}/overview`,
         current: false,
         icon: LineChart
+      },
+      {
+        name: "Map",
+        href: `/app/projects/${projectId}/map`,
+        current: false,
+        icon: Map
       },
       {
         name: "Rollouts",

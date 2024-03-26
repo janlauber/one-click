@@ -5,9 +5,10 @@
     updateDataStores,
     type Rexpand,
     UpdateFilterEnum,
-    currentRollout
+    currentRollout,
+    clusterInfo
   } from "$lib/stores/data";
-  import { Accordion, AccordionItem, Button, Input, Label, Toggle } from "flowbite-svelte";
+  import { Accordion, AccordionItem, Button, Input, Label, Select, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
 
@@ -82,7 +83,7 @@
     let new_manifest: any = {
       ...$currentRollout.manifest,
       spec: {
-          // @ts-ignore
+        // @ts-ignore
         ...$currentRollout.manifest.spec,
         volumes: [
           // @ts-ignore
@@ -95,8 +96,7 @@
           }
         ]
       }
-    }
-
+    };
 
     const data: RolloutsRecord = {
       manifest: new_manifest,
@@ -149,7 +149,15 @@
   </Label>
   <Label class="space-y-2">
     <span>Storage Class *</span>
-    <Input type="text" name="path" placeholder="standard" size="sm" bind:value={volume.storageClass} />
+    <Select name="storageClass" size="sm" required bind:value={volume.storageClass}>
+      {#if !$clusterInfo}
+        <option value="">No storage class available</option>
+      {:else}
+        {#each $clusterInfo.storageClasses as storageClass}
+          <option value={storageClass}>{storageClass}</option>
+        {/each}
+      {/if}
+    </Select>
   </Label>
   <Button type="submit" class="w-full1" color="primary" on:click={handleCreateVolume}>
     Create volume

@@ -120,22 +120,22 @@
     selectedRollout = rollout;
     $currentRollout = $rollouts.find((r) => !r.endDate);
 
-    if ($currentRollout == undefined) {
-      toast.error("There is no rollout to rollback to.");
-      return;
-    }
+    // if ($currentRollout == undefined) {
+    //   toast.error("There is no rollout to rollback to.");
+    //   return;
+    // }
 
-    if ($currentRollout.manifest == undefined) {
-      toast.error("The current rollout has no manifest.");
-      return;
-    }
+    // if ($currentRollout.manifest == undefined) {
+    //   toast.error("The current rollout has no manifest.");
+    //   return;
+    // }
 
     if (rollout.manifest == undefined) {
       toast.error("This rollout has no manifest.");
       return;
     }
 
-    modalTitle1 = $currentRollout.id;
+    modalTitle1 = $currentRollout?.id ?? "None";
     modalTitle2 = rollout.id;
 
     defaultModal = true;

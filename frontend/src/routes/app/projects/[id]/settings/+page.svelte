@@ -502,7 +502,7 @@
   <div class=" h-96 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
     <MonacoEditor
       bind:value={advancedManifest}
-      options={{ language: "yaml", automaticLayout: false, minimap: { enabled: false } }}
+      options={{ language: "yaml", automaticLayout: true, minimap: { enabled: false } }}
       theme="vs-dark"
     />
   </div>
@@ -552,7 +552,7 @@
     <div class="h-64 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
       <MonacoEditor
         bind:value={blueprintManifest}
-        options={{ language: "yaml", automaticLayout: false, minimap: { enabled: false } }}
+        options={{ language: "yaml", automaticLayout: true, minimap: { enabled: false } }}
         theme="vs-dark"
       />
     </div>
