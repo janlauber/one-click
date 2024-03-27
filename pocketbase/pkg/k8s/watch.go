@@ -3,6 +3,7 @@ package k8s
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -28,7 +29,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 	// 	LabelSelector: labelSelector,
 	// })
 	// if err != nil {
-	// 	log.Fatalf("Error setting up watch: %v", err)
+	// 	log.Printf("Error setting up watch: %v", err)
 	// }
 	// defer deploymentWatchInterface.Stop()
 
@@ -36,7 +37,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 	// 	LabelSelector: labelSelector,
 	// })
 	// if err != nil {
-	// 	log.Fatalf("Error setting up watch: %v", err)
+	// 	log.Printf("Error setting up watch: %v", err)
 	// }
 	// defer replicaSetWatchInterface.Stop()
 
@@ -44,7 +45,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer podWatchInterface.Stop()
 
@@ -52,7 +53,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer serviceWatchInterface.Stop()
 
@@ -60,7 +61,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer ingressWatchInterface.Stop()
 
@@ -68,7 +69,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer configMapWatchInterface.Stop()
 
@@ -76,7 +77,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer secretWatchInterface.Stop()
 
@@ -84,7 +85,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer pvcWatchInterface.Stop()
 
@@ -92,7 +93,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer pvWatchInterface.Stop()
 
@@ -100,7 +101,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rollo
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		log.Fatalf("Error setting up watch: %v", err)
+		log.Printf("Error setting up watch: %v", err)
 	}
 	defer saWatchInterface.Stop()
 
@@ -208,7 +209,6 @@ func sendResourceUpdate(ws *websocket.Conn, event watch.Event, resourceType stri
 
 // Watch the logs of a pod and send updates over WebSocket
 func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName string) {
-
 	if projectId == "" || podName == "" {
 		log.Printf("Error: projectId and podName must not be empty")
 		return
@@ -220,6 +220,11 @@ func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName st
 	readCloser, err := req.Stream(Ctx)
 	if err != nil {
 		log.Printf("Error getting logs: %v", err)
+		return // Return here to prevent further execution when there's an error
+	}
+	if readCloser == nil {
+		log.Printf("Error: readCloser is nil")
+		return // Prevent nil pointer dereference
 	}
 	defer readCloser.Close()
 
@@ -227,6 +232,11 @@ func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName st
 	for {
 		n, err := readCloser.Read(buf)
 		if err != nil {
+			if err == io.EOF {
+				// End of file reached, stop reading
+				return
+			}
+			log.Printf("Error reading from readCloser: %v", err)
 			return
 		}
 
