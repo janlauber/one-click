@@ -1,8 +1,36 @@
 <script lang="ts">
   import { Label, Radio } from "flowbite-svelte";
-    import { MemoryStick } from "lucide-svelte";
+  import { MemoryStick } from "lucide-svelte";
 
-  export let memoryRequestsInt = 128;
+  export let memoryRequestsInt = 256;
+
+  interface MemorySettingsProps {
+    name: string;
+    value: number;
+  }
+
+  let memorySettings: MemorySettingsProps[] = [
+    {
+      name: "Nano",
+      value: 256
+    },
+    {
+      name: "Micro",
+      value: 512
+    },
+    {
+      name: "Small",
+      value: 1024
+    },
+    {
+      name: "Medium",
+      value: 2048
+    },
+    {
+      name: "Large",
+      value: 4096
+    }
+  ];
 </script>
 
 <Label for="tag" class="block mb-1">
@@ -13,45 +41,15 @@
   <ul
     class="items-center w-full rounded-lg border border-gray-200 sm:flex dark:bg-gray-800 dark:border-gray-600 divide-x rtl:divide-x-reverse divide-gray-200 dark:divide-gray-600"
   >
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} value={256}>
-        <div class="block">
-          <p class="">Micro</p>
-          <p class="text-xs font-light">(256 MB)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} value={512}>
-        <div class="block">
-          <p class="">Small</p>
-          <p class="text-xs font-light">(512 MB)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} value={1024}>
-        <div class="block">
-          <p class="">Medium</p>
-          <p class="text-xs font-light">(1 GB)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} value={2048}>
-        <div class="block">
-          <p class="">Large</p>
-          <p class="text-xs font-light">(2 GB)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} value={4096}>
-        <div class="block">
-          <p class="">X-Large</p>
-          <p class="text-xs font-light">(4 GB)</p>
-        </div>
-      </Radio>
-    </li>
+    {#each memorySettings as { name, value }, i}
+      <li class="w-full">
+        <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} {value}>
+          <div class="block">
+            <p class="">{name}</p>
+            <p class="text-xs font-light">({value / 1024} GB)</p>
+          </div>
+        </Radio>
+      </li>
+    {/each}
   </ul>
 </form>
