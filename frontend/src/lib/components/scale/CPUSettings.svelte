@@ -1,7 +1,37 @@
 <script lang="ts">
   import { Label, Radio } from "flowbite-svelte";
-    import { Cpu } from "lucide-svelte";
-  export let cpuRequestsFloat = 0.1;
+  import { Cpu } from "lucide-svelte";
+  export let cpuRequestsFloat = 0.25;
+
+  interface CPUSettingsProps {
+    name: string;
+    value: number;
+  }
+
+  let cpuSettings: CPUSettingsProps[] = [
+    {
+      name: "Nano",
+      value: 0.25
+    },
+    {
+      name: "Micro",
+      value: 0.5
+    },
+    {
+      name: "Small",
+      value: 0.75
+    },
+    {
+      name: "Medium",
+      value: 1
+    },
+    {
+      name: "Large",
+      value: 2
+    }
+  ];
+
+
 </script>
 
 <Label for="tag" class="block mb-1">
@@ -12,45 +42,15 @@
   <ul
     class="items-center w-full rounded-lg border border-gray-200 sm:flex dark:bg-gray-800 dark:border-gray-600 divide-x rtl:divide-x-reverse divide-gray-200 dark:divide-gray-600"
   >
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={0.25}>
-        <div class="block">
-          <p class="">Micro</p>
-          <p class="text-xs font-light">(0.25 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={0.5}>
-        <div class="block">
-          <p class="">Small</p>
-          <p class="text-xs font-light">(0.5 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={1}>
-        <div class="block">
-          <p class="">Medium</p>
-          <p class="text-xs font-light">(1 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={2}>
-        <div class="block">
-          <p class="">Large</p>
-          <p class="text-xs font-light">(2 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
-    <li class="w-full">
-      <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={4}>
-        <div class="block">
-          <p class="">X-Large</p>
-          <p class="text-xs font-light">(4 vCPU)</p>
-        </div>
-      </Radio>
-    </li>
+    {#each cpuSettings as { name, value }, i}
+      <li class="w-full">
+        <Radio name="hor-list" class="p-3" bind:group={cpuRequestsFloat} value={value}>
+          <div class="block">
+            <p class="">{name}</p>
+            <p class="text-xs font-light">({value} vCPU)</p>
+          </div>
+        </Radio>
+      </li>
+    {/each}
   </ul>
 </form>

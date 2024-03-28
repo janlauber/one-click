@@ -195,7 +195,6 @@ func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId 
 	// Get rollout metrics
 	metrics, err := k8s.GetRolloutMetrics(projectId, rollout)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
@@ -207,7 +206,6 @@ func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId s
 	// Get rollout events
 	events, err := k8s.GetRolloutEvents(projectId, rollout)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
