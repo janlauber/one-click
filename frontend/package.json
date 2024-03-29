@@ -68,7 +68,7 @@
     "prismjs": "^1.29.0",
     "svelte-codemirror-editor": "^1.2.0",
     "svelte-french-toast": "^1.2.0",
-    "svelte-icons-pack": "^2.1.0",
+    "svelte-icons-pack": "^2.1.1",
     "svelte-local-storage-store": "^0.6.4",
     "svelte-monaco": "^0.3.0",
     "svelte-tags-input": "^6.0.0",
