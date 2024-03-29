@@ -1,5 +1,8 @@
 apiVersion: one-click.dev/v1alpha1
 kind: Rollout
+metadata:
+  name: nginx
+  namespace: default
 spec:
   env: []
   horizontalScale:
@@ -11,15 +14,22 @@ spec:
     repository: library/nginx
     tag: 1.25.3
   interfaces:
-    - name: http
+    - ingress:
+        ingressClass: nginx-external
+        rules:
+          - host: test32.ch
+            path: /
+            tls: true
+            tlsSecretName: test-cert
+      name: http
       port: 80
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 250m
+      memory: 512Mi
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 250m
+      memory: 512Mi
   secrets: []
   serviceAccountName: one-click
   volumes: []
