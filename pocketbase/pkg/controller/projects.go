@@ -24,10 +24,12 @@ func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 			return err
 		}
 
-		// Delete rollout in k8s
-		err = k8s.DeleteRollout(e.Record.GetString("id"), rollout.Id)
-		if err != nil {
-			log.Println(err)
+		// Delete rollout in k8s with no endDate
+		if rollout.GetString("endDate") == "" {
+			err = k8s.DeleteRollout(e.Record.GetString("id"), rollout.Id)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 

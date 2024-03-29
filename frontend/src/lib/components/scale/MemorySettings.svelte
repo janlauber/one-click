@@ -1,36 +1,15 @@
 <script lang="ts">
-  import { Label, Radio } from "flowbite-svelte";
+  import { Label, Range } from "flowbite-svelte";
   import { MemoryStick } from "lucide-svelte";
 
-  export let memoryRequestsInt = 256;
+  export let memoryRequestsInt = 128;
+  export let memoryLimitsInt = 128;
 
-  interface MemorySettingsProps {
-    name: string;
-    value: number;
-  }
-
-  let memorySettings: MemorySettingsProps[] = [
-    {
-      name: "Nano",
-      value: 256
-    },
-    {
-      name: "Micro",
-      value: 512
-    },
-    {
-      name: "Small",
-      value: 1024
-    },
-    {
-      name: "Medium",
-      value: 2048
-    },
-    {
-      name: "Large",
-      value: 4096
+  $: {
+    if (memoryLimitsInt < memoryRequestsInt) {
+      memoryLimitsInt = memoryRequestsInt;
     }
-  ];
+  }
 </script>
 
 <Label for="tag" class="block mb-1">
@@ -38,18 +17,19 @@
   Memory
 </Label>
 <form>
-  <ul
-    class="items-center w-full rounded-lg border border-gray-200 sm:flex dark:bg-gray-800 dark:border-gray-600 divide-x rtl:divide-x-reverse divide-gray-200 dark:divide-gray-600"
-  >
-    {#each memorySettings as { name, value }, i}
-      <li class="w-full">
-        <Radio name="hor-list" class="p-3" bind:group={memoryRequestsInt} {value}>
-          <div class="block">
-            <p class="">{name}</p>
-            <p class="text-xs font-light">({value / 1024} GB)</p>
-          </div>
-        </Radio>
-      </li>
-    {/each}
-  </ul>
+  <Label for="memory-requests" class="block mb-1">
+    Memory Requests ({memoryRequestsInt} MB)
+  </Label>
+  <Range id="memory-requests" min="128" max="8192" step="128" bind:value={memoryRequestsInt} />
+  <p class="text-xs text-gray-500 dark:text-gray-400">
+    Memory requests are the guaranteed amount of memory resources that a container will get.
+  </p>
+  <br />
+  <Label for="memory-limit" class="block mb-1">
+    Memory Limit ({memoryLimitsInt} MB)
+  </Label>
+  <Range id="memory-limit" min="128" max="16384" step="128" bind:value={memoryLimitsInt} />
+  <p class="text-xs text-gray-500 dark:text-gray-400">
+    Memory limit is the maximum amount of memory resources that a container can use.
+  </p>
 </form>

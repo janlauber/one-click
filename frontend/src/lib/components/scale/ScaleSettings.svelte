@@ -18,7 +18,9 @@
   let targetCPUUtilizationPercentage: number = 80;
 
   let cpuRequestsFloat: number = 0.1;
+  let cpuLimitFloat: number = 0.1;
   let memoryRequestsInt: number = 128;
+  let memoryLimitsInt: number = 128;
 
   function convertFloatToCpuString(value: number): string {
     // 1 = 1000m
@@ -60,6 +62,12 @@
       targetCPUUtilizationPercentage =
         current_rollout.manifest?.spec.horizontalScale.targetCPUUtilizationPercentage ?? 80;
       lastUpdatedRollout = current_rollout;
+      cpuLimitFloat = convertCpuStringToFloat(
+        current_rollout.manifest?.spec.resources?.limits?.cpu ?? "0m"
+      );
+      memoryLimitsInt = parseInt(
+        current_rollout.manifest?.spec.resources?.limits?.memory?.replace("Mi", "") ?? "0"
+      );
       cpuRequestsFloat = convertCpuStringToFloat(
         current_rollout.manifest?.spec.resources?.requests?.cpu ?? "0m"
       );
@@ -99,6 +107,12 @@
     maxInstances = current_rollout?.manifest?.spec.horizontalScale.maxReplicas ?? 1;
     targetCPUUtilizationPercentage =
       current_rollout?.manifest?.spec.horizontalScale.targetCPUUtilizationPercentage ?? 80;
+    cpuLimitFloat = convertCpuStringToFloat(
+      current_rollout?.manifest?.spec.resources?.limits?.cpu ?? "0m"
+    );
+    memoryLimitsInt = parseInt(
+      current_rollout?.manifest?.spec.resources?.limits?.memory?.replace("Mi", "") ?? "0"
+    );
     cpuRequestsFloat = convertCpuStringToFloat(
       current_rollout?.manifest?.spec.resources?.requests?.cpu ?? "0m"
     );
@@ -143,6 +157,16 @@
         return;
       }
 
+      if (cpuLimitFloat <= 0) {
+        toast.error("CPU limits must be greater than 0.");
+        return;
+      }
+
+      if (cpuRequestsFloat <= 0) {
+        toast.error("CPU requests must be greater than 0.");
+        return;
+      }
+
       if (cpuRequestsFloat <= 0) {
         toast.error("CPU requests must be greater than 0.");
         return;
@@ -165,8 +189,8 @@
           },
           resources: {
             limits: {
-              cpu: convertFloatToCpuString(cpuRequestsFloat),
-              memory: `${memoryRequestsInt}Mi`
+              cpu: convertFloatToCpuString(cpuLimitFloat),
+              memory: `${memoryLimitsInt}Mi`
             },
             requests: {
               cpu: convertFloatToCpuString(cpuRequestsFloat),
@@ -348,9 +372,9 @@
             >
               <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td class="whitespace-nowrap px-3 py-4 text-xs space-y-2">
-                  <CpuSettings bind:cpuRequestsFloat />
+                  <CpuSettings bind:cpuRequestsFloat bind:cpuLimitFloat />
 
-                  <MemorySettings bind:memoryRequestsInt />
+                  <MemorySettings bind:memoryRequestsInt bind:memoryLimitsInt />
                 </td>
               </tr>
               <!-- <tr class="transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
