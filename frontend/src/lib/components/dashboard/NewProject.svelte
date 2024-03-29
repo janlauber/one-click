@@ -15,7 +15,14 @@
   export let projectModal: boolean;
 
   let name: string = "";
-  let selectedBlueprint: BlueprintsResponse = $blueprints[0];
+
+  let filteredBlueprints: BlueprintsResponse[] = [];
+  let selectedBlueprint: BlueprintsResponse;
+
+  $: filteredBlueprints = $blueprints.filter((blueprint) => blueprint.owner === client.authStore.model?.id);
+  $: selectedBlueprint = filteredBlueprints[0];
+
+
   let localTags: Set<string> = new Set();
 
   function formatTag(tag: string): string {
@@ -140,8 +147,8 @@
       <span>Select a blueprint *</span>
     </Label>
     <div class="grid grid-cols-2 gap-2">
-      {#if $blueprints}
-        {#each $blueprints as blueprint (blueprint.id)}
+      {#if filteredBlueprints}
+        {#each filteredBlueprints as blueprint (blueprint.id)}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <span

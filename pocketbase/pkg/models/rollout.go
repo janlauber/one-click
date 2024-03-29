@@ -59,9 +59,10 @@ type Rollout struct {
 				IngressClass string            `yaml:"ingressClass"`
 				Annotations  map[string]string `yaml:"annotations"`
 				Rules        []struct {
-					Host string `yaml:"host"`
-					Path string `yaml:"path"`
-					TLS  bool   `yaml:"tls"`
+					Host          string `yaml:"host"`
+					Path          string `yaml:"path"`
+					TLS           bool   `yaml:"tls"`
+					TlsSecretName string `yaml:"tlsSecretName,omitempty"`
 				} `yaml:"rules"`
 			} `yaml:"ingress"`
 		} `yaml:"interfaces"`
