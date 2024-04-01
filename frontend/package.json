@@ -62,7 +62,7 @@
     "diff": "^5.2.0",
     "diff2html": "^3.4.47",
     "js-yaml": "^4.1.0",
-    "lucide-svelte": "^0.359.0",
+    "lucide-svelte": "^0.364.0",
     "monaco-editor": "^0.47.0",
     "pocketbase-typegen": "^1.2.1",
     "prismjs": "^1.29.0",
