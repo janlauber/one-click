@@ -75,6 +75,6 @@
     "tailwind-merge": "^2.2.2",
     "tsparticles": "^2.12.0",
     "xterm": "^5.1.0",
-    "xterm-addon-fit": "^0.7.0"
+    "xterm-addon-fit": "^0.8.0"
   }
 }
