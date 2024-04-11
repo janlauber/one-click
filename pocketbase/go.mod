@@ -1,8 +1,6 @@
 module github.com/janlauber/one-click
 
-go 1.21
-
-toolchain go1.21.5
+go 1.22
 
 require (
 	github.com/caarlos0/env/v8 v8.0.0
