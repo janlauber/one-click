@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import type { ProjectsResponse, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import type { Pexpand, Rexpand } from "$lib/stores/data";
+  import { type Rexpand, deployments } from "$lib/stores/data";
   import { rollouts } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
@@ -12,7 +12,7 @@
   import { getRolloutStatus } from "$lib/utils/rollouts";
   import { onMount } from "svelte";
   import { navigating } from "$app/stores";
-  export let project: ProjectsResponse<Pexpand>;
+  export let project: ProjectsResponse;
 
   let tags: Set<string> = new Set();
   if (project.tags) {
@@ -113,12 +113,6 @@
           alt="Tuple"
           class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
         />
-      {:else if project.expand?.blueprint}
-        <img
-          src={recordLogoUrl(project.expand?.blueprint)}
-          alt="Tuple"
-          class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10 p-1"
-        />
       {:else}
         <FileQuestion class="h-12 w-12 flex-none rounded-lg object-cover p-1" />
       {/if}
@@ -127,9 +121,9 @@
         size="xl"
         placement="top-right"
         class="text-xs font-bold text-white cursor-default"
-        >{these_rollouts.length || 0}
+        >{$deployments.filter((d) => d.project === project.id).length}
       </Indicator>
-      <Tooltip>Rollouts</Tooltip>
+      <Tooltip>Deployments</Tooltip>
     </div>
     <div class="text-sm font-medium leading-6">{project.name}</div>
     <div class="relative ml-auto">
@@ -156,6 +150,14 @@
 
     {#if these_rollouts.length > 0}
       <div class="flex justify-between gap-x-4 py-3">
+        <dt class="">Rollouts</dt>
+        <dd class="cursor-default">
+          {these_rollouts.length}
+        </dd>
+      </div>
+    {/if}
+    {#if these_rollouts.length > 0}
+      <div class="flex justify-between gap-x-4 py-3">
         <dt class="">Last rollout</dt>
         <dd class=" cursor-default">
           <time datetime={formatDateTime(these_rollouts[0].startDate)}>
@@ -165,15 +167,6 @@
         </dd>
       </div>
     {/if}
-    <div class="flex justify-between gap-x-4 py-3">
-      <dt class="">Status</dt>
-      <dd class="flex items-start gap-x-2">
-        <Badge color={rollout_status_color} large class="cursor-default">
-          <Indicator color={rollout_status_color} size="xs" class="mr-2" />
-          {current_rollout_status?.deployment?.status ?? "Unknown"}
-        </Badge>
-      </dd>
-    </div>
     <div class="flex justify-between gap-x-4 py-3">
       <dt class="">Hosts</dt>
       <dd class="items-start gap-x-2">

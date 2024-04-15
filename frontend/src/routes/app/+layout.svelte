@@ -20,10 +20,7 @@
       >
         <div class="text-center flex justify-center items-center flex-col space-y-4">
           <Heading tag="h3" class="flex text-background font-extralight items-center w-auto">
-            Welcome to&nbsp;<b class="font-semibold">One</b>Click <Badge
-              color="secondary"
-              class="text-xl text-primary-500 font-semibold ml-2">beta</Badge
-            >
+            Welcome to&nbsp;<b class="font-semibold">One</b>Click
           </Heading>
           <span
             class="bg-white text-primary-500 text-sm font-extralight px-2 py-1 rounded-full mt-2"

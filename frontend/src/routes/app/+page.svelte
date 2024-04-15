@@ -4,7 +4,7 @@
   import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
   import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import { projects, type Pexpand, blueprints } from "$lib/stores/data";
+  import { projects, blueprints } from "$lib/stores/data";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
   import { Plus, BookDashed } from "lucide-svelte";
 
@@ -12,7 +12,7 @@
 
   let tags: Set<string> = new Set();
   let selectedTags: Set<string> = new Set();
-  let filteredProjects: ProjectsResponse<Pexpand>[] = [];
+  let filteredProjects: ProjectsResponse[] = [];
 
   $: {
     if ($projects) {
@@ -114,7 +114,7 @@
           }}
         >
           <Badge
-            color="alternative"
+            color="primary"
             class="text-sm cursor-pointer
         {selectedTags.size === 0 ? 'bg-primary-600 text-white' : ''}
       "
@@ -126,7 +126,7 @@
       {#each Array.from(tags) as tag (tag)}
         <button on:click={() => handleFilterProjects(tag)}>
           <Badge
-            color={selectedTags.has(tag) ? "primary" : "alternative"}
+            color={selectedTags.has(tag) ? "primary" : "dark"}
             class="text-sm cursor-pointer
           {selectedTags.has(tag) ? 'bg-primary-600 text-white' : ''}
         "

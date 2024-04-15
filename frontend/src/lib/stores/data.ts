@@ -4,13 +4,15 @@ import type {
     ProjectsResponse,
     AutoUpdatesResponse,
     BlueprintsResponse,
-    UsersResponse
+    UsersResponse,
+    DeploymentsResponse
 } from "$lib/pocketbase/generated-types";
 import { getClusterInfo, type ClusterInfoResponse } from "$lib/utils/cluster-info";
 import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 import type { RolloutStatusResponse } from "$lib/types/status";
 import { getRolloutStatus } from "$lib/utils/rollouts";
+import { c } from "svelte-highlight/languages/index";
 
 // Blueprints //
 export type Bexpand = {
@@ -22,6 +24,7 @@ export const blueprints: Writable<BlueprintsResponse[]> = writable<BlueprintsRes
 // Rollouts //
 export type Rexpand = {
     spec: any;
+    deployment: DeploymentsResponse;
     project: ProjectsResponse;
 };
 export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
@@ -36,15 +39,17 @@ export const currentRolloutStatus: Writable<RolloutStatusResponse | undefined> =
     RolloutStatusResponse | undefined
 >(undefined);
 
-// Projects //
-export type Pexpand = {
+// Deployments //
+export type Dexpand = {
+    project: ProjectsResponse;
     blueprint?: BlueprintsResponse;
 };
-export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
-    ProjectsResponse<Pexpand>[]
->([]);
-export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
-    ProjectsResponse<Pexpand> | undefined
+export const deployments: Writable<DeploymentsResponse<Dexpand>[]> = writable<DeploymentsResponse<Dexpand>[]>([]);
+
+// Projects //
+export const projects: Writable<ProjectsResponse[]> = writable<ProjectsResponse[]>([]);
+export const selectedProject: Writable<ProjectsResponse | undefined> = writable<
+    ProjectsResponse | undefined
 >(undefined);
 
 // Auto Updates //
@@ -67,38 +72,19 @@ export enum UpdateFilterEnum {
 export interface UpdateFilter {
     filter: UpdateFilterEnum;
     projectId?: string;
+    deploymentId?: string;
     blueprintId?: string;
 }
 
 export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
     if (filter.filter === UpdateFilterEnum.ALL) {
-        await updateBlueprints(filter.blueprintId);
         await updateProjects(filter.projectId);
-        await updateRollouts(filter.projectId);
-        await updateAutoUpdates(filter.projectId);
+        await updateDeployments(filter.projectId);
+        await updateBlueprints(filter.deploymentId);
+        await updateAutoUpdates(filter.deploymentId);
+        await updateRollouts(filter.deploymentId);
         await updateClusterInfo();
     }
-}
-
-export async function updateBlueprints(blueprintId?: string) {
-    await client
-        .collection("blueprints")
-        .getFullList({
-            sort: "-created",
-            expand: "owner,users"
-        })
-        .then((response: unknown) => {
-            // if blueprintId is set, set the selected blueprint filtered by the id
-            if (blueprintId) {
-                // @ts-ignore
-                blueprints.set(response.filter((blueprint) => blueprint.id === blueprintId));
-                return;
-            }
-            blueprints.set(response as BlueprintsResponse[]);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
 }
 
 export async function updateRollouts(projectId?: string) {
@@ -131,6 +117,52 @@ export async function updateRollouts(projectId?: string) {
     }
 }
 
+export async function updateDeployments(projectId?: string) {
+    try {
+        const response = await fetchDeployments();
+        if (projectId) {
+            // set selected project
+            selectedProjectId.set(projectId);
+            // @ts-ignore
+            deployments.set(response.filter((deployment) => deployment.project === projectId));
+            return;
+        }
+        deployments.set(response);
+    } catch (error) {
+        // Handle error
+    }
+}
+
+async function fetchDeployments(): Promise<DeploymentsResponse<Dexpand>[]> {
+    const queryOptions = {
+        sort: "-created",
+        expand: "project,blueprint"
+    };
+
+    return await client.collection("deployments").getFullList<DeploymentsResponse<Dexpand>>(queryOptions);
+}
+
+export async function updateBlueprints(blueprintId?: string) {
+    await client
+        .collection("blueprints")
+        .getFullList({
+            sort: "-created",
+            expand: "owner,users"
+        })
+        .then((response: unknown) => {
+            // if blueprintId is set, set the selected blueprint filtered by the id
+            if (blueprintId) {
+                // @ts-ignore
+                blueprints.set(response.filter((blueprint) => blueprint.id === blueprintId));
+                return;
+            }
+            blueprints.set(response as BlueprintsResponse[]);
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
+
 export async function updateCurrentRolloutStatus(projectId: string) {
     const rolloutId = get(currentRollout)!.id;
     const response = await getRolloutStatus(projectId, rolloutId);
@@ -160,13 +192,13 @@ export async function updateProjects(projectId?: string) {
     }
 }
 
-async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
+async function fetchProjects(): Promise<ProjectsResponse[]> {
     const queryOptions = {
         sort: "-created",
         expand: "blueprint"
     };
 
-    return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
+    return await client.collection("projects").getFullList<ProjectsResponse>(queryOptions);
 }
 
 export async function updateAutoUpdates(projectId?: string) {
