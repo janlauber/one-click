@@ -10,6 +10,7 @@
     UpdateFilterEnum,
     clusterInfo
   } from "$lib/stores/data";
+  import { isValidName } from "$lib/utils/string-validation";
   import {
     Accordion,
     AccordionItem,
@@ -130,6 +131,13 @@
 
     if (!updatedInterface.name) {
       toast.error("Interface name is required");
+      return;
+    }
+
+    if (!isValidName(updatedInterface.name)) {
+      toast.error(
+        "Interface name should only contain lowercase alphanumeric characters or '-' (max 63 characters)"
+      );
       return;
     }
 

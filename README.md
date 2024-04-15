@@ -61,6 +61,8 @@ You will need the following to run this project:
 
 Blueprints are an abstraction of a project. They contain some predefined values and can be used to deploy a certain container with a single click. You can create your own blueprints and share them with others.
 
+Check out the [blueprints](./docs/blueprints/) folder for examples.
+
 ### Projects
 
 Projects are the actual deployments. They are based on blueprints. You can create a project from a blueprint and customize it to your needs.
