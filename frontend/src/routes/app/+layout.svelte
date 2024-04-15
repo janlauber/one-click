@@ -1,9 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
+  import { site } from "$lib/config";
+  import { metadata } from "$lib/stores/metadata";
   import { Badge, Heading } from "flowbite-svelte";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
+
+  $metadata.title = "Projects"
+
 </script>
 
 <div>
@@ -12,7 +17,7 @@
   </div>
 
   <div class="absolute top-12 left-0 right-0 bottom-0">
-    {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/admin/")}
+    {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/deployments/") && !$page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/admin/")}
       <div
         class="bg-primary-600 w-full p-4 relative"
         in:slide={{ duration: 200, easing: cubicOut }}

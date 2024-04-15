@@ -44,7 +44,13 @@ export type Dexpand = {
     project: ProjectsResponse;
     blueprint?: BlueprintsResponse;
 };
-export const deployments: Writable<DeploymentsResponse<Dexpand>[]> = writable<DeploymentsResponse<Dexpand>[]>([]);
+export const deployments: Writable<DeploymentsResponse<Dexpand>[]> = writable<
+    DeploymentsResponse<Dexpand>[]
+>([]);
+export const selectedDeploymentId: Writable<string> = writable<string>("");
+export const selectedDeployment: Writable<DeploymentsResponse<Dexpand> | undefined> = writable<
+    DeploymentsResponse<Dexpand> | undefined
+>(undefined);
 
 // Projects //
 export const projects: Writable<ProjectsResponse[]> = writable<ProjectsResponse[]>([]);
@@ -87,23 +93,24 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
     }
 }
 
-export async function updateRollouts(projectId?: string) {
+export async function updateRollouts(deploymentId?: string) {
     try {
         const response = await fetchRollouts();
-        if (projectId) {
-            // set selected project
-            selectedProjectId.set(projectId);
+
+        if (deploymentId) {
+            // set selected deployment
+            selectedDeploymentId.set(deploymentId);
             // @ts-ignore
-            rollouts.set(response.filter((rollout) => rollout.project === projectId));
+            rollouts.set(response.filter((rollout) => rollout.deployment === deploymentId));
 
             // set the current rollout to the one without an endDate and the project id
             // @ts-ignore
             currentRollout.set(
-                response.find((rollout) => rollout.project === projectId && !rollout.endDate)
+                response.find((rollout) => rollout.deployment === deploymentId && !rollout.endDate)
             );
 
-            if (currentRollout && projectId && get(currentRollout) !== undefined) {
-                const response = await getRolloutStatus(projectId, get(currentRollout)!.id);
+            if (currentRollout && deploymentId && get(currentRollout) !== undefined) {
+                const response = await getRolloutStatus(deploymentId, get(currentRollout)!.id);
                 currentRolloutStatus.set(response);
             } else {
                 currentRolloutStatus.set(undefined);
@@ -111,7 +118,6 @@ export async function updateRollouts(projectId?: string) {
 
             return;
         }
-        rollouts.set(response);
     } catch (error) {
         // Handle error
     }
@@ -139,7 +145,9 @@ async function fetchDeployments(): Promise<DeploymentsResponse<Dexpand>[]> {
         expand: "project,blueprint"
     };
 
-    return await client.collection("deployments").getFullList<DeploymentsResponse<Dexpand>>(queryOptions);
+    return await client
+        .collection("deployments")
+        .getFullList<DeploymentsResponse<Dexpand>>(queryOptions);
 }
 
 export async function updateBlueprints(blueprintId?: string) {
@@ -163,16 +171,16 @@ export async function updateBlueprints(blueprintId?: string) {
         });
 }
 
-export async function updateCurrentRolloutStatus(projectId: string) {
+export async function updateCurrentRolloutStatus(deploymentId: string) {
     const rolloutId = get(currentRollout)!.id;
-    const response = await getRolloutStatus(projectId, rolloutId);
+    const response = await getRolloutStatus(deploymentId, rolloutId);
     currentRolloutStatus.set(response);
 }
 
 async function fetchRollouts(): Promise<RolloutsResponse<Rexpand>[]> {
     const queryOptions = {
         sort: "-created",
-        expand: "project"
+        expand: "project,deployment"
     };
 
     return await client.collection("rollouts").getFullList<RolloutsResponse<Rexpand>>(queryOptions);
@@ -201,14 +209,14 @@ async function fetchProjects(): Promise<ProjectsResponse[]> {
     return await client.collection("projects").getFullList<ProjectsResponse>(queryOptions);
 }
 
-export async function updateAutoUpdates(projectId?: string) {
+export async function updateAutoUpdates(deploymentId?: string) {
     try {
         const response = await fetchAutoUpdates();
-        if (projectId) {
-            // set selected project
-            selectedProjectId.set(projectId);
+        if (deploymentId) {
+            // set selected deployment
+            selectedDeploymentId.set(deploymentId);
             // @ts-ignore
-            autoUpdates.set(response.filter((update) => update.project === projectId));
+            autoUpdates.set(response.filter((update) => update.deployment === deploymentId));
             return;
         }
         autoUpdates.set(response);

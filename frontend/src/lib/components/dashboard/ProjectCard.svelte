@@ -132,7 +132,7 @@
           color="alternative"
           on:click={() => {
             $selectedProjectId = project.id;
-            goto(`/app/projects/${project.id}/overview`);
+            goto(`/app/projects/${project.id}`);
           }}
         >
           <ArrowRight class="w-5 h-5" />
