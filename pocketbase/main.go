@@ -91,6 +91,8 @@ func main() {
 		switch e.Collection.Name {
 		case "rollouts":
 			return controller.HandleRolloutDelete(e, app)
+		case "deployments":
+			return controller.HandleDeploymentDelete(e, app)
 		case "projects":
 			return controller.HandleProjectDelete(e, app)
 		}
@@ -99,25 +101,25 @@ func main() {
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		// get status of a specific rollout
-		e.Router.GET("/rollouts/:projectId/:rolloutId/status", func(c echo.Context) error {
+		e.Router.GET("/rollouts/:projectId/:deploymentId/status", func(c echo.Context) error {
 			projectId := c.PathParam("projectId")
-			rolloutId := c.PathParam("rolloutId")
+			deploymentId := c.PathParam("deploymentId")
 
-			return controller.HandleRolloutStatus(c, app, projectId, rolloutId)
+			return controller.HandleRolloutStatus(c, app, projectId, deploymentId)
 		}, apis.RequireRecordAuth("users"))
 
-		e.Router.GET("/rollouts/:projectId/:rolloutId/metrics", func(c echo.Context) error {
+		e.Router.GET("/rollouts/:projectId/:deploymentId/metrics", func(c echo.Context) error {
 			projectId := c.PathParam("projectId")
-			rolloutId := c.PathParam("rolloutId")
+			deploymentId := c.PathParam("deploymentId")
 
-			return controller.HandleRolloutMetrics(c, app, projectId, rolloutId)
+			return controller.HandleRolloutMetrics(c, app, projectId, deploymentId)
 		}, apis.RequireRecordAuth("users"))
 
-		e.Router.GET("/rollouts/:projectId/:rolloutId/events", func(c echo.Context) error {
+		e.Router.GET("/rollouts/:projectId/:deploymentId/events", func(c echo.Context) error {
 			projectId := c.PathParam("projectId")
-			rolloutId := c.PathParam("rolloutId")
+			deploymentId := c.PathParam("deploymentId")
 
-			return controller.HandleRolloutEvents(c, app, projectId, rolloutId)
+			return controller.HandleRolloutEvents(c, app, projectId, deploymentId)
 		}, apis.RequireRecordAuth("users"))
 
 		e.Router.GET("/rollouts/:projectId/:podName/logs", func(c echo.Context) error {

@@ -10,7 +10,7 @@ import (
 )
 
 func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) error {
-	// Get project
+	// Get rollouts
 	expr := dbx.NewExp("project = {:project}", dbx.Params{"project": e.Record.GetString("id")})
 	rollouts, err := app.Dao().FindRecordsByExpr("rollouts", expr)
 	if err != nil {
@@ -23,13 +23,20 @@ func HandleProjectDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		if err != nil {
 			return err
 		}
+	}
 
-		// Delete rollout in k8s with no endDate
-		if rollout.GetString("endDate") == "" {
-			err = k8s.DeleteRollout(e.Record.GetString("id"), rollout.Id)
-			if err != nil {
-				log.Println(err)
-			}
+	// Get deployments
+	expr = dbx.NewExp("project = {:project}", dbx.Params{"project": e.Record.GetString("id")})
+	deployments, err := app.Dao().FindRecordsByExpr("deployments", expr)
+	if err != nil {
+		return err
+	}
+
+	// Delete all deployments in database
+	for _, deployment := range deployments {
+		err = app.Dao().DeleteRecord(deployment)
+		if err != nil {
+			return err
 		}
 	}
 

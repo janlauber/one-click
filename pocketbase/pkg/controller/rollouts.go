@@ -21,6 +21,12 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 		return err
 	}
 
+	// Get deployment
+	deployment, err := app.Dao().FindRecordById("deployments", e.Record.GetString("deployment"))
+	if err != nil {
+		return err
+	}
+
 	// Get user
 	user, err := app.Dao().FindRecordById("users", project.GetString("user"))
 	if err != nil {
@@ -36,8 +42,8 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 	}
 
 	// Check if there is another rollout in the same project with no endDate
-	running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project}",
-		dbx.Params{"project": e.Record.GetString("project")},
+	running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project} && deployment = {:deployment}",
+		dbx.Params{"project": e.Record.GetString("project"), "deployment": e.Record.GetString("deployment")},
 	)
 	if err != nil {
 		if contains := strings.Contains(err.Error(), "no rows"); !contains {
@@ -55,7 +61,7 @@ func HandleRolloutCreate(e *core.RecordCreateEvent, app *pocketbase.PocketBase) 
 	}
 
 	// Create rollout in k8s
-	err = k8s.CreateOrUpdateRollout(rolloutId, user, project.Id, e.Record.GetString("manifest"))
+	err = k8s.CreateOrUpdateRollout(rolloutId, user, project.Id, deployment.Id, e.Record.GetString("manifest"))
 	if err != nil {
 		log.Println(err)
 		return err
@@ -85,6 +91,12 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 		return err
 	}
 
+	// Get deployment
+	deployment, err := app.Dao().FindRecordById("deployments", rollout.GetString("deployment"))
+	if err != nil {
+		return err
+	}
+
 	// Get user
 	user, err := app.Dao().FindRecordById("users", project.GetString("user"))
 	if err != nil {
@@ -102,7 +114,7 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 
 	// Check if endDate is set, if yes, delete rollout
 	if e.Record.GetString("endDate") != "" {
-		err = k8s.DeleteRollout(project.Id, rollout.Id)
+		err = k8s.DeleteRollout(project.Id, deployment.Id)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -111,8 +123,8 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 	} else if rollout.GetString("endDate") != "" {
 
 		// Check if there is another rollout in the same project with no endDate
-		running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project}",
-			dbx.Params{"project": rollout.GetString("project")},
+		running_rollout, err := app.Dao().FindFirstRecordByFilter("rollouts", "endDate = '' && project = {:project} && deployment = {:deployment}",
+			dbx.Params{"project": rollout.GetString("project"), "deployment": rollout.GetString("deployment")},
 		)
 		if err != nil {
 			// only throw error string if it doesn't contain "no rows"
@@ -133,7 +145,7 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 		e.Record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
 
 		// If endDate was set before, but is not set anymore, create rollout again
-		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, e.Record.GetString("manifest"))
+		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, deployment.Id, e.Record.GetString("manifest"))
 		if err != nil {
 			log.Println(err)
 			return err
@@ -144,7 +156,7 @@ func HandleRolloutUpdate(e *core.RecordUpdateEvent, app *pocketbase.PocketBase) 
 	} else {
 		e.Record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
 		// Update rollout in k8s
-		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, e.Record.GetString("manifest"))
+		err = k8s.CreateOrUpdateRollout(rollout.Id, user, project.Id, deployment.Id, e.Record.GetString("manifest"))
 		if err != nil {
 			log.Println(err)
 			return err
@@ -168,9 +180,15 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 		return err
 	}
 
+	// Get deployment
+	deployment, err := app.Dao().FindRecordById("deployments", rollout.GetString("deployment"))
+	if err != nil {
+		return err
+	}
+
 	// Check if endDate is set, if no, delete rollout
 	if rollout.GetString("endDate") == "" {
-		err = k8s.DeleteRollout(project.Id, rollout.Id)
+		err = k8s.DeleteRollout(project.Id, deployment.Id)
 		if err != nil {
 			log.Println(err)
 		}
@@ -179,10 +197,10 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 	return nil
 }
 
-func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
 
 	// Get rollout status
-	status, err := k8s.GetRolloutStatus(projectId, rollout)
+	status, err := k8s.GetRolloutStatus(projectId, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -190,10 +208,10 @@ func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId s
 	return c.JSON(200, status)
 }
 
-func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
 
 	// Get rollout metrics
-	metrics, err := k8s.GetRolloutMetrics(projectId, rollout)
+	metrics, err := k8s.GetRolloutMetrics(projectId, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -201,10 +219,10 @@ func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId 
 	return c.JSON(200, metrics)
 }
 
-func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, rollout string) error {
+func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
 
 	// Get rollout events
-	events, err := k8s.GetRolloutEvents(projectId, rollout)
+	events, err := k8s.GetRolloutEvents(projectId, deploymentId)
 	if err != nil {
 		return err
 	}
