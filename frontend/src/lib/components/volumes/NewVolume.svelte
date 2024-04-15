@@ -1,16 +1,16 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
-  import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
+  import type { RolloutsRecord } from "$lib/pocketbase/generated-types";
   import {
     updateDataStores,
-    type Rexpand,
     UpdateFilterEnum,
     currentRollout,
     clusterInfo
   } from "$lib/stores/data";
-  import { Accordion, AccordionItem, Button, Input, Label, Select, Toggle } from "flowbite-svelte";
+  import { Button, Input, Label, Select } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
+  import { isValidName } from "$lib/utils/string-validation";
 
   export let modal: boolean;
 
@@ -44,6 +44,11 @@
 
     if (!volume.name) {
       toast.error("Volume name is required");
+      return;
+    }
+
+    if (!isValidName(volume.name)) {
+      toast.error("Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)");
       return;
     }
 

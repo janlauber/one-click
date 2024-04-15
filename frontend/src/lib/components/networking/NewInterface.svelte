@@ -10,6 +10,7 @@
   import { Button, Input, Label, Select, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
+    import { isValidName } from "$lib/utils/string-validation";
 
   export let modal: boolean;
 
@@ -43,6 +44,11 @@
 
     if (!inf.name) {
       toast.error("Interface name is required");
+      return;
+    }
+
+    if (!isValidName(inf.name)) {
+      toast.error("Interface name should only contain lowercase alphanumeric characters or '-' (max 63 characters)");
       return;
     }
 

@@ -1,0 +1,31 @@
+apiVersion: one-click.dev/v1alpha1
+kind: Rollout
+spec:
+  env: []
+  horizontalScale:
+    maxReplicas: 1
+    minReplicas: 1
+    targetCPUUtilizationPercentage: 80
+  image:
+    password: ''
+    registry: ghcr.io
+    repository: muchobien/pocketbase
+    tag: latest
+    username: ''
+  interfaces:
+    - name: http
+      port: 8090
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  secrets: []
+  serviceAccountName: one-click
+  volumes:
+    - mountPath: /pb_data
+      name: pb-data
+      size: 1Gi
+      storageClass: nfs-data

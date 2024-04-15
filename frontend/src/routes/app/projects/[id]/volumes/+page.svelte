@@ -9,6 +9,7 @@
     updateDataStores,
     UpdateFilterEnum
   } from "$lib/stores/data";
+  import { isValidName } from "$lib/utils/string-validation";
   import {
     Accordion,
     AccordionItem,
@@ -113,6 +114,13 @@
 
     if (!updatedVolume.name) {
       toast.error("Volume name is required");
+      return;
+    }
+
+    if (!isValidName(updatedVolume.name)) {
+      toast.error(
+        "Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)"
+      );
       return;
     }
 
@@ -234,7 +242,6 @@
       });
 
       temp_rollout = $currentRollout;
-
     } catch (error) {
       console.error("Failed to update manifest:", error);
       toast.error("Failed to update interface.");
