@@ -122,8 +122,6 @@ func DeleteRollout(projectId string, deploymentId string) error {
 
 func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus, error) {
 
-	fmt.Println("GetRolloutStatus")
-
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
 		Group:    "one-click.dev",

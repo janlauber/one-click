@@ -111,8 +111,6 @@
       owner: client.authStore?.model?.id
     };
 
-    console.log(data);
-
     toast.promise(
       client
         .collection("blueprints")

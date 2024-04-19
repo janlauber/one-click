@@ -1,7 +1,6 @@
 <script lang="ts">
   import { updateCurrentRolloutStatus } from "$lib/stores/data";
   import { onDestroy, onMount } from "svelte";
-  import selectedProjectId from "$lib/stores/project";
   import { navigating } from "$app/stores";
 
   const updateCurrentRollout = () => {

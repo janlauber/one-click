@@ -54,8 +54,6 @@
       if (!client.authStore.model) {
         throw new Error("No user found");
       }
-
-      console.log(displayName)
       await client.collection("users").update(client.authStore.model?.id, { name: displayName });
       await client.collection("users").authRefresh();
       toast.success("Successfully updated display name");

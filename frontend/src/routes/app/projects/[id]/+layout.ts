@@ -1,4 +1,5 @@
 import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
+import selectedProjectId from "$lib/stores/project";
 import type { PageLoad } from "../../$types";
 
 export const load: PageLoad = async ({ params }: any) => {

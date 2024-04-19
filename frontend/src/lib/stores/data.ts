@@ -11,6 +11,8 @@ import { getClusterInfo, type ClusterInfoResponse } from "$lib/api/cluster-info"
 import { get, writable, type Writable } from "svelte/store";
 import type { RolloutStatusResponse } from "$lib/types/status";
 import { getRolloutStatus } from "$lib/api/rollouts";
+import selectedProjectId from "./project";
+import selectedDeploymentId from "./deployment";
 
 // Generic type for expandable responses
 export type ExpandableResponse<T, U> = T & { expand?: U };
@@ -35,7 +37,9 @@ export type Rexpand = {
     deployment: DeploymentsResponse;
     project: ProjectsResponse;
 };
-export const rollouts = createWritableStore<ExpandableResponse<RolloutsResponse[], Rexpand | undefined>>([]);
+export const rollouts = createWritableStore<
+    ExpandableResponse<RolloutsResponse[], Rexpand | undefined>
+>([]);
 export const currentRollout = createWritableStore<
     ExpandableResponse<RolloutsResponse, Rexpand> | undefined
 >(undefined);
@@ -87,6 +91,7 @@ async function updateDataStore<T, U>(
     collectionName: string,
     store: Writable<T[]>,
     filterFunc?: (item: T) => boolean,
+    filter?: UpdateFilter,
     expand?: string
 ) {
     try {
@@ -97,9 +102,24 @@ async function updateDataStore<T, U>(
 
         const response = await client.collection(collectionName).getFullList<U>(queryOptions);
 
+        // if filter.projectId is defined, filter the response
         if (filterFunc) {
-            // @ts-ignore
-            store.set(response.filter(filterFunc) as T[]);
+            // set the currentRollout if the filter is deploymentId and collectionName is rollouts
+            if (filter?.deploymentId && collectionName === "rollouts") {
+                // currentRollout should be the one that has no endDate
+                const cRollout = response.find(
+                    (rollout: any) => rollout.deployment === filter.deploymentId && !rollout.endDate
+                );
+                if (cRollout) {
+                    // @ts-ignore
+                    store.set([cRollout] as T[]);
+
+                    currentRollout.set(cRollout as any);
+                }
+            } else {
+                // @ts-ignore
+                store.set(response.filter(filterFunc) as T[]);
+            }
         } else {
             store.set(response as unknown as T[]);
         }
@@ -119,24 +139,28 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
             "projects",
             projects,
             (project) => !filter.projectId || project.id === filter.projectId,
+            filter,
             "blueprint"
         );
         await updateDataStore(
             "deployments",
             deployments,
             (deployment) => !filter.projectId || deployment.project === filter.projectId,
+            filter,
             "project,blueprint"
         );
         await updateDataStore(
             "blueprints",
             blueprints,
             (blueprint) => !filter.blueprintId || blueprint.id === filter.blueprintId,
+            filter,
             "owner,users"
         );
         await updateDataStore(
             "autoUpdates",
             autoUpdates,
             (update) => update.deployment === filter.deploymentId,
+            filter,
             "project"
         );
         await updateDataStore(
@@ -146,14 +170,17 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
                 !filter.deploymentId ||
                 (rollout.project === filter.projectId &&
                     rollout.deployment === filter.deploymentId),
+            filter,
             "project,deployment"
         );
         await updateClusterInfo();
     }
 }
 
-export async function updateCurrentRolloutStatus(deploymentId: string) {
-    const rolloutId = get(currentRollout)!.id;
-    const response: RolloutStatusResponse | undefined = await getRolloutStatus(deploymentId, rolloutId);
+export async function updateCurrentRolloutStatus() {
+    const response: RolloutStatusResponse | undefined = await getRolloutStatus(
+        get(selectedProjectId),
+        get(selectedDeploymentId)
+    );
     currentRolloutStatus.set(response);
 }
