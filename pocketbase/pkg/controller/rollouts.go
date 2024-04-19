@@ -196,36 +196,3 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 
 	return nil
 }
-
-func HandleRolloutStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
-
-	// Get rollout status
-	status, err := k8s.GetRolloutStatus(projectId, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(200, status)
-}
-
-func HandleRolloutMetrics(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
-
-	// Get rollout metrics
-	metrics, err := k8s.GetRolloutMetrics(projectId, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(200, metrics)
-}
-
-func HandleRolloutEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
-
-	// Get rollout events
-	events, err := k8s.GetRolloutEvents(projectId, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(200, events)
-}

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/janlauber/one-click/pkg/k8s"
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
@@ -49,4 +50,34 @@ func HandleDeploymentDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBas
 	}
 
 	return nil
+}
+
+func HandleDeploymentStatus(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
+	// We get the status of the kind: Rollout with the name: deploymentId (because we don't want to recreate the object on each new rollout)
+	status, err := k8s.GetRolloutStatus(projectId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(200, status)
+}
+
+func HandleDeploymentMetrics(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
+	// We get the metrics of the kind: Rollout with the name: deploymentId (because we don't want to recreate the object on each new rollout)
+	metrics, err := k8s.GetRolloutMetrics(projectId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(200, metrics)
+}
+
+func HandleDeploymentEvents(c echo.Context, app *pocketbase.PocketBase, projectId string, deploymentId string) error {
+	// We get the events of the kind: Rollout with the name: deploymentId (because we don't want to recreate the object on each new rollout)
+	events, err := k8s.GetRolloutEvents(projectId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(200, events)
 }

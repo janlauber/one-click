@@ -120,7 +120,10 @@ func DeleteRollout(projectId string, deploymentId string) error {
 	return nil
 }
 
-func GetRolloutStatus(projectId string, deploymentId string) (*models.RolloutStatus, error) {
+func GetRolloutStatus(projectId string, rolloutId string) (*models.RolloutStatus, error) {
+
+	fmt.Println("GetRolloutStatus")
+
 	// Define the GroupVersionResource for the Rollout object
 	rolloutGVR := schema.GroupVersionResource{
 		Group:    "one-click.dev",
@@ -129,8 +132,9 @@ func GetRolloutStatus(projectId string, deploymentId string) (*models.RolloutSta
 	}
 
 	// Get the Rollout
-	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, deploymentId, metav1.GetOptions{})
+	rollout, err := DynamicClient.Resource(rolloutGVR).Namespace(projectId).Get(Ctx, rolloutId, metav1.GetOptions{})
 	if err != nil {
+		fmt.Println(err)
 		return nil, fmt.Errorf("error getting Rollout: %w", err)
 	}
 
@@ -154,7 +158,7 @@ func GetRolloutMetrics(projectId string, deploymentId string) (*models.PodMetric
 
 	// List all pods in the projectId namespaced controlled by the deploymentId
 	pods, err := Clientset.CoreV1().Pods(projectId).List(Ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("one-click.dev/deploymentId=%s", projectId),
+		LabelSelector: fmt.Sprintf("one-click.dev/deploymentId=%s", deploymentId),
 	})
 
 	if err != nil {
