@@ -6,7 +6,7 @@ export async function getClusterInfo() {
 export type ClusterInfoResponse = {
     ingressClasses: string[];
     storageClasses: string[];
-}
+};
 
 async function fetchClusterInfo() {
     let clusterInfo: ClusterInfoResponse | undefined;
@@ -20,15 +20,11 @@ async function fetchClusterInfo() {
     // if localhost, use localhost:8090 as base url
     if (window.location.hostname === "localhost") {
         try {
-            const response = await fetch(
-                `http://localhost:8090/cluster-info`,
-                {
-                    headers: authHeader
-                }
-            );
+            const response = await fetch(`http://localhost:8090/cluster-info`, {
+                headers: authHeader
+            });
             clusterInfo = await response.json();
-        } catch (error) {
-        }
+        } catch (error) {}
 
         return clusterInfo;
     }

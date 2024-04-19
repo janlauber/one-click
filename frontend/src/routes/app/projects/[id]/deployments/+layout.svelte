@@ -5,8 +5,8 @@
   export let data: any;
 </script>
 
-<!-- only if startswith /app/projects/[id]/[id] -->
-{#if $page.url.pathname.startsWith("/app/projects/") && $page.url.pathname.split("/").length === 4}
+<!-- only if startswith /app/projects/[id]/deployments/[id] -->
+{#if $page.url.pathname.startsWith("/app/projects/") && $page.url.pathname.includes("/deployments/")}
   <div
     class="relative h-full max-w-6xl mx-auto"
   >

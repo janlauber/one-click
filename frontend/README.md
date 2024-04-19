@@ -22,11 +22,11 @@ Now visit http://localhost:5173 (ui) or http://localhost:8090 (pb)
 
 ### Default Logins
 
-*PocketBase*:
+_PocketBase_:
 email: `admin@one-click.dev`
 password: `0123456789`
 
-*App*:
+_App_:
 email: `jan@one-click.dev`
 password: `0123456789`
 

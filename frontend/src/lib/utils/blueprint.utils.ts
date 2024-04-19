@@ -1,5 +1,4 @@
 export function recordLogoUrl(record: any): string {
-
     if (!record) {
         return "";
     }
@@ -7,12 +6,5 @@ export function recordLogoUrl(record: any): string {
         return "";
     }
 
-    return (
-        "/api/files/" +
-        record?.collectionId +
-        "/" +
-        record?.id +
-        "/" +
-        record?.avatar
-    );
+    return "/api/files/" + record?.collectionId + "/" + record?.id + "/" + record?.avatar;
 }

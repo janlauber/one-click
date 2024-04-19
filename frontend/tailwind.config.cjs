@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: //"#3E6ABB",
-        {
+        //"#3E6ABB",
+        primary: {
           100: "#B5B5B5",
           200: "#B5B5B5",
           300: "#B5B5B5",
@@ -20,8 +20,8 @@ module.exports = {
           800: "#0e0e0e",
           900: "#0e0e0e"
         },
-        secondary: //"#EDF1FF",
-        {
+        //"#EDF1FF",
+        secondary: {
           100: "#FFFFFF",
           200: "#FFFFFF",
           300: "#FFFFFF",

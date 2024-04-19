@@ -31,8 +31,8 @@ const config = {
         handler(warning);
     },
     optimizeDeps: {
-        exclude: ["codemirror", "@codemirror/language-javascript" /* ... */],
-    },
+        exclude: ["codemirror", "@codemirror/language-javascript" /* ... */]
+    }
 };
 
 export default config;
