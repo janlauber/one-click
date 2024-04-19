@@ -333,11 +333,11 @@
     const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
 
     // if localhost, use localhost:8090 as base url
-    // POST /rollouts/:projectId/:podName
+    // POST /pb/:projectId/:podName
     if (window.location.hostname === "localhost") {
       try {
         const response = await fetch(
-          `http://localhost:8090/rollouts/${$selectedProject?.id}/${podName}`,
+          `http://localhost:8090/pb/${$selectedProject?.id}/${podName}`,
           {
             method: "DELETE",
             headers: {
@@ -359,7 +359,7 @@
       }
     } else {
       try {
-        const response = await fetch(`/rollouts/${$selectedProject?.id}/${podName}`, {
+        const response = await fetch(`/pb/${$selectedProject?.id}/${podName}`, {
           method: "DELETE",
           headers: {
             ...authHeader,

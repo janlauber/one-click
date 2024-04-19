@@ -20,14 +20,14 @@
     document.body.removeChild(a);
   }
 
-  // get rollout logs from specific pod as EventSource from /rollouts/{projectId}/{podName}/logs
+  // get rollout logs from specific pod as EventSource from /pb/{projectId}/{podName}/logs
   // Object to hold log streams for each pod
   let logs: { [key: string]: string[] } = {};
 
   async function fetchLogs(podName: string) {
     const projectId = $currentRollout?.project;
     const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8090" : "";
-    const url = `${baseUrl}/rollouts/${projectId}/${podName}/logs`;
+    const url = `${baseUrl}/pb/${projectId}/${podName}/logs`;
     const token = localStorage.getItem("pocketbase_auth");
     if (!token) {
       console.error("No token found");

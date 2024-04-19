@@ -6,7 +6,7 @@ export async function getRolloutStatus(projectId: string, rolloutId: string) {
     return response;
 }
 
-// fetch from /rollouts/{projectId}/{rolloutId}/status
+// fetch from /pb/{projectId}/{rolloutId}/status
 async function fetchRolloutStatus(projectId: string, rolloutId: string) {
     let status: RolloutStatusResponse | undefined;
 
@@ -20,7 +20,7 @@ async function fetchRolloutStatus(projectId: string, rolloutId: string) {
     if (window.location.hostname === "localhost") {
         try {
             const response = await fetch(
-                `http://localhost:8090/rollouts/${projectId}/${rolloutId}/status`,
+                `http://localhost:8090/pb/${projectId}/${rolloutId}/status`,
                 {
                     headers: authHeader
                 }
@@ -32,7 +32,7 @@ async function fetchRolloutStatus(projectId: string, rolloutId: string) {
     }
 
     try {
-        const response = await fetch(`/rollouts/${projectId}/${rolloutId}/status`, {
+        const response = await fetch(`/pb/${projectId}/${rolloutId}/status`, {
             headers: authHeader
         });
         status = await response.json();
@@ -61,7 +61,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
     if (window.location.hostname === "localhost") {
         try {
             const response = await fetch(
-                `http://localhost:8090/rollouts/${projectId}/${rolloutId}/metrics`,
+                `http://localhost:8090/pb/${projectId}/${rolloutId}/metrics`,
                 {
                     headers: authHeader
                 }
@@ -75,7 +75,7 @@ async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
     }
 
     try {
-        const response = await fetch(`/rollouts/${projectId}/${rolloutId}/metrics`, {
+        const response = await fetch(`/pb/${projectId}/${rolloutId}/metrics`, {
             headers: authHeader
         });
         metrics = await response.json();
@@ -104,7 +104,7 @@ async function fetchRolloutEvents(projectId: string, rolloutId: string) {
     if (window.location.hostname === "localhost") {
         try {
             const response = await fetch(
-                `http://localhost:8090/rollouts/${projectId}/${rolloutId}/events`,
+                `http://localhost:8090/pb/${projectId}/${rolloutId}/events`,
                 {
                     headers: authHeader
                 }
@@ -118,7 +118,7 @@ async function fetchRolloutEvents(projectId: string, rolloutId: string) {
     }
 
     try {
-        const response = await fetch(`/rollouts/${projectId}/${rolloutId}/events`, {
+        const response = await fetch(`/pb/${projectId}/${rolloutId}/events`, {
             headers: authHeader
         });
         events = await response.json();

@@ -17,7 +17,7 @@
   //   document.body.removeChild(a);
   // }
 
-  // // get rollout logs from specific pod as EventSource from /rollouts/{projectId}/{podName}/logs
+  // // get rollout logs from specific pod as EventSource from /pb/{projectId}/{podName}/logs
   // // Object to hold log streams for each pod
   let initialLoadComplete = false;
   let logs: string = "";
