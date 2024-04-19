@@ -3,6 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import selectedProjectId from "$lib/stores/project";
   import { navigating } from "$app/stores";
+  import { metadata } from "$lib/stores/metadata";
+  import { selectedProject } from "$lib/stores/data";
+
+  $metadata.title = $selectedProject?.name || "Deployments"
 
   const updateCurrentRollout = () => {
     updateCurrentRolloutStatus($selectedProjectId);

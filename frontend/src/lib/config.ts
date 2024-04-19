@@ -1,4 +1,4 @@
 export const site = {
-    name: "one-click",
-    description: "A web solution for one-click deployment of OSS",
+    name: "One-Click",
+    description: "Deploy your favourite container with a single click in Kubernetes.",
 };

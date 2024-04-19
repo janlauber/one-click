@@ -9,5 +9,4 @@
     } else {
         goto("/login");
     }
-
 </script>

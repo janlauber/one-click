@@ -4,6 +4,7 @@
   import { avatarUrl } from "$lib/utils/user.utils";
   import { Card, Avatar, Button, Input } from "flowbite-svelte";
   import toast from "svelte-french-toast";
+
   let fileInput: any; // This will be used to store the file input element
   let displayName: string = client.authStore.model?.name ?? "";
 

@@ -12,7 +12,6 @@ import { get, writable, type Writable } from "svelte/store";
 import selectedProjectId from "./project";
 import type { RolloutStatusResponse } from "$lib/types/status";
 import { getRolloutStatus } from "$lib/utils/rollouts";
-import { c } from "svelte-highlight/languages/index";
 
 // Blueprints //
 export type Bexpand = {

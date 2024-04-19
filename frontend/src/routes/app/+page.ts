@@ -1,7 +1,4 @@
-import { browser } from "$app/environment";
-import { client } from "$lib/pocketbase";
 import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
-import toast from "svelte-french-toast";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async () => {

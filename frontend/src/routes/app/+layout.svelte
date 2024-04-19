@@ -1,14 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
-  import { site } from "$lib/config";
-  import { metadata } from "$lib/stores/metadata";
-  import { Badge, Heading } from "flowbite-svelte";
+  import { Heading } from "flowbite-svelte";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
-
-  $metadata.title = "Projects"
-
 </script>
 
 <div>
