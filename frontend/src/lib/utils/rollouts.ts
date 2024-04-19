@@ -1,130 +1,38 @@
 import type { RolloutMetricsResponse } from "$lib/types/metrics";
 import type { RolloutStatusResponse } from "$lib/types/status";
 
-export async function getRolloutStatus(projectId: string, rolloutId: string) {
-    const response = await fetchRolloutStatus(projectId, rolloutId);
-    return response;
-}
-
-// fetch from /pb/{projectId}/{rolloutId}/status
-async function fetchRolloutStatus(projectId: string, rolloutId: string) {
-    let status: RolloutStatusResponse | undefined;
+async function fetchFromAPI(endpoint: string) {
+    let data: RolloutStatusResponse | RolloutMetricsResponse | RolloutEventsResponse | undefined;
 
     const token = localStorage.getItem("pocketbase_auth");
     if (!token) {
-        return status;
+        return data;
     }
     const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
 
-    // if localhost, use localhost:8090 as base url
-    if (window.location.hostname === "localhost") {
-        try {
-            const response = await fetch(
-                `http://localhost:8090/pb/${projectId}/${rolloutId}/status`,
-                {
-                    headers: authHeader
-                }
-            );
-            status = await response.json();
-        } catch (error) {}
-
-        return status;
-    }
+    const baseUrl = window.location.hostname === "localhost" ? `http://localhost:8090` : '';
+    const url = `${baseUrl}/pb/${endpoint}`;
 
     try {
-        const response = await fetch(`/pb/${projectId}/${rolloutId}/status`, {
+        const response = await fetch(url, {
             headers: authHeader
         });
-        status = await response.json();
+        data = await response.json();
     } catch (error) {
         // Handle error
     }
 
-    return status;
+    return data;
 }
 
-export async function getRolloutMetrics(projectId: string, rolloutId: string) {
-    const response = await fetchRolloutMetrics(projectId, rolloutId);
-    return response;
+export async function getRolloutStatus(projectId: string, deploymentId: string) {
+    return fetchFromAPI(`${projectId}/${deploymentId}/status`);
 }
 
-async function fetchRolloutMetrics(projectId: string, rolloutId: string) {
-    let metrics: RolloutMetricsResponse | undefined;
-
-    const token = localStorage.getItem("pocketbase_auth");
-    if (!token) {
-        return metrics;
-    }
-    const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
-
-    // if localhost, use localhost:8090 as base url
-    if (window.location.hostname === "localhost") {
-        try {
-            const response = await fetch(
-                `http://localhost:8090/pb/${projectId}/${rolloutId}/metrics`,
-                {
-                    headers: authHeader
-                }
-            );
-            metrics = await response.json();
-        } catch (error) {
-            // Handle error silently
-        }
-
-        return metrics;
-    }
-
-    try {
-        const response = await fetch(`/pb/${projectId}/${rolloutId}/metrics`, {
-            headers: authHeader
-        });
-        metrics = await response.json();
-    } catch (error) {
-        // Handle error silently
-    }
-
-    return metrics;
+export async function getRolloutMetrics(projectId: string, deploymentId: string) {
+    return fetchFromAPI(`${projectId}/${deploymentId}/metrics`);
 }
 
-// get rollout events
-export async function getRolloutEvents(projectId: string, rolloutId: string) {
-    const response = await fetchRolloutEvents(projectId, rolloutId);
-    return response;
-}
-
-async function fetchRolloutEvents(projectId: string, rolloutId: string) {
-    let events: RolloutEventsResponse | undefined;
-
-    const token = localStorage.getItem("pocketbase_auth");
-    if (!token) {
-        return events;
-    }
-    const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
-    // if localhost, use localhost:8090 as base url
-    if (window.location.hostname === "localhost") {
-        try {
-            const response = await fetch(
-                `http://localhost:8090/pb/${projectId}/${rolloutId}/events`,
-                {
-                    headers: authHeader
-                }
-            );
-            events = await response.json();
-        } catch (error) {
-            // Handle error
-        }
-
-        return events;
-    }
-
-    try {
-        const response = await fetch(`/pb/${projectId}/${rolloutId}/events`, {
-            headers: authHeader
-        });
-        events = await response.json();
-    } catch (error) {
-        // Handle error
-    }
-
-    return events;
+export async function getRolloutEvents(projectId: string, deploymentId: string) {
+    return fetchFromAPI(`${projectId}/${deploymentId}/events`);
 }
