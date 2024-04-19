@@ -7,12 +7,15 @@
     updateDataStores,
     UpdateFilterEnum,
     currentRollout,
-    currentRolloutStatus
+    currentRolloutStatus,
+
+    type ExpandableResponse
+
   } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
-  import { getRolloutEvents, getRolloutStatus } from "$lib/utils/rollouts";
+  import { getRolloutEvents, getRolloutStatus } from "$lib/api/rollouts";
   import {
     Badge,
     Button,
@@ -63,7 +66,7 @@
   let modalTitle1: string = "";
   let modalTitle2: string = "";
 
-  const determineRolloutColor = (status: string) => {
+  const determineRolloutColor = (status: string): any => {
     switch (status) {
       case "Pending":
         return "yellow";
@@ -118,17 +121,11 @@
 
   function confirmRollback(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
-    $currentRollout = $rollouts.find((r) => !r.endDate);
-
-    // if ($currentRollout == undefined) {
-    //   toast.error("There is no rollout to rollback to.");
-    //   return;
-    // }
-
-    // if ($currentRollout.manifest == undefined) {
-    //   toast.error("The current rollout has no manifest.");
-    //   return;
-    // }
+    $currentRollout = $rollouts.find((r) => !r.endDate) as ExpandableResponse<RolloutsResponse, Rexpand> | undefined;
+    if ($currentRollout == undefined) {
+      toast.error("No rollout selected.");
+      return;
+    }
 
     if (rollout.manifest == undefined) {
       toast.error("This rollout has no manifest.");
@@ -158,6 +155,7 @@
       startDate: new Date().toISOString(),
       endDate: "",
       project: $selectedProjectId,
+      deployment: rollout.deployment,
       user: client.authStore.model?.id,
       hide: false
     };
@@ -224,7 +222,7 @@
         rollout.id.toLowerCase().includes(searchTermLower)) &&
       (showHiddenRollouts || !rollout.hide)
     );
-  });
+  }) as RolloutsResponse<Rexpand>[];
 </script>
 
 <Drawer
@@ -438,13 +436,13 @@
                           Deployed</Badge
                         > -->
                       {:else if rollout.hide}
-                        <Badge border color={"gray"} class="relative pl-2">
+                        <Badge border color={"dark"} class="relative pl-2">
                           <EyeOff class="w-4 h-4 mr-2" />
                           Hidden
                         </Badge>
                         <Tooltip>{formatDateTime(rollout.endDate)}</Tooltip>
                       {:else}
-                        <Badge border color={"gray"} class="relative pl-1">
+                        <Badge border color={"dark"} class="relative pl-1">
                           <!-- <Indicator size="sm" color={"gray"} class="mr-2" /> -->
                           <Pause class="w-4 h-4 mr-1" />
                           <span class="text-center">Ended</span>

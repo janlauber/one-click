@@ -13,7 +13,7 @@
   } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
   import { rollouts, type Rexpand, currentRolloutStatus } from "$lib/stores/data";
-  import { getRolloutMetrics, getRolloutStatus } from "$lib/utils/rollouts";
+  import { getRolloutMetrics, getRolloutStatus } from "$lib/api/rollouts";
   import { onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { navigating } from "$app/stores";

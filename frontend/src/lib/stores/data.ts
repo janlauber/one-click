@@ -7,10 +7,10 @@ import type {
     UsersResponse,
     DeploymentsResponse
 } from "$lib/pocketbase/generated-types";
-import { getClusterInfo, type ClusterInfoResponse } from "$lib/utils/cluster-info";
+import { getClusterInfo, type ClusterInfoResponse } from "$lib/api/cluster-info";
 import { get, writable, type Writable } from "svelte/store";
 import type { RolloutStatusResponse } from "$lib/types/status";
-import { getRolloutStatus } from "$lib/utils/rollouts";
+import { getRolloutStatus } from "$lib/api/rollouts";
 
 // Generic type for expandable responses
 export type ExpandableResponse<T, U> = T & { expand?: U };
@@ -35,7 +35,7 @@ export type Rexpand = {
     deployment: DeploymentsResponse;
     project: ProjectsResponse;
 };
-export const rollouts = createWritableStore<ExpandableResponse<RolloutsResponse[], Rexpand>>([]);
+export const rollouts = createWritableStore<ExpandableResponse<RolloutsResponse[], Rexpand | undefined>>([]);
 export const currentRollout = createWritableStore<
     ExpandableResponse<RolloutsResponse, Rexpand> | undefined
 >(undefined);
@@ -154,6 +154,6 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
 
 export async function updateCurrentRolloutStatus(deploymentId: string) {
     const rolloutId = get(currentRollout)!.id;
-    const response = await getRolloutStatus(deploymentId, rolloutId);
+    const response: RolloutStatusResponse | undefined = await getRolloutStatus(deploymentId, rolloutId);
     currentRolloutStatus.set(response);
 }

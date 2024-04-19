@@ -9,7 +9,7 @@
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
   import { ArrowRight, Cog, ExternalLink, FileQuestion, Tag } from "lucide-svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
-  import { getRolloutStatus } from "$lib/utils/rollouts";
+  import { getRolloutStatus } from "$lib/api/rollouts";
   import { onMount } from "svelte";
   import { navigating } from "$app/stores";
   export let project: ProjectsResponse;
