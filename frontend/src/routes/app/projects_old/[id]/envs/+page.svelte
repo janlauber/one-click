@@ -251,85 +251,85 @@
     }
   }
 
-  async function handleEnvInputSave(id?: string) {
-    // if id is not provided, save all envs
-    if (!id) {
-      envs.forEach((env) => {
-        handleEnvInputSave(env.id);
-      });
-      return;
-    }
+  // async function handleEnvInputSave(id?: string) {
+  //   // if id is not provided, save all envs
+  //   if (!id) {
+  //     envs.forEach((env) => {
+  //       handleEnvInputSave(env.id);
+  //     });
+  //     return;
+  //   }
 
-    const envIndex = envs.findIndex((env) => env.id === id);
-    if (!$currentRollout) {
-      toast.error("No rollout selected");
-      return;
-    }
+  //   const envIndex = envs.findIndex((env) => env.id === id);
+  //   if (!$currentRollout) {
+  //     toast.error("No rollout selected");
+  //     return;
+  //   }
 
-    const updatedEnv = envs[envIndex];
+  //   const updatedEnv = envs[envIndex];
 
-    if (!updatedEnv) {
-      toast.error("No env found");
-      return;
-    }
+  //   if (!updatedEnv) {
+  //     toast.error("No env found");
+  //     return;
+  //   }
 
-    if (!updatedEnv.name || !updatedEnv.value) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+  //   if (!updatedEnv.name || !updatedEnv.value) {
+  //     toast.error("Please fill in all fields");
+  //     return;
+  //   }
 
-    //@ts-expect-error - TS doesn't like the manifest property
-    const currentEnvIndex = $currentRollout.manifest.spec.env.findIndex(
-      (env: any) => env.name === updatedEnv.name
-    );
+  //   //@ts-expect-error - TS doesn't like the manifest property
+  //   const currentEnvIndex = $currentRollout.manifest.spec.env.findIndex(
+  //     (env: any) => env.name === updatedEnv.name
+  //   );
 
-    if (currentEnvIndex === -1) {
-      // Check if there is an existing env with the same name
-      // @ts-expect-error - TS doesn't like the manifest property
-      const existingEnv = $currentRollout.manifest.spec.env.find(
-        (env: any) => env.name === updatedEnv.name
-      );
+  //   if (currentEnvIndex === -1) {
+  //     // Check if there is an existing env with the same name
+  //     // @ts-expect-error - TS doesn't like the manifest property
+  //     const existingEnv = $currentRollout.manifest.spec.env.find(
+  //       (env: any) => env.name === updatedEnv.name
+  //     );
 
-      // exclude if the existing env is the same as the updated env
-      // and there is only one env in the list
-      if (existingEnv && envs.length > 1) {
-        toast.error("An env with this name already exists");
-        return;
-      }
-    }
+  //     // exclude if the existing env is the same as the updated env
+  //     // and there is only one env in the list
+  //     if (existingEnv && envs.length > 1) {
+  //       toast.error("An env with this name already exists");
+  //       return;
+  //     }
+  //   }
 
-    // Update the env in $currentRollout
-    // @ts-expect-error - TS doesn't like the manifest property
-    const rolloutEnvIndex = $currentRollout.manifest.spec.env.findIndex(
-      (env: any) => env.name === updatedEnv.name
-    );
+  //   // Update the env in $currentRollout
+  //   // @ts-expect-error - TS doesn't like the manifest property
+  //   const rolloutEnvIndex = $currentRollout.manifest.spec.env.findIndex(
+  //     (env: any) => env.name === updatedEnv.name
+  //   );
 
-    if (rolloutEnvIndex !== -1) {
-      // @ts-expect-error - TS doesn't like the manifest property
-      $currentRollout.manifest.spec.env[rolloutEnvIndex] = {
-        name: updatedEnv.name,
-        value: updatedEnv.value
-      };
-    } else {
-      // @ts-expect-error - TS doesn't like the manifest property
-      $currentRollout.manifest.spec.env.push({
-        name: updatedEnv.name,
-        value: updatedEnv.value
-      });
-    }
+  //   if (rolloutEnvIndex !== -1) {
+  //     // @ts-expect-error - TS doesn't like the manifest property
+  //     $currentRollout.manifest.spec.env[rolloutEnvIndex] = {
+  //       name: updatedEnv.name,
+  //       value: updatedEnv.value
+  //     };
+  //   } else {
+  //     // @ts-expect-error - TS doesn't like the manifest property
+  //     $currentRollout.manifest.spec.env.push({
+  //       name: updatedEnv.name,
+  //       value: updatedEnv.value
+  //     });
+  //   }
 
-    // Update the manifest
-    if (!$currentRollout.manifest) {
-      toast.error("No manifest found");
-      return;
-    }
+  //   // Update the manifest
+  //   if (!$currentRollout.manifest) {
+  //     toast.error("No manifest found");
+  //     return;
+  //   }
 
-    await updateManifest($currentRollout.manifest);
+  //   await updateManifest($currentRollout.manifest);
 
-    toast.success("Env updated successfully");
+  //   toast.success("Env updated successfully");
 
-    initialLoad = true;
-  }
+  //   initialLoad = true;
+  // }
 
   async function updateManifest(manifest: any) {
     try {
@@ -348,7 +348,7 @@
       client
         .collection("rollouts")
         .create(data)
-        .then((res) => {
+        .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
             projectId: $currentRollout?.project

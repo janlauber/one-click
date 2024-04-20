@@ -18,8 +18,7 @@
     Input,
     Label,
     Modal,
-    P,
-    Toggle
+    P
   } from "flowbite-svelte";
   import { CircleAlert, HardDrive, Plus } from "lucide-svelte";
   import toast from "svelte-french-toast";
@@ -207,7 +206,7 @@
       client
         .collection("rollouts")
         .create(data)
-        .then((res) => {
+        .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
             projectId: $currentRollout?.project
@@ -269,7 +268,7 @@
 
 <Accordion class="gap-2 grid mt-10" flush>
   {#key $rollouts}
-    {#each volumes as volume, v (volume.id)}
+    {#each volumes as volume (volume.id)}
       <AccordionItem class="rounded-lg">
         <div slot="header" class="flex">
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">

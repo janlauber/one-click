@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import selectedProjectId from "$lib/stores/project";
-  import { Chart, Card, Skeleton, WidgetPlaceholder, Spinner, Button } from "flowbite-svelte";
+  import { Chart, Card, Spinner, Button } from "flowbite-svelte";
   import { Cpu, Expand, MemoryStick } from "lucide-svelte";
   import { onMount } from "svelte";
 

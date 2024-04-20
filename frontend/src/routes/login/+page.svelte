@@ -12,16 +12,12 @@
     password: ""
   };
   let user = { ...DEFAULTS };
-  let loading = false;
 
   async function submit() {
-    loading = true;
     await alertOnFailure(async function () {
       await login(user.email, user.password);
       toast.success("Logged in successfully!");
       goto("/app");
-    }).finally(() => {
-      loading = false;
     });
   }
 

@@ -1,8 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import SideNav from "$lib/components/deployments/SideNav.svelte";
-  import { cubicOut } from "svelte/easing";
-  import { fly, slide } from "svelte/transition";
 
   export let data: any;
 </script>

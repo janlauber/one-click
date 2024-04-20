@@ -17,7 +17,6 @@
   import {
     Badge,
     Button,
-    Checkbox,
     CloseButton,
     Drawer,
     Indicator,
@@ -46,6 +45,7 @@
   import { sineIn } from "svelte/easing";
   import DiffLines from "../base/DiffLines.svelte";
   import { getRandomString } from "$lib/utils/random";
+  import { type RolloutEventsResponse } from "$lib/types/events";
 
   let hidden6 = true;
   let showHiddenRollouts = false;

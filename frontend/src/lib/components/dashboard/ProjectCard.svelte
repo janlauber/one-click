@@ -20,10 +20,6 @@
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];
   // @ts-expect-error - TS doesn't like the filter function
   $: these_rollouts = $rollouts.filter((r) => r.expand?.project.id === project.id);
-
-  let current_rollout: RolloutsResponse<Rexpand> | undefined;
-
-  $: current_rollout = these_rollouts.find((r) => !r.endDate);
 </script>
 
 <div class="rounded-xl border border-gray-200 ov">

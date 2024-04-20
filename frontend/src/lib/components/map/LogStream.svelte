@@ -4,22 +4,6 @@
   import MonacoEditor from "svelte-monaco";
 
   export let podName: string;
-
-  // function downloadLogs(podName: string) {
-  //   const logsStream = logs[podName].join("\n");
-  //   const blob = new Blob([logsStream], { type: "text/plain;charset=utf-8" });
-  //   const url = URL.createObjectURL(blob);
-  //   const a = document.createElement("a");
-  //   a.href = url;
-  //   a.download = `${podName}.log`;
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  // }
-
-  // // get rollout logs from specific pod as EventSource from /pb/{projectId}/{podName}/logs
-  // // Object to hold log streams for each pod
-  let initialLoadComplete = false;
   let logs: string = "";
   let ws: WebSocket;
 
@@ -53,11 +37,6 @@
       // event.data is a string
       logs += event.data;
     };
-
-    // set initialLoadComplete to true after 0.3s
-    setTimeout(() => {
-      initialLoadComplete = true;
-    }, 300);
   });
 
   onDestroy(() => {

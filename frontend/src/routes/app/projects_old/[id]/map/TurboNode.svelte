@@ -1,6 +1,5 @@
 <script lang="ts">
   import { drawerHidden, selectedNode } from "$lib/stores/drawer";
-  import { metadata } from "$lib/stores/metadata";
   import { Handle, Position, type NodeProps } from "@xyflow/svelte";
 
   import { ArrowLeftRight, Box, Database, Lock, NetworkIcon } from "lucide-svelte";

@@ -18,11 +18,9 @@
     Box,
     Database,
     FileCode,
-    FileText,
     Lock,
     NetworkIcon,
     ScrollText,
-    Terminal,
     Trash,
     X
   } from "lucide-svelte";

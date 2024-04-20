@@ -6,7 +6,6 @@
   export let kind: string;
   export let name: string;
 
-  let initialLoadComplete = false;
   // events is json:
   // example: {"message":"Successfully assigned ztn22x0b7bdrt0v/ztn22x0b7bdrt0v-677b57fffd-jxg9n to natr-shared-wrk-001.natr-4.natron.cloud","reason":"Scheduled","typus":"Normal"}{"message":"Pulling image \"docker.io/chentex/random-logger:latest\"","reason":"Pulling","typus":"Normal"}{"message":"Successfully pulled image \"docker.io/chentex/random-logger:latest\" in 926ms (926ms including waiting)","reason":"Pulled","typus":"Normal"}{"message":"Created container ztn22x0b7bdrt0v","reason":"Created","typus":"Normal"}{"message":"Started container ztn22x0b7bdrt0v","reason":"Started","typus":"Normal"}
   let events: string = "";
@@ -89,11 +88,6 @@
       // event.data is a string
       events += event.data;
     };
-
-    // set initialLoadComplete to true after 0.3s
-    setTimeout(() => {
-      initialLoadComplete = true;
-    }, 300);
   });
 
   onDestroy(() => {

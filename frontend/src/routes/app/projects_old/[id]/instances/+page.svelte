@@ -7,6 +7,7 @@
   import Highlight, { LineNumbers } from "svelte-highlight";
   import prolog from "svelte-highlight/languages/prolog";
   import atomOneDark from "svelte-highlight/styles/atom-one-dark";
+  import { Render } from "svelte-purify";
 
   function downloadLogs(podName: string) {
     const logsStream = logs[podName].join("\n");
@@ -84,7 +85,7 @@
 </script>
 
 <svelte:head>
-  {@html atomOneDark}
+  <Render html={atomOneDark} />
 </svelte:head>
 
 <div class="flex items-start justify-between">
@@ -96,7 +97,7 @@
 
 <Accordion class="gap-2 grid mt-10" multiple flush>
   {#key $rollouts}
-    {#each $currentRolloutStatus?.deployment?.podNames ?? [] as podName, i (podName)}
+    {#each $currentRolloutStatus?.deployment?.podNames ?? [] as podName (podName)}
       <AccordionItem class="rounded-lg">
         <div slot="header" class="flex">
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">

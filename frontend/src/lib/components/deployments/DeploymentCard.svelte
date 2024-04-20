@@ -8,10 +8,10 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import { Badge, Button, Indicator, Tooltip } from "flowbite-svelte";
   import { ArrowRight, Cog, ExternalLink, FileQuestion, Tag } from "lucide-svelte";
-  import type { RolloutStatusResponse } from "$lib/types/status";
-  import { getRolloutStatus } from "$lib/api/rollouts";
-  import { onMount } from "svelte";
-  import { navigating } from "$app/stores";
+  // import type { RolloutStatusResponse } from "$lib/types/status";
+  // import { getRolloutStatus } from "$lib/api/rollouts";
+  // import { onMount } from "svelte";
+  // import { navigating } from "$app/stores";
   export let project: ProjectsResponse;
 
   let tags: Set<string> = new Set();
@@ -19,61 +19,29 @@
     tags = new Set(project.tags.split(","));
   }
 
-  let current_rollout_status: RolloutStatusResponse | undefined;
-  let rollout_status_color:
-    | "gray"
-    | "red"
-    | "yellow"
-    | "green"
-    | "indigo"
-    | "purple"
-    | "blue"
-    | "dark"
-    | "orange"
-    | "none"
-    | "teal"
-    | undefined;
+  // let current_rollout_status: RolloutStatusResponse | undefined;
 
-  const determineRolloutColor = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "yellow";
-      case "Not Ready":
-        return "yellow";
-      case "Error":
-        return "red";
-      case "OK":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
+  // const updateCurrentRollout = () => {
+  //   // find the rollout with no endDate of the selected project
+  //   let currentRollout = $rollouts.find((r) => r.project === project.id && !r.endDate);
 
-  const updateCurrentRollout = () => {
-    // find the rollout with no endDate of the selected project
-    let currentRollout = $rollouts.find((r) => r.project === project.id && !r.endDate);
+  //   getRolloutStatus($selectedProjectId, currentRollout?.id ?? "")
+  //     .then((response) => {
+  //       current_rollout_status = response;
+  //     })
+  //     .catch(() => {
+  //       current_rollout_status = undefined;
+  //     });
+  // };
 
-    getRolloutStatus($selectedProjectId, currentRollout?.id ?? "")
-      .then((response) => {
-        current_rollout_status = response;
-        rollout_status_color = determineRolloutColor(
-          current_rollout_status?.deployment?.status ?? ""
-        );
-      })
-      .catch(() => {
-        current_rollout_status = undefined;
-        rollout_status_color = "yellow";
-      });
-  };
+  // $: if ($navigating) {
+  //   updateCurrentRollout();
+  // }
 
-  $: if ($navigating) {
-    updateCurrentRollout();
-  }
-
-  // update rollout status every 5 seconds
-  onMount(() => {
-    updateCurrentRollout();
-  });
+  // // update rollout status every 5 seconds
+  // onMount(() => {
+  //   updateCurrentRollout();
+  // });
 
   // filter $rollouts by $rollouts.expand.project
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];

@@ -242,7 +242,7 @@
       client
         .collection("rollouts")
         .create(data)
-        .then((res) => {
+        .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
             projectId: $currentRollout?.project
@@ -295,7 +295,7 @@
 
 <Accordion class="gap-2 grid mt-10" flush>
   {#key $rollouts}
-    {#each interfaces as inf, i (inf.id)}
+    {#each interfaces as inf (inf.id)}
       <AccordionItem class="rounded-lg">
         <div slot="header" class="flex">
           <div

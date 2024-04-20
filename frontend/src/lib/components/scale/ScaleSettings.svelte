@@ -3,7 +3,7 @@
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
   import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
-  import { Badge, Button, Heading, Input, Label, P, Radio, Range } from "flowbite-svelte";
+  import { Badge, Button, Heading, Input, Label, P, Range } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
   import CpuSettings from "./CPUSettings.svelte";

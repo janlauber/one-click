@@ -10,7 +10,7 @@
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
 
   import { Button, Input, Label } from "flowbite-svelte";
-  import { ArrowRight, BookLock, BookUser, XIcon } from "lucide-svelte";
+  import { ArrowRight, BookLock, BookUser } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let deploymentModal: boolean;
@@ -74,7 +74,7 @@
         client
           .collection("rollouts")
           .create(rollout)
-          .then((response) => {
+          .then(() => {
             toast.success("Deployment & initial Rollout created");
             updateDataStores();
           })

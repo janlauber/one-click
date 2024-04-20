@@ -4,11 +4,6 @@
   export let cpuRequestsFloat = 0.1;
   export let cpuLimitFloat = 0.1;
 
-  interface CPUSettingsProps {
-    name: string;
-    value: number;
-  }
-
   $: {
     if (cpuLimitFloat < cpuRequestsFloat) {
       cpuLimitFloat = cpuRequestsFloat;
