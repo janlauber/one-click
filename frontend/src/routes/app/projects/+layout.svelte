@@ -8,7 +8,7 @@
   export let data: any;
   let modal = false;
 
-  const projectPathRegex = new RegExp(`/app/projects/${$selectedProjectId}(/)?$`);
+  const projectPathRegex = new RegExp(`/app/projects/${$selectedProjectId}(/)?(?!.*deployments).*`);
 </script>
 
 {#if projectPathRegex.test($page.url.pathname)}

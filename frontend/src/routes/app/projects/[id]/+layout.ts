@@ -5,7 +5,7 @@ export const load: PageLoad = async ({ params, url }: any) => {
     const { id } = params;
 
     // use regex to match only exact or "/" paths
-    const projectPathRegex = new RegExp(`/app/projects/${id}(/)?$`);
+    const projectPathRegex = new RegExp(`/app/projects/${id}(?!/deployments)(/.*)?$`);
 
     // only update the projects if the current path matches the regex
     if (projectPathRegex.test(url.pathname)) {

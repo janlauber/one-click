@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
   import { blueprints } from "$lib/stores/data";
-  import { ArrowLeft, BookDashed, Cog, Plus } from "lucide-svelte";
+  import { ArrowLeft, BookDashed, Boxes, Cog, Plus } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
 
   export let modal: boolean;
@@ -16,6 +16,12 @@
   // Return navigation items based on project settings
   let generateItems = () => {
     let items = [
+      {
+        name: `Deployments`,
+        href: `/app/projects/${$selectedProjectId}`,
+        current: false,
+        icon: Boxes
+      },
       {
         name: `Blueprints (${getOwnedBlueprints().length})`,
         href: "/app/blueprints/my-blueprints",
@@ -37,7 +43,9 @@
 
   function setCurrentItem() {
     items = items.map((item) => {
-      if ($page.url.pathname.startsWith(item.href)) {
+      let normalizedPathname = $page.url.pathname.replace(/\/$/, "");
+      let normalizedHref = item.href.replace(/\/$/, "");
+      if (normalizedPathname === normalizedHref) {
         item.current = true;
       } else {
         item.current = false;

@@ -57,11 +57,6 @@
       return;
     }
 
-    if (!description) {
-      toast.error("Please enter a description");
-      return;
-    }
-
     let formData = new FormData();
     formData.append("avatar", avatarFile);
 

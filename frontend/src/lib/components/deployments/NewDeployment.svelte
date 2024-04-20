@@ -5,7 +5,7 @@
     RolloutsRecord,
     DeploymentsRecord
   } from "$lib/pocketbase/generated-types";
-  import { blueprints, updateDataStores } from "$lib/stores/data";
+  import { UpdateFilterEnum, blueprints, updateDataStores } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
 
@@ -76,14 +76,20 @@
           .create(rollout)
           .then(() => {
             toast.success("Deployment & initial Rollout created");
-            updateDataStores();
+            updateDataStores({
+              filter: UpdateFilterEnum.ALL,
+              projectId: $selectedProjectId
+            });
           })
           .catch((error) => {
             toast.success("Deployment created");
             toast.error(error.message);
           })
           .finally(() => {
-            updateDataStores();
+            updateDataStores({
+              filter: UpdateFilterEnum.ALL,
+              projectId: $selectedProjectId
+            });
             modal = false;
           });
       })
