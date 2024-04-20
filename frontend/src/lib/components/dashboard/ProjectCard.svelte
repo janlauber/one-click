@@ -71,9 +71,9 @@
     </div>
 
     <div class="flex justify-between gap-x-4 py-3">
-      <dt class="">Deployments</dt>
-      <dd class="cursor-default">
-        {these_rollouts.length}
+      <dt class="">Description</dt>
+      <dd class="cursor-default flex flex-wrap text-light">
+        {project.description}
       </dd>
     </div>
     <div class="flex justify-between gap-x-4 py-3">

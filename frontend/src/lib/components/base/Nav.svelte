@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { client, logout } from "$lib/pocketbase";
-  import { currentRolloutStatus, projects } from "$lib/stores/data";
+  import { blueprints, currentRolloutStatus, deployments, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import {
     Avatar,
@@ -10,13 +10,15 @@
     DropdownItem,
     DropdownHeader,
     DropdownDivider,
-    Tooltip
+    Indicator,
+    Tooltip,
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { FileQuestion } from "lucide-svelte";
   import { avatarUrlString } from "$lib/stores/avatar";
+  import selectedDeploymentId from "$lib/stores/deployment";
 
   const determineRolloutColor = (status?: string) => {
     switch (status) {
@@ -52,7 +54,16 @@
     (p) => p.id === $selectedProjectId
   );
 
+  // determine if rollout status is pending, not ready, error, or ok $currentRolloutStatus.deployment.status
+
+
+
+  let selectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
+  let selectedDeploymentBlueprint = $blueprints.find((b) => b.id === selectedDeployment?.blueprint);
+
   $: selectedProject = $projects.find((p) => p.id === $selectedProjectId);
+  $: selectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
+  $: selectedDeploymentBlueprint = $blueprints.find((b) => b.id === selectedDeployment?.blueprint);
 </script>
 
 <nav class="bg-primary-600 dark:bg-primary-600 flex py-2">
@@ -60,38 +71,49 @@
     <a href="/app" class="justify-start">
       <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
     </a>
-    {#if $page.url.pathname.startsWith("/app/projects/")}
+    <!-- only /app/projects/${id}/deployments/ -->
+    {#if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
       <div in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
         {#key $selectedProjectId}
           <div class="flex items-center">
-            <div
-              class="relative border-2 rounded-lg border-{determineRolloutColor(
-                $currentRolloutStatus?.deployment?.status ?? ''
-              )}-500"
-            >
-              {#if selectedProject?.avatar}
+            <div class="relative border-2 rounded-lg">
+              {#if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}/deployments`)}
+                {#if selectedDeployment?.avatar}
+                  <img
+                    src={recordLogoUrl(selectedDeployment)}
+                    alt="Tuple"
+                    class="h-9 w-9 flex-none rounded-lg object-cover p-1"
+                  />
+                {:else if selectedDeploymentBlueprint?.avatar}
+                  <img
+                    src={recordLogoUrl(selectedDeploymentBlueprint)}
+                    alt="Tuple"
+                    class="h-9 w-9 flex-none rounded-lg object-cover p-1"
+                  />
+                {:else}
+                  <FileQuestion class="h-9 w-9 flex-none text-white rounded-lg object-cover p-1" />
+                {/if}
+
+                <Indicator
+                  color={determineRolloutColor($currentRolloutStatus?.deployment.status)}
+                  size="md"
+                  class="text-xs font-bold text-white cursor-default absolute -top-1 -right-1"
+                />
+                <Indicator
+                  color={determineRolloutColor($currentRolloutStatus?.deployment.status)}
+                  size="md"
+                  class="text-xs font-bold text-white cursor-default animate-ping absolute -top-1 -right-1"
+                />
+
+              {:else if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
                 <img
                   src={recordLogoUrl(selectedProject)}
-                  alt="Tuple"
-                  class="h-9 w-9 flex-none rounded-lg object-cover p-1"
-                />
-              {:else if selectedProject?.expand?.blueprint}
-                <img
-                  src={recordLogoUrl(selectedProject?.expand.blueprint)}
                   alt="Tuple"
                   class="h-9 w-9 flex-none rounded-lg object-cover p-1"
                 />
               {:else}
                 <FileQuestion class="h-9 w-9 flex-none text-white rounded-lg object-cover p-1" />
               {/if}
-              <Tooltip
-                class="cursor-default bg-{determineRolloutColor(
-                  $currentRolloutStatus?.deployment?.status ?? ''
-                )}-500"
-              >
-                Status:
-                {$currentRolloutStatus?.deployment?.status ?? "Unknown"}
-              </Tooltip>
             </div>
             <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
           </div>
