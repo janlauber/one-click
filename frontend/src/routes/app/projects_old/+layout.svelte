@@ -8,9 +8,7 @@
 </script>
 
 {#if $page.url.pathname.startsWith("/app/projects/")}
-  <div
-    class="relative h-full max-w-6xl mx-auto"
-  >
+  <div class="relative h-full max-w-6xl mx-auto">
     <div class="absolute top-10 left-2 bottom-10 overflow-y-hidden">
       <SideNav />
     </div>

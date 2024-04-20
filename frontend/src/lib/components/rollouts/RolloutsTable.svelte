@@ -8,9 +8,7 @@
     UpdateFilterEnum,
     currentRollout,
     currentRolloutStatus,
-
     type ExpandableResponse
-
   } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
@@ -122,7 +120,9 @@
 
   function confirmRollback(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
-    $currentRollout = $rollouts.find((r) => !r.endDate) as ExpandableResponse<RolloutsResponse, Rexpand> | undefined;
+    $currentRollout = $rollouts.find((r) => !r.endDate) as
+      | ExpandableResponse<RolloutsResponse, Rexpand>
+      | undefined;
     if ($currentRollout == undefined) {
       toast.error("No rollout selected.");
       return;

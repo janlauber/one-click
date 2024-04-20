@@ -7,9 +7,7 @@
 
 <!-- only if startswith /app/projects/[id]/deployments/[id] -->
 {#if $page.url.pathname.startsWith("/app/projects/") && $page.url.pathname.includes("/deployments/")}
-  <div
-    class="relative h-full max-w-6xl mx-auto"
-  >
+  <div class="relative h-full max-w-6xl mx-auto">
     <div class="absolute top-10 left-2 bottom-10 overflow-y-hidden">
       <SideNav />
     </div>

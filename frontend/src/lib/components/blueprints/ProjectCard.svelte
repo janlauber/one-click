@@ -15,7 +15,16 @@
     Toggle,
     Tooltip
   } from "flowbite-svelte";
-  import { Clipboard, Code2, Ellipsis, FileQuestion, Lock, Share2, Trash, Trash2 } from "lucide-svelte";
+  import {
+    Clipboard,
+    Code2,
+    Ellipsis,
+    FileQuestion,
+    Lock,
+    Share2,
+    Trash,
+    Trash2
+  } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
   import { getRandomString } from "$lib/utils/random";

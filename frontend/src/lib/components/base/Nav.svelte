@@ -11,7 +11,7 @@
     DropdownHeader,
     DropdownDivider,
     Indicator,
-    Tooltip,
+    Tooltip
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
@@ -55,8 +55,6 @@
   );
 
   // determine if rollout status is pending, not ready, error, or ok $currentRolloutStatus.deployment.status
-
-
 
   let selectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
   let selectedDeploymentBlueprint = $blueprints.find((b) => b.id === selectedDeployment?.blueprint);
@@ -104,7 +102,6 @@
                   size="md"
                   class="text-xs font-bold text-white cursor-default animate-ping absolute -top-1 -right-1"
                 />
-
               {:else if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
                 <img
                   src={recordLogoUrl(selectedProject)}

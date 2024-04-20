@@ -7,8 +7,8 @@
   // filter blueprints to only show the ones owned by the user
   let filteredBlueprints: BlueprintsResponse[] = [];
 
-  $: filteredBlueprints = $blueprints.filter(
-    (blueprint) => blueprint.users.some((user) => user === client.authStore?.model?.id)
+  $: filteredBlueprints = $blueprints.filter((blueprint) =>
+    blueprint.users.some((user) => user === client.authStore?.model?.id)
   );
 </script>
 

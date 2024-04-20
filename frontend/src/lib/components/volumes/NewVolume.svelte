@@ -48,7 +48,9 @@
     }
 
     if (!isValidName(volume.name)) {
-      toast.error("Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)");
+      toast.error(
+        "Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)"
+      );
       return;
     }
 

@@ -56,7 +56,7 @@
 
     const temp_rollouts = $rollouts.filter((r) => !r.endDate);
     if (temp_rollouts.length > 0) {
-      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;;
+      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;
     } else {
       current_rollout = $rollouts.sort((a, b) => {
         if (a.endDate && b.endDate) {
@@ -68,7 +68,7 @@
         } else {
           return 0;
         }
-      })[0] as RolloutsResponse<Rexpand>;;
+      })[0] as RolloutsResponse<Rexpand>;
     }
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
@@ -220,9 +220,7 @@
       };
 
       // check if the manifest has changed, it could be that the key values are in different order
-      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest))
-      return;
-
+      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest)) return;
 
       const data: RolloutsRecord = {
         manifest: new_manifest,

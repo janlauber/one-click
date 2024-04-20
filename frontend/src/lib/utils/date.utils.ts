@@ -37,16 +37,16 @@ export function timeAgo(dateTimeStr: string | undefined): string {
         diff < 60
             ? "second"
             : diff < 3600
-            ? "minute"
-            : diff < 86400
-            ? "hour"
-            : diff < 604800
-            ? "day"
-            : diff < 2629800
-            ? "week"
-            : diff < 31557600
-            ? "month"
-            : "year";
+              ? "minute"
+              : diff < 86400
+                ? "hour"
+                : diff < 604800
+                  ? "day"
+                  : diff < 2629800
+                    ? "week"
+                    : diff < 31557600
+                      ? "month"
+                      : "year";
 
     // Calculate the number of units
     const num = Math.floor(
@@ -54,16 +54,16 @@ export function timeAgo(dateTimeStr: string | undefined): string {
             (unit === "second"
                 ? 1
                 : unit === "minute"
-                ? 60
-                : unit === "hour"
-                ? 3600
-                : unit === "day"
-                ? 86400
-                : unit === "week"
-                ? 604800
-                : unit === "month"
-                ? 2629800
-                : 31557600)
+                  ? 60
+                  : unit === "hour"
+                    ? 3600
+                    : unit === "day"
+                      ? 86400
+                      : unit === "week"
+                        ? 604800
+                        : unit === "month"
+                          ? 2629800
+                          : 31557600)
     );
 
     // Return the formatted date-time string

@@ -132,7 +132,7 @@
           {selectedTags.has(tag) ? 'bg-primary-600 text-white' : ''}
         "
           >
-          <Tag class="w-4 h-4 inline-block" strokeWidth={2} />&nbsp;{tag}
+            <Tag class="w-4 h-4 inline-block" strokeWidth={2} />&nbsp;{tag}
           </Badge>
         </button>
       {/each}

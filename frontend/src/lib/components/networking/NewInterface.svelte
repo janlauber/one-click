@@ -10,7 +10,7 @@
   import { Button, Input, Label, Select, Toggle } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
-    import { isValidName } from "$lib/utils/string-validation";
+  import { isValidName } from "$lib/utils/string-validation";
 
   export let modal: boolean;
 
@@ -48,7 +48,9 @@
     }
 
     if (!isValidName(inf.name)) {
-      toast.error("Interface name should only contain lowercase alphanumeric characters or '-' (max 63 characters)");
+      toast.error(
+        "Interface name should only contain lowercase alphanumeric characters or '-' (max 63 characters)"
+      );
       return;
     }
 
@@ -161,12 +163,7 @@
   </Label>
   <Label class="space-y-2">
     <span>Ingress Class</span>
-    <Select
-      id="ingressClassName"
-      size="sm"
-      bind:value={inf.ingressClassName}
-      class=""
-    >
+    <Select id="ingressClassName" size="sm" bind:value={inf.ingressClassName} class="">
       {#if !$clusterInfo}
         <option value="">No ingress classes found</option>
       {:else}

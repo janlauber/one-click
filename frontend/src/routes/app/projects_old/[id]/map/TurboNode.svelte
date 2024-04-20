@@ -20,21 +20,21 @@
   $: statusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.status !== "Running"
-    ? data.status === "Pending"
-      ? "status-pending"
-      : "status-problematic"
-    : "status-ok";
+      ? data.status === "Pending"
+        ? "status-pending"
+        : "status-problematic"
+      : "status-ok";
 
   // @ts-ignore
   $: containerStatusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.containerStatuses &&
-      // @ts-ignore
-      data.containerStatuses[0] &&
-      // @ts-ignore
-      data.containerStatuses[0].ready === false
-    ? "status-problematic"
-    : "status-ok";
+        // @ts-ignore
+        data.containerStatuses[0] &&
+        // @ts-ignore
+        data.containerStatuses[0].ready === false
+      ? "status-problematic"
+      : "status-ok";
 </script>
 
 <div class="cloud {containerStatusClass}">

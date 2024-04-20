@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { type EdgeProps, getBezierPath } from '@xyflow/svelte';
+  import { type EdgeProps, getBezierPath } from "@xyflow/svelte";
 
   type $$Props = EdgeProps;
 
-  export let id: $$Props['id'];
-  export let markerEnd: $$Props['markerEnd'];
-  export let sourceX: $$Props['sourceX'];
-  export let sourceY: $$Props['sourceY'];
-  export let sourcePosition: $$Props['sourcePosition'];
-  export let targetX: $$Props['targetX'];
-  export let targetY: $$Props['targetY'];
-  export let targetPosition: $$Props['targetPosition'];
+  export let id: $$Props["id"];
+  export let markerEnd: $$Props["markerEnd"];
+  export let sourceX: $$Props["sourceX"];
+  export let sourceY: $$Props["sourceY"];
+  export let sourcePosition: $$Props["sourcePosition"];
+  export let targetX: $$Props["targetX"];
+  export let targetY: $$Props["targetY"];
+  export let targetPosition: $$Props["targetPosition"];
 
   let edgePath: string | undefined;
 

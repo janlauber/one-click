@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { page } from "$app/stores";
-    import BlueprintSideNav from "$lib/components/blueprints/BlueprintSideNav.svelte";
-    import { metadata } from "$lib/stores/metadata";
-    import { cubicOut } from "svelte/easing";
-    import { fly, slide } from "svelte/transition";
+  import { page } from "$app/stores";
+  import BlueprintSideNav from "$lib/components/blueprints/BlueprintSideNav.svelte";
+  import { metadata } from "$lib/stores/metadata";
+  import { cubicOut } from "svelte/easing";
+  import { fly, slide } from "svelte/transition";
 
-    $metadata.title = "Blueprints";
+  $metadata.title = "Blueprints";
 
-    export let data: any;
+  export let data: any;
 </script>
 
 {#if $page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/blueprints/shared/")}

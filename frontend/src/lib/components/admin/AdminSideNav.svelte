@@ -1,11 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import {
-    ArrowLeft,
-    BookLock,
-    FileBox,
-    FileLock2,
-  } from "lucide-svelte";
+  import { ArrowLeft, BookLock, FileBox, FileLock2 } from "lucide-svelte";
 
   // Get current project settings
 
