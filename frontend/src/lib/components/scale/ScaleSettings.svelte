@@ -41,7 +41,7 @@
 
     const temp_rollouts = $rollouts.filter((r) => !r.endDate);
     if (temp_rollouts.length > 0) {
-      current_rollout = temp_rollouts[0];
+      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;
     } else {
       current_rollout = $rollouts.sort((a, b) => {
         if (a.endDate && b.endDate) {
@@ -53,7 +53,7 @@
         } else {
           return 0;
         }
-      })[0];
+      })[0] as RolloutsResponse<Rexpand>;
     }
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
@@ -180,7 +180,6 @@
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
-          // @ts-expect-error - TS doesn't like the spread operator
           ...current_rollout.manifest.spec,
           horizontalScale: {
             maxReplicas: parseInt(maxInstances.toString()),
@@ -205,6 +204,7 @@
         startDate: current_rollout.startDate,
         endDate: "",
         project: $selectedProjectId,
+        deployment: current_rollout.deployment,
         user: client.authStore.model?.id
       };
 

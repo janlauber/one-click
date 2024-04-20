@@ -1,7 +1,7 @@
 <script lang="ts">
   import { type EdgeProps, getBezierPath } from "@xyflow/svelte";
 
-  type $$Props = EdgeProps;
+  type $$Props = EdgeProps | any;
 
   export let id: $$Props["id"];
   export let markerEnd: $$Props["markerEnd"];

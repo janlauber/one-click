@@ -229,6 +229,7 @@
         <Tooltip>
           {#if blueprint.users.length > 0}
             <div class="flex flex-wrap gap-2">
+              <!-- svelte-ignore ts-unknown -->
               {#each blueprint.expand.users as user (user)}
                 <div class="flex items-center gap-x-2">
                   {#if user.avatar}

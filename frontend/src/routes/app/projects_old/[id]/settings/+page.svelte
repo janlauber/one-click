@@ -283,6 +283,7 @@
       startDate: $currentRollout.startDate,
       endDate: "",
       project: $selectedProject.id,
+      deployment: $currentRollout.deployment,
       user: client.authStore.model?.id
     };
 

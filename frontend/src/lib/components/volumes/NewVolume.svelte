@@ -75,9 +75,7 @@
     }
 
     // Check for existing volume with same name, host, or port
-    // @ts-expect-error - TS doesn't like the filter function
     if ($currentRollout.manifest.volumes) {
-      // @ts-expect-error - TS doesn't like the filter function
       const existingVolume = $currentRollout.manifest.volumes.find(
         (v: Volume) => v.name === volume.name
       );
@@ -88,12 +86,10 @@
     }
 
     let new_manifest: any = {
-      ...$currentRollout.manifest,
+      ...$currentRollout.manifest as any,
       spec: {
-        // @ts-expect-error - TS doesn't like the spread operator
         ...$currentRollout.manifest.spec,
         volumes: [
-          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec.volumes,
           {
             name: volume.name,
@@ -110,6 +106,7 @@
       startDate: $currentRollout.startDate,
       endDate: "",
       project: $selectedProjectId,
+      deployment: $currentRollout.deployment,
       user: client.authStore.model?.id
     };
 

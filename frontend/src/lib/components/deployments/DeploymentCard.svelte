@@ -45,7 +45,6 @@
 
   // filter $rollouts by $rollouts.expand.project
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];
-  // @ts-expect-error - TS doesn't like the filter function
   $: these_rollouts = $rollouts.filter((r) => r.expand?.project.id === project.id);
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;

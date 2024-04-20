@@ -60,7 +60,6 @@
     }
 
     // Check for existing interface with same name, host, or port
-    // @ts-expect-error - TS doesn't like the filter function
     const existingInterface = $currentRollout.manifest.spec.interfaces.find(
       (i: any) =>
         i.name === inf.name ||
@@ -77,12 +76,10 @@
 
     if (inf.host && inf.ingressClassName !== "") {
       new_manifest = {
-        ...$currentRollout.manifest,
+        ...$currentRollout.manifest as any,
         spec: {
-          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec,
           interfaces: [
-            // @ts-expect-error - TS doesn't like the spread operator
             ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,
@@ -107,12 +104,10 @@
       };
     } else {
       new_manifest = {
-        ...$currentRollout.manifest,
+        ...$currentRollout.manifest as any,
         spec: {
-          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec,
           interfaces: [
-            // @ts-expect-error - TS doesn't like the spread operator
             ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,
@@ -128,6 +123,7 @@
       startDate: $currentRollout.startDate,
       endDate: "",
       project: $selectedProjectId,
+      deployment: $currentRollout.deployment,
       user: client.authStore.model?.id
     };
 

@@ -1,3 +1,4 @@
+import type { RolloutEventsResponse } from "$lib/types/events";
 import type { RolloutMetricsResponse } from "$lib/types/metrics";
 import type { RolloutStatusResponse } from "$lib/types/status";
 

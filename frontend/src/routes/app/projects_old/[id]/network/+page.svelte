@@ -146,14 +146,12 @@
     }
 
     // Find the index of the current interface based on its unique identifier (id)
-    // @ts-expect-error - TS doesn't like the filter function
     const currentInterfaceIndex = $currentRollout.manifest.spec.interfaces.findIndex(
       (i: any) => i.id === updatedInterface.id
     );
 
     if (currentInterfaceIndex !== -1) {
       // Check if there's another interface with the same name, host, or port in the current rollout
-      // @ts-expect-error - TS doesn't like the filter function
       const existingInterface = $currentRollout.manifest.spec.interfaces.find(
         (i: any) =>
           i.id !== updatedInterface.id &&
@@ -173,14 +171,12 @@
     }
 
     // Update interface in $currentRollout
-    // @ts-expect-error - TS doesn't like the filter function
     const rolloutInterfaceIndex = $currentRollout.manifest.spec.interfaces.findIndex(
       // do not only check for name, but also for port and host (so you can update the name of an interface)
       (i: any) => i.name === updatedInterface.name || i.port === updatedInterface.port
     );
 
     if (rolloutInterfaceIndex !== -1) {
-      // @ts-expect-error - TS doesn't like the filter function
       $currentRollout.manifest.spec.interfaces[rolloutInterfaceIndex] = {
         name: updatedInterface.name,
         port: parseInt(String(updatedInterface.port)),
@@ -206,9 +202,7 @@
       };
 
       // if ingress is undefined, remove it from the manifest
-      // @ts-expect-error - TS doesn't like the filter function
       if (!$currentRollout.manifest.spec.interfaces[rolloutInterfaceIndex].ingress) {
-        // @ts-expect-error - TS doesn't like the filter function
         delete $currentRollout.manifest.spec.interfaces[rolloutInterfaceIndex].ingress;
       }
     }
@@ -236,6 +230,7 @@
         startDate: $currentRollout?.startDate,
         endDate: "",
         project: $currentRollout?.project,
+        deployment: $currentRollout?.deployment,
         user: client.authStore.model?.id
       };
 

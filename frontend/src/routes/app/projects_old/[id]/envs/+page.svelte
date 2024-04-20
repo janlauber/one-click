@@ -53,7 +53,7 @@
   $: {
     if (initialLoad) {
       if ($currentRollout) {
-        envs = parseManifests($currentRollout, "env");
+        envs = parseManifests($currentRollout as any, "env");
 
         // parse envs to envValue for the code editor NAME=VALUE\nNAME=VALUE
         envValue = envs
@@ -62,7 +62,7 @@
           })
           .join("\n");
 
-        secrets = parseManifests($currentRollout, "secrets");
+        secrets = parseManifests($currentRollout as any, "secrets");
 
         // parse secrets to secretValue for the code editor NAME=VALUE\nNAME=VALUE
         secretValue = secrets
@@ -342,6 +342,7 @@
         startDate: $currentRollout?.startDate,
         endDate: "",
         project: $currentRollout?.project,
+        deployment: $currentRollout?.deployment,
         user: client.authStore.model?.id
       };
 

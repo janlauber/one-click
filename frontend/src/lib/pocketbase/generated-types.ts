@@ -26,7 +26,7 @@ export type BaseSystemFields<T = never> = {
     updated: IsoDateString;
     collectionId: string;
     collectionName: Collections;
-    expand?: T;
+    expand?: T | any;
 };
 
 export type AuthSystemFields<T = never> = {
@@ -73,11 +73,11 @@ export type ProjectsRecord = {
     user: RecordIdString;
 };
 
-export type RolloutsRecord<Tmanifest = unknown> = {
+export type RolloutsRecord<Tmanifest = any> = {
     deployment: RecordIdString;
     endDate?: IsoDateString;
     hide?: boolean;
-    manifest: null | Tmanifest;
+    manifest: null | Tmanifest | any;
     project: RecordIdString;
     startDate?: IsoDateString;
     user: RecordIdString;

@@ -5,7 +5,7 @@
   import { ArrowLeftRight, Box, Database, Lock, NetworkIcon } from "lucide-svelte";
 
   type $$Props = NodeProps;
-  export let data: $$Props["data"];
+  export let data: $$Props["data"] | any;
 
   let statusClass = "";
   let containerStatusClass = "";
@@ -15,7 +15,6 @@
 
   // if the metadata contains a key called "deletionTimestamp", then statusClass = "status-problematic"
   // else, statusClass = "status-ok"
-  // @ts-expect-error - TS doesn't like the data object
   $: statusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.status !== "Running"
@@ -24,13 +23,10 @@
         : "status-problematic"
       : "status-ok";
 
-  // @ts-expect-error - TS doesn't like the data object
   $: containerStatusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.containerStatuses &&
-        // @ts-expect-error - TS doesn't like the data object
         data.containerStatuses[0] &&
-        // @ts-expect-error - TS doesn't like the data object
         data.containerStatuses[0].ready === false
       ? "status-problematic"
       : "status-ok";
@@ -62,15 +58,10 @@
     // check if data is not null
     if (data) {
       $selectedNode = {
-        //@ts-expect-error - TS doesn't like the data object
         kind: data.kind,
-        //@ts-expect-error - TS doesn't like the data object
         name: data.name,
-        //@ts-expect-error - TS doesn't like the data object
         namespace: data.namespace,
-        //@ts-expect-error - TS doesn't like the data object
         labels: data.labels,
-        //@ts-expect-error - TS doesn't like the data object
         icon: data.icon,
         object: data.object
       };

@@ -207,7 +207,6 @@
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
-          // @ts-expect-error - TS doesn't like the spread operator
           ...current_rollout.manifest.spec,
           image: {
             password: password,
@@ -227,6 +226,7 @@
         startDate: current_rollout.startDate,
         endDate: "",
         project: $selectedProjectId,
+        deployment: current_rollout.deployment,
         user: client.authStore.model?.id
       };
 
