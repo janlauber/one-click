@@ -76,7 +76,7 @@
 
     if (inf.host && inf.ingressClassName !== "") {
       new_manifest = {
-        ...$currentRollout.manifest as any,
+        ...($currentRollout.manifest as any),
         spec: {
           ...$currentRollout.manifest.spec,
           interfaces: [
@@ -104,7 +104,7 @@
       };
     } else {
       new_manifest = {
-        ...$currentRollout.manifest as any,
+        ...($currentRollout.manifest as any),
         spec: {
           ...$currentRollout.manifest.spec,
           interfaces: [

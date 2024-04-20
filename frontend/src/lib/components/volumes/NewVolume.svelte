@@ -86,7 +86,7 @@
     }
 
     let new_manifest: any = {
-      ...$currentRollout.manifest as any,
+      ...($currentRollout.manifest as any),
       spec: {
         ...$currentRollout.manifest.spec,
         volumes: [
