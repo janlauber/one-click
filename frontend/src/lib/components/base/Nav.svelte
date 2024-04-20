@@ -10,8 +10,7 @@
     DropdownItem,
     DropdownHeader,
     DropdownDivider,
-    Indicator,
-    Tooltip
+    Indicator
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";

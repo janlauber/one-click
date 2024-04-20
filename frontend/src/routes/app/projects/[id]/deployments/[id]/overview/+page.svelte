@@ -47,7 +47,7 @@
   };
 
   const updateCurrentRollout = () => {
-    //@ts-ignore
+    //@ts-expect-error - TS doesn't like the filter function
     currentRollouts = $rollouts.filter((r) => r.expand?.project.id === $selectedProjectId);
     currentRollout = currentRollouts.find((r) => !r.endDate);
     if (!currentRollout) {

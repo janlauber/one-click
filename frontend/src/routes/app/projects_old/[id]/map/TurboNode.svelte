@@ -16,7 +16,7 @@
 
   // if the metadata contains a key called "deletionTimestamp", then statusClass = "status-problematic"
   // else, statusClass = "status-ok"
-  // @ts-ignore
+  // @ts-expect-error - TS doesn't like the data object
   $: statusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.status !== "Running"
@@ -25,13 +25,13 @@
         : "status-problematic"
       : "status-ok";
 
-  // @ts-ignore
+  // @ts-expect-error - TS doesn't like the data object
   $: containerStatusClass = data.object.metadata.deletionTimestamp
     ? "status-deleting"
     : data.containerStatuses &&
-        // @ts-ignore
+        // @ts-expect-error - TS doesn't like the data object
         data.containerStatuses[0] &&
-        // @ts-ignore
+        // @ts-expect-error - TS doesn't like the data object
         data.containerStatuses[0].ready === false
       ? "status-problematic"
       : "status-ok";
@@ -63,15 +63,15 @@
     // check if data is not null
     if (data) {
       $selectedNode = {
-        //@ts-ignore
+        //@ts-expect-error - TS doesn't like the data object
         kind: data.kind,
-        //@ts-ignore
+        //@ts-expect-error - TS doesn't like the data object
         name: data.name,
-        //@ts-ignore
+        //@ts-expect-error - TS doesn't like the data object
         namespace: data.namespace,
-        //@ts-ignore
+        //@ts-expect-error - TS doesn't like the data object
         labels: data.labels,
-        //@ts-ignore
+        //@ts-expect-error - TS doesn't like the data object
         icon: data.icon,
         object: data.object
       };

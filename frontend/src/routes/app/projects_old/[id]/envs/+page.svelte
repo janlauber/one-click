@@ -278,14 +278,14 @@
       return;
     }
 
-    //@ts-ignore
+    //@ts-expect-error - TS doesn't like the manifest property
     const currentEnvIndex = $currentRollout.manifest.spec.env.findIndex(
       (env: any) => env.name === updatedEnv.name
     );
 
     if (currentEnvIndex === -1) {
       // Check if there is an existing env with the same name
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the manifest property
       const existingEnv = $currentRollout.manifest.spec.env.find(
         (env: any) => env.name === updatedEnv.name
       );
@@ -299,19 +299,19 @@
     }
 
     // Update the env in $currentRollout
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the manifest property
     const rolloutEnvIndex = $currentRollout.manifest.spec.env.findIndex(
       (env: any) => env.name === updatedEnv.name
     );
 
     if (rolloutEnvIndex !== -1) {
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the manifest property
       $currentRollout.manifest.spec.env[rolloutEnvIndex] = {
         name: updatedEnv.name,
         value: updatedEnv.value
       };
     } else {
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the manifest property
       $currentRollout.manifest.spec.env.push({
         name: updatedEnv.name,
         value: updatedEnv.value
@@ -324,7 +324,6 @@
       return;
     }
 
-    // @ts-ignore
     await updateManifest($currentRollout.manifest);
 
     toast.success("Env updated successfully");

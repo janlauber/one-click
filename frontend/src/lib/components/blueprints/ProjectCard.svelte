@@ -28,7 +28,7 @@
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
   import { getRandomString } from "$lib/utils/random";
-  // @ts-ignore
+  // @ts-expect-error - js-yaml types are not available
   import yaml from "js-yaml";
 
   export let blueprint: BlueprintsResponse;
@@ -293,7 +293,7 @@
         <Fileupload
           bind:value={avatar}
           on:change={(event) => {
-            // @ts-ignore
+            // @ts-expect-error - event.target.files is not available
             avatarFile = event.target.files[0];
           }}
         />

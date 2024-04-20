@@ -77,7 +77,7 @@
 
   // filter $rollouts by $rollouts.expand.project
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];
-  // @ts-ignore
+  // @ts-expect-error - TS doesn't like the filter function
   $: these_rollouts = $rollouts.filter((r) => r.expand?.project.id === project.id);
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
@@ -92,10 +92,10 @@
   let ingresses: Ingress[] = [];
 
   $: if (current_rollout && current_rollout.manifest && current_rollout.manifest.spec.interfaces) {
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the filter function
     current_rollout.manifest.spec.interfaces.forEach((inf) => {
       if (inf.ingress) {
-        // @ts-ignore
+        // @ts-expect-error - TS doesn't like the forEach function
         inf.ingress.rules.forEach((rule) => {
           ingresses.push({ host: rule.host, tls: inf.tls });
         });

@@ -60,7 +60,7 @@
     }
 
     // Check for existing interface with same name, host, or port
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the filter function
     const existingInterface = $currentRollout.manifest.spec.interfaces.find(
       (i: any) =>
         i.name === inf.name ||
@@ -79,10 +79,10 @@
       new_manifest = {
         ...$currentRollout.manifest,
         spec: {
-          // @ts-ignore
+          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec,
           interfaces: [
-            // @ts-ignore
+            // @ts-expect-error - TS doesn't like the spread operator
             ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,
@@ -109,10 +109,10 @@
       new_manifest = {
         ...$currentRollout.manifest,
         spec: {
-          // @ts-ignore
+          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec,
           interfaces: [
-            // @ts-ignore
+            // @ts-expect-error - TS doesn't like the spread operator
             ...$currentRollout.manifest.spec.interfaces,
             {
               name: inf.name,

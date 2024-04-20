@@ -5,7 +5,7 @@
   import { Button, Fileupload, Input, Label, Modal, Toggle } from "flowbite-svelte";
   import { ArrowLeft, BookLock, BookPlus, BookUser, Code2, FolderGit } from "lucide-svelte";
   import MonacoEditor from "svelte-monaco";
-  // @ts-ignore
+  // @ts-expect-error - MonacoEditor types are not available
   import yaml from "js-yaml";
   import toast from "svelte-french-toast";
   import type { BlueprintsRecord } from "$lib/pocketbase/generated-types";
@@ -210,7 +210,7 @@
       <Fileupload
         bind:value={avatar}
         on:change={(event) => {
-          // @ts-ignore
+          // @ts-expect-error - event.target.files is not available
           avatarFile = event.target.files[0];
         }}
       />

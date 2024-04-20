@@ -32,7 +32,7 @@
       if (!value) return;
       // remove " and \" from the value
       value = value.replace(/\\"/g, '"').replace(/"/g, "");
-      // @ts-ignore
+      // @ts-expect-error value is a string
       event_object[key] = value;
     });
 

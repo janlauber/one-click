@@ -130,14 +130,14 @@
     }
 
     // Find the index of the current volume based on its unique identifier (id)
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the filter function
     const currentVolumeIndex = temp_rollout.manifest.spec.volumes.findIndex(
       (volume: any) => volume.id === updatedVolume.id
     );
 
     if (currentVolumeIndex === -1) {
       // Check if there's another volume with the same name or mount path. Make sure it's not the same volume
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the filter function
       const existingVolume = temp_rollout.manifest.spec.volumes.find(
         (volume: any) =>
           (volume.name === updatedVolume.name || volume.mountPath === updatedVolume.mountPath) &&
@@ -146,7 +146,7 @@
 
       // exclude if the volume is the same as the updated volume
       // and if there is only one volume
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the filter function
       if (existingVolume && temp_rollout.manifest.spec.volumes.length > 1) {
         toast.error("A volume with the same name or mount path already exists");
         return;
@@ -154,14 +154,14 @@
     }
 
     // Update the volume in temp_rollout
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the filter function
     const rolloutVolumeIndex = temp_rollout.manifest.spec.volumes.findIndex(
       (volume: any) =>
         volume.name === updatedVolume.name || volume.mountPath === updatedVolume.mountPath
     );
 
     if (rolloutVolumeIndex !== -1) {
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the filter function
       temp_rollout.manifest.spec.volumes[rolloutVolumeIndex] = updatedVolume;
     }
 
@@ -171,7 +171,6 @@
       return;
     }
 
-    // @ts-ignore
     if (!temp_rollout.manifest) {
       toast.error("No manifest found");
       return;
@@ -186,7 +185,6 @@
     //   return;
     // }
 
-    // @ts-ignore
     await updateManifest(temp_rollout.manifest);
 
     toast.success("Volume updated successfully");

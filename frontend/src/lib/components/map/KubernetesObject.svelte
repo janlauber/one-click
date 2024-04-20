@@ -1,6 +1,6 @@
 <script lang="ts">
   import MonacoEditor from "svelte-monaco";
-  // @ts-ignore
+  // @ts-expect-error - js-yaml types are not available
   import yaml from "js-yaml";
 
   export let manifest: JSON;

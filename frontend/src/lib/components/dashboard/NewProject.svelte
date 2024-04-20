@@ -131,7 +131,7 @@
     <Fileupload
       bind:value={avatar}
       on:change={(event) => {
-        // @ts-ignore
+        // @ts-expect-error - event.target.files is a FileList
         avatarFile = event.target.files[0];
       }}
     />

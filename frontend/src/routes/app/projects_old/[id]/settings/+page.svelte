@@ -16,7 +16,7 @@
   import { BookDashed, Code2, Image, Trash, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
-  // @ts-ignore
+  // @ts-expect-error - no types available
   import yaml from "js-yaml";
 
   let localTags: Set<string> = new Set();
@@ -539,7 +539,7 @@
     <Fileupload
       bind:value={blueprintAvatar}
       on:change={(event) => {
-        // @ts-ignore
+        // @ts-expect-error - event.target.files is a FileList
         blueprintAvatarFile = event.target.files[0];
       }}
     />

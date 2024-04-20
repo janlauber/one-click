@@ -180,7 +180,7 @@
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
-          // @ts-ignore
+          // @ts-expect-error - TS doesn't like the spread operator
           ...current_rollout.manifest.spec,
           horizontalScale: {
             maxReplicas: parseInt(maxInstances.toString()),

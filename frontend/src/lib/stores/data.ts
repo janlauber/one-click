@@ -108,16 +108,17 @@ async function updateDataStore<T, U>(
             if (filter?.deploymentId && collectionName === "rollouts") {
                 // currentRollout should be the one that has no endDate
                 const cRollout = response.find(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (rollout: any) => rollout.deployment === filter.deploymentId && !rollout.endDate
                 );
                 if (cRollout) {
-                    // @ts-ignore
                     store.set([cRollout] as T[]);
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     currentRollout.set(cRollout as any);
                 }
             } else {
-                // @ts-ignore
+                // @ts-expect-error filterFunc is defined
                 store.set(response.filter(filterFunc) as T[]);
             }
         } else {

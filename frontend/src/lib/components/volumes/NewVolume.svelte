@@ -75,9 +75,9 @@
     }
 
     // Check for existing volume with same name, host, or port
-    // @ts-ignore
+    // @ts-expect-error - TS doesn't like the filter function
     if ($currentRollout.manifest.volumes) {
-      // @ts-ignore
+      // @ts-expect-error - TS doesn't like the filter function
       const existingVolume = $currentRollout.manifest.volumes.find(
         (v: Volume) => v.name === volume.name
       );
@@ -90,10 +90,10 @@
     let new_manifest: any = {
       ...$currentRollout.manifest,
       spec: {
-        // @ts-ignore
+        // @ts-expect-error - TS doesn't like the spread operator
         ...$currentRollout.manifest.spec,
         volumes: [
-          // @ts-ignore
+          // @ts-expect-error - TS doesn't like the spread operator
           ...$currentRollout.manifest.spec.volumes,
           {
             name: volume.name,
