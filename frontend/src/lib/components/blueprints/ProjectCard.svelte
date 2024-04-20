@@ -15,8 +15,7 @@
     Toggle,
     Tooltip
   } from "flowbite-svelte";
-  import { DotsVerticalOutline } from "flowbite-svelte-icons";
-  import { Clipboard, Code2, FileQuestion, Lock, Share2, Trash, Trash2 } from "lucide-svelte";
+  import { Clipboard, Code2, Ellipsis, FileQuestion, Lock, Share2, Trash, Trash2 } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
   import { getRandomString } from "$lib/utils/random";
@@ -157,7 +156,7 @@
         {/if}
       </div>
       <div class="text-sm font-medium leading-6">{blueprint.name}</div>
-      <DotsVerticalOutline
+      <Ellipsis
         class="dots-menu{blueprint.id} dark:text-white ml-auto outline-none cursor-pointer"
       />
       <Dropdown triggeredBy=".dots-menu{blueprint.id}" class="p-0">

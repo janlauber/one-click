@@ -1,8 +1,7 @@
 <script lang="ts">
   import { rollouts } from "$lib/stores/data";
   import { Chart, Card } from "flowbite-svelte";
-  import { ChevronDownSolid, ChevronUpSolid } from "flowbite-svelte-icons";
-  import { History, Rocket } from "lucide-svelte";
+  import { ChevronDown, ChevronUp, History } from "lucide-svelte";
 
   let filterByOptions = ["Last 7 days", "Last 30 days", "Last 90 days"];
   let selectedFilterBy = filterByOptions[0];
@@ -248,9 +247,9 @@
       {filteredRollouts.length - filteredRolloutsLastPeriod.length > 0 ? "+" : ""}
       {filteredRollouts.length - filteredRolloutsLastPeriod.length}
       {#if filteredRollouts.length - filteredRolloutsLastPeriod.length > 0}
-        <ChevronUpSolid class="w-3 h-3 ms-1" />
+        <ChevronUp class="w-3 h-3 ms-1" />
       {:else}
-        <ChevronDownSolid class="w-3 h-3 ms-1" />
+        <ChevronDown class="w-3 h-3 ms-1" />
       {/if}
     </div>
   </div>

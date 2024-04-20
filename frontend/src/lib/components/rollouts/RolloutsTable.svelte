@@ -31,14 +31,15 @@
   } from "flowbite-svelte";
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
-  import { DotsHorizontalOutline, InfoCircleSolid } from "flowbite-svelte-icons";
   import {
     Copy,
     Database,
+    Ellipsis,
     Eye,
     EyeOff,
     HardDrive,
     History,
+    Info,
     Network,
     PanelRightOpen,
     Pause
@@ -239,7 +240,7 @@
         id="drawer-label"
         class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-white"
       >
-        <InfoCircleSolid class="w-4 h-4 mr-2.5" /> Rollout details
+        <Info class="w-4 h-4 mr-2.5" /> Rollout details
       </h5>
       <CloseButton on:click={() => (hidden6 = true)} class="mb-4 dark:text-white" />
     </div>
@@ -461,7 +462,7 @@
                           />
                         </button>
                       {:else}
-                        <DotsHorizontalOutline
+                        <Ellipsis
                           class="dots-menu-{idx} dark:text-white inline-block cursor-pointer outline-none"
                         />
                         <Dropdown triggeredBy=".dots-menu-{idx}" class="p-0">

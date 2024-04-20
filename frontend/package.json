@@ -32,7 +32,6 @@
     "eslint-plugin-svelte": "^2.37.0",
     "flowbite": "^2.3.0",
     "flowbite-svelte": "^0.44.24",
-    "flowbite-svelte-icons": "^0.4.4",
     "pocketbase": "^0.21.1",
     "postcss": "^8.4.36",
     "prettier": "^3.0.3",
@@ -70,10 +69,6 @@
     "svelte-french-toast": "^1.2.0",
     "svelte-icons-pack": "^2.1.1",
     "svelte-local-storage-store": "^0.6.4",
-    "svelte-monaco": "^0.3.0",
-    "svelte-tags-input": "^6.0.0",
-    "tailwind-merge": "^2.2.2",
-    "tsparticles": "^2.12.0",
-    "xterm": "^5.1.0"
+    "svelte-monaco": "^0.3.0"
   }
 }
