@@ -41,6 +41,34 @@ jobs:
       run: |
         go build -v ./...
 
+  ui-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Lint
+        run: npm run lint
+
+  ui-check:
+    name: Frontend Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Check
+        run: npm run check
+
   ui-build:
     name: Frontend Build
     runs-on: ubuntu-latest
