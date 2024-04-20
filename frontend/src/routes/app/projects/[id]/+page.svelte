@@ -1,17 +1,10 @@
 <script lang="ts">
-  import NewProject from "$lib/components/dashboard/NewProject.svelte";
   import DeploymentCard from "$lib/components/deployments/DeploymentCard.svelte";
   import { deployments } from "$lib/stores/data";
-  import { Heading, Modal } from "flowbite-svelte";
-
-  let projectModal = false;
+  import { Heading } from "flowbite-svelte";
 </script>
 
 <div class="absolute w-full top-0 bottom-0 overflow-y-scroll scrollbar-none">
-  <Modal bind:open={projectModal} size="lg" autoclose={false} class="w-full">
-    <NewProject bind:projectModal />
-  </Modal>
-
   <div class="max-w-6xl mx-auto px-5 pb-5 py-5 flex flex-col">
     <div class="flex mb-5">
       <Heading tag="h5" class="flex font-normal items-center w-auto"

@@ -13,7 +13,7 @@
   import { ArrowRight, BookLock, BookUser } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
-  export let deploymentModal: boolean;
+  export let modal: boolean;
 
   let name: string = "";
 
@@ -84,7 +84,7 @@
           })
           .finally(() => {
             updateDataStores();
-            deploymentModal = false;
+            modal = false;
           });
       })
       .catch((error) => {
