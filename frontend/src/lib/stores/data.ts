@@ -33,6 +33,7 @@ export const blueprints = createWritableStore<ExpandableResponse<BlueprintsRespo
 
 // Rollouts
 export type Rexpand = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spec: any;
     deployment: DeploymentsResponse;
     project: ProjectsResponse;

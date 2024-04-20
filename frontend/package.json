@@ -69,6 +69,7 @@
     "svelte-french-toast": "^1.2.0",
     "svelte-icons-pack": "^2.1.1",
     "svelte-local-storage-store": "^0.6.4",
-    "svelte-monaco": "^0.3.0"
+    "svelte-monaco": "^0.3.0",
+    "svelte-purify": "^1.1.19"
   }
 }
