@@ -220,11 +220,11 @@
         <Tooltip>
           {#if blueprint.users.length > 0}
             <div class="flex flex-wrap gap-2">
-              {#each blueprint.expand?.users as user (user)}
+              {#each blueprint.expand.users as user (user)}
                 <div class="flex items-center gap-x-2">
                   {#if user.avatar}
                     <img
-                      src={avatarUrl(user)}
+                      src={avatarUrl()}
                       alt={user.name}
                       class="h-8 w-8 rounded-full object-cover ring-1 ring-gray-900/10"
                     />

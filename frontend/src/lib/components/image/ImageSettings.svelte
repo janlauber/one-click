@@ -56,7 +56,7 @@
 
     const temp_rollouts = $rollouts.filter((r) => !r.endDate);
     if (temp_rollouts.length > 0) {
-      current_rollout = temp_rollouts[0];
+      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;;
     } else {
       current_rollout = $rollouts.sort((a, b) => {
         if (a.endDate && b.endDate) {
@@ -68,7 +68,7 @@
         } else {
           return 0;
         }
-      })[0];
+      })[0] as RolloutsResponse<Rexpand>;;
     }
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {

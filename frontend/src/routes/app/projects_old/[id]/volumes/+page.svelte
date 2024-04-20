@@ -35,13 +35,13 @@
   export let modal: boolean;
   let deleteModal: boolean = false;
   let selectedVolumeId: string = "";
-  let temp_rollout: RolloutsResponse<Rexpand> | undefined = $currentRollout;
+  let temp_rollout: RolloutsResponse<Rexpand> | undefined = $currentRollout as RolloutsResponse<Rexpand>;;
 
   let volumes: Volume[] = [];
 
   // if $currentRollout changes, update temp_rollout
   $: {
-    temp_rollout = $currentRollout;
+    temp_rollout = $currentRollout as RolloutsResponse<Rexpand>;;
   }
 
   $: {
