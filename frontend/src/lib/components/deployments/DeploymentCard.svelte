@@ -1,19 +1,29 @@
 <script lang="ts">
   import type { DeploymentsResponse, RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import { type Rexpand } from "$lib/stores/data";
+  import { blueprints, type Rexpand } from "$lib/stores/data";
   import { rollouts } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import { timeAgo } from "$lib/utils/date.utils";
-  import { Badge, Indicator } from "flowbite-svelte";
-  import { Box, ChevronRight, Cog, Dot, ExternalLink, HardDrive, Hash } from "lucide-svelte";
+  import { Badge, Indicator, Tooltip } from "flowbite-svelte";
+  import {
+    Box,
+    ChevronRight,
+    Cog,
+    Dot,
+    ExternalLink,
+    FileQuestion,
+    HardDrive,
+    Hash
+  } from "lucide-svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { getRolloutStatus } from "$lib/api/rollouts";
   import { onDestroy, onMount } from "svelte";
   import { determineRolloutColor } from "$lib/utils/color";
+  import { recordLogoUrl } from "$lib/utils/blueprint.utils";
   export let deployment: DeploymentsResponse;
 
-  // let deploymentBlueprint = $blueprints.find((b) => b.id === deployment.blueprint);
-  // $: deploymentBlueprint = $blueprints.find((b) => b.id === deployment.blueprint);
+  let deploymentBlueprint = $blueprints.find((b) => b.id === deployment.blueprint);
+  $: deploymentBlueprint = $blueprints.find((b) => b.id === deployment.blueprint);
 
   let current_rollout_status: RolloutStatusResponse | undefined;
 
@@ -72,6 +82,24 @@
 <li
   class="relative flex items-center space-x-4 py-4 px-4 lg:px-8 dark:text-white group hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
 >
+  {#if deployment?.avatar}
+    <img
+      src={recordLogoUrl(deployment)}
+      alt="Tuple"
+      class="h-9 w-9 flex-none rounded-lg object-cover p-1 border-2"
+    />
+  {:else if deploymentBlueprint?.avatar}
+    <img
+      src={recordLogoUrl(deploymentBlueprint)}
+      alt="Tuple"
+      class="h-9 w-9 flex-none rounded-lg object-cover p-1 border-2"
+    />
+    <Tooltip class="absolute">
+      {deploymentBlueprint.name}
+    </Tooltip>
+  {:else}
+    <FileQuestion class="h-9 w-9 flex-none  rounded-lg object-cover p-1 border-2" />
+  {/if}
   <div class="min-w-0 flex-auto">
     <div class="flex items-center gap-x-3">
       <Indicator
