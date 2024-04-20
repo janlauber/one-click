@@ -61,6 +61,10 @@
       toast.error(error.message);
     }
   }
+
+  function getValueFromEvent(e: Event) {
+    return (e.target as HTMLInputElement).value;
+  }
 </script>
 
 <div class="relative h-full max-w-6xl mx-auto p-5">
@@ -103,7 +107,7 @@
             placeholder="Your display name"
             class="mt-1"
             value={displayName}
-            on:input={(e) => (displayName = e.target?.value)}
+            on:input={(e) => (displayName = getValueFromEvent(e))}
           />
           <Button color="primary" size="sm" class="mt-4" on:click={updateDisplayName}>Save</Button>
         </div>
