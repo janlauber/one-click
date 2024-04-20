@@ -20,6 +20,7 @@
   import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
   import MetricsChart from "$lib/components/deployments/MetricsChart.svelte";
   import RolloutChart from "$lib/components/deployments/RolloutChart.svelte";
+  import { determineRolloutColor } from "$lib/utils/color";
 
   let current_rollout_status: RolloutStatusResponse | undefined;
   let currentRollouts: RolloutsResponse<Rexpand>[] = [];
@@ -30,21 +31,6 @@
 
   let memoryRequests = 0;
   let memoryUsage = 0;
-
-  const determineRolloutColor = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "yellow";
-      case "Not Ready":
-        return "yellow";
-      case "Error":
-        return "red";
-      case "OK":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
 
   const updateCurrentRollout = () => {
     currentRollouts = $rollouts.filter((r) => r.expand?.project.id === $selectedProjectId);

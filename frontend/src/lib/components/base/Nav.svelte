@@ -4,6 +4,7 @@
   import { client, logout } from "$lib/pocketbase";
   import { blueprints, currentRolloutStatus, deployments, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
+  import { selectedProject } from "$lib/stores/data";
   import {
     Avatar,
     Dropdown,
@@ -13,7 +14,6 @@
     Indicator
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
-  import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { FileQuestion } from "lucide-svelte";
   import { avatarUrlString } from "$lib/stores/avatar";
@@ -49,16 +49,14 @@
     }
   }
 
-  let selectedProject: ProjectsResponse | undefined = $projects.find(
-    (p) => p.id === $selectedProjectId
-  );
+  $selectedProject = $projects.find((p) => p.id === $selectedProjectId);
 
   // determine if rollout status is pending, not ready, error, or ok $currentRolloutStatus.deployment.status
 
   let selectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
   let selectedDeploymentBlueprint = $blueprints.find((b) => b.id === selectedDeployment?.blueprint);
 
-  $: selectedProject = $projects.find((p) => p.id === $selectedProjectId);
+  $: $selectedProject = $projects.find((p) => p.id === $selectedProjectId);
   $: selectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
   $: selectedDeploymentBlueprint = $blueprints.find((b) => b.id === selectedDeployment?.blueprint);
 </script>
@@ -103,7 +101,7 @@
                 />
               {:else if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
                 <img
-                  src={recordLogoUrl(selectedProject)}
+                  src={recordLogoUrl($selectedProject)}
                   alt="Tuple"
                   class="h-9 w-9 flex-none rounded-lg object-cover p-1"
                 />
@@ -111,7 +109,9 @@
                 <FileQuestion class="h-9 w-9 flex-none text-white rounded-lg object-cover p-1" />
               {/if}
             </div>
-            <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
+            <div class="text-sm font-medium leading-6 text-white ml-4">
+              {$selectedProject?.name}
+            </div>
           </div>
         {/key}
       </div>
