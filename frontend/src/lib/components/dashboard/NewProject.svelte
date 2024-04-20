@@ -1,27 +1,18 @@
 <script lang="ts">
   import { client } from "$lib/pocketbase";
-  import type {
-    ProjectsRecord,
-    BlueprintsResponse,
-    RolloutsRecord
-  } from "$lib/pocketbase/generated-types";
-  import { blueprints, updateDataStores } from "$lib/stores/data";
-  import { recordLogoUrl } from "$lib/utils/blueprint.utils";
+  import type { ProjectsRecord } from "$lib/pocketbase/generated-types";
+  import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
 
-  import { Button, Input, Label } from "flowbite-svelte";
-  import { ArrowRight, BookLock, BookUser, XIcon } from "lucide-svelte";
+  import { Button, Fileupload, Input, Label, Textarea } from "flowbite-svelte";
+  import { ArrowRight, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let projectModal: boolean;
 
   let name: string = "";
-
-  let filteredBlueprints: BlueprintsResponse[] = [];
-  let selectedBlueprint: BlueprintsResponse;
-
-  $: filteredBlueprints = $blueprints.filter((blueprint) => blueprint.owner === client.authStore.model?.id);
-  $: selectedBlueprint = filteredBlueprints[0];
-
+  let description: string = "";
+  let avatar: string = "";
+  let avatarFile: File;
 
   let localTags: Set<string> = new Set();
 
@@ -66,66 +57,47 @@
       return;
     }
 
-    if (!selectedBlueprint) {
-      toast.error("Please select a blueprint");
+    if (!description) {
+      toast.error("Please enter a description");
       return;
     }
 
+    let formData = new FormData();
+    formData.append("avatar", avatarFile);
+
     const project: ProjectsRecord = {
       name: name,
-      blueprint: selectedBlueprint.id,
+      description: description,
       user: client.authStore.model?.id,
       tags: setToString(localTags)
     };
-
-    // remove any ingresses from the blueprint manifest
-    // first, check if the manifest has interfaces:
-    if ((selectedBlueprint.manifest as any).spec.interfaces) {
-      // then, remove the ingress object from the interfaces array
-      for (let i = 0; i < (selectedBlueprint.manifest as any).spec.interfaces.length; i++) {
-        // remove the ingress object from the interfaces array
-        if ((selectedBlueprint.manifest as any).spec.interfaces[i].ingress) {
-          delete (selectedBlueprint.manifest as any).spec.interfaces[i].ingress;
-        }
-      }
-    }
 
     await client
       .collection("projects")
       .create(project)
       .then((response) => {
-        // create initial rollout
-        const rollout: RolloutsRecord = {
-          manifest: selectedBlueprint.manifest,
-          startDate: "",
-          endDate: "",
-          project: response.id,
-          user: client.authStore.model?.id
-        };
-
-        client
-          .collection("rollouts")
-          .create(rollout)
-          .then((response) => {
-            toast.success("Project & initial Rollout created");
-            updateDataStores();
-          })
-          .catch((error) => {
-            toast.success("Project created");
-            toast.error(error.message);
-          })
-          .finally(() => {
-            localTags = new Set();
-            updateDataStores();
-            projectModal = false;
-          });
+        if (avatarFile) {
+          client
+            .collection("projects")
+            .update(response.id, formData)
+            .then(() => {
+              updateDataStores({
+                filter: UpdateFilterEnum.ALL
+              });
+            })
+            .catch((error) => {
+              toast.error(error.message);
+            });
+        }
+        toast.success("Project created");
+        projectModal = false;
+        localTags = new Set();
+        name = "";
+        description = "";
+        updateDataStores();
       })
       .catch((error) => {
         toast.error(error.message);
-      })
-      .finally(() => {
-        name = "";
-        selectedBlueprint = $blueprints[0];
       });
   }
 </script>
@@ -142,70 +114,28 @@
       bind:value={name}
     />
   </Label>
-  <fieldset class="space-y-2">
-    <Label class="space-y-2">
-      <span>Select a blueprint *</span>
-    </Label>
-    <div class="grid grid-cols-2 gap-2">
-      {#if filteredBlueprints}
-        {#each filteredBlueprints as blueprint (blueprint.id)}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <span
-            class="cursor-pointer w-full rounded-lg px-6 py-4 sm:flex sm:justify-between border-2
-          {selectedBlueprint?.id === blueprint?.id
-              ? 'border-primary-600 bg-gray-50 dark:bg-transparent'
-              : ' border-gray-200'}
-          "
-            on:click={() => {
-              selectedBlueprint = blueprint;
-            }}
-          >
-            <input
-              type="radio"
-              name="server-size"
-              value={blueprint?.id}
-              class="sr-only"
-              aria-labelledby="server-size-1-label"
-              aria-describedby="server-size-1-description-0 server-size-1-description-1"
-            />
-            <span class="flex items-center">
-              <span class="flex flex-col text-sm">
-                <span id="server-size-1-label" class="font-medium">
-                  {blueprint?.name}
-                </span>
 
-                <span id="server-size-1-description-0" class=" hover:text-gray-600 mt-1">
-                  {#if blueprint?.owner === client.authStore.model?.id}
-                    <BookLock class="w-4 h-4 mr-1 inline-block" />
-                  {:else}
-                    <BookUser class="w-4 h-4 mr-1 inline-block" />
-                  {/if}
-                  <p class="block sm:inline">
-                    {blueprint?.description}
-                  </p>
-                </span>
-              </span>
-            </span>
-            <span
-              id="server-size-1-description-1"
-              class="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right"
-            >
-              <img
-                src={recordLogoUrl(blueprint)}
-                alt={blueprint?.name}
-                class="h-12 w-12 flex-none rounded-lg object-cover ring-1 ring-gray-900/10"
-              />
-            </span>
-            <span
-              class="pointer-events-none absolute -inset-px rounded-lg border-2"
-              aria-hidden="true"
-            ></span>
-          </span>
-        {/each}
-      {/if}
-    </div>
-  </fieldset>
+  <Label class="space-y-2">
+    <span>Description</span>
+    <Textarea
+      type="text"
+      name="description"
+      placeholder="Enter the description of your project"
+      required
+      bind:value={description}
+    />
+  </Label>
+
+  <Label class="space-y-2">
+    <span>Avatar*</span>
+    <Fileupload
+      bind:value={avatar}
+      on:change={(event) => {
+        // @ts-ignore
+        avatarFile = event.target.files[0];
+      }}
+    />
+  </Label>
 
   <Label class="space-y-2">
     <span>Tags</span>

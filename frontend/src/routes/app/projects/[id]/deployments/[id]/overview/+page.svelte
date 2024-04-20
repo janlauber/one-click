@@ -18,8 +18,8 @@
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { navigating } from "$app/stores";
   import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
-  import MetricsChart from "$lib/components/projects/MetricsChart.svelte";
-  import RolloutChart from "$lib/components/projects/RolloutChart.svelte";
+  import MetricsChart from "$lib/components/deployments/MetricsChart.svelte";
+  import RolloutChart from "$lib/components/deployments/RolloutChart.svelte";
 
   let current_rollout_status: RolloutStatusResponse | undefined;
   let currentRollouts: RolloutsResponse<Rexpand>[] = [];

@@ -5,8 +5,9 @@
   import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { projects, blueprints } from "$lib/stores/data";
+  import { getTagColor } from "$lib/utils/tags";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
-  import { Plus, BookDashed } from "lucide-svelte";
+  import { Plus, BookDashed, Tag } from "lucide-svelte";
 
   let projectModal = false;
 
@@ -126,12 +127,12 @@
       {#each Array.from(tags) as tag (tag)}
         <button on:click={() => handleFilterProjects(tag)}>
           <Badge
-            color={selectedTags.has(tag) ? "primary" : "dark"}
+            color={getTagColor(tag)}
             class="text-sm cursor-pointer
           {selectedTags.has(tag) ? 'bg-primary-600 text-white' : ''}
         "
           >
-            {tag}
+          <Tag class="w-4 h-4 inline-block" strokeWidth={2} />&nbsp;{tag}
           </Badge>
         </button>
       {/each}

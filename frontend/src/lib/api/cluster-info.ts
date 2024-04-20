@@ -7,7 +7,7 @@ async function fetchFromAPI(endpoint: string) {
     }
     const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
 
-    const baseUrl = window.location.hostname === "localhost" ? `http://localhost:8090` : '';
+    const baseUrl = window.location.hostname === "localhost" ? `http://localhost:8090` : "";
     const url = `${baseUrl}/${endpoint}`;
 
     try {
@@ -23,7 +23,7 @@ async function fetchFromAPI(endpoint: string) {
 }
 
 export async function getClusterInfo() {
-    return fetchFromAPI('cluster-info');
+    return fetchFromAPI("cluster-info");
 }
 
 export type ClusterInfoResponse = {
