@@ -16,7 +16,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-auto": "^3.2.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@tailwindcss/forms": "^0.5.7",
@@ -54,7 +54,7 @@
     "@codemirror/theme-one-dark": "^6.1.2",
     "@floating-ui/dom": "^1.6.3",
     "@sveltejs/adapter-node": "^5.0.1",
-    "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/adapter-static": "^3.0.1",
     "@webcontainer/api": "^1.1.4",
     "@xyflow/svelte": "^0.0.40",
     "chart.js": "^4.3.0",
