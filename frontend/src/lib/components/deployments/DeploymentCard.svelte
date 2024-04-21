@@ -53,7 +53,7 @@
 
   // filter $rollouts by $rollouts.expand.project
   let these_rollouts: RolloutsResponse<Rexpand>[] = [];
-  $: these_rollouts = $rollouts.filter((r) => r.expand?.deployment.id === deployment.id);
+  $: these_rollouts = $rollouts.filter((r) => r.expand?.deployment?.id === deployment.id);
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
 

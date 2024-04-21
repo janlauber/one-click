@@ -12,19 +12,13 @@
     Variable
   } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
-  import { rollouts, type Rexpand, currentRolloutStatus } from "$lib/stores/data";
-  import { getRolloutMetrics, getRolloutStatus } from "$lib/api/rollouts";
+  import { rollouts, currentRolloutStatus, currentRollout } from "$lib/stores/data";
+  import { getRolloutMetrics } from "$lib/api/rollouts";
   import { onDestroy, onMount } from "svelte";
-  import type { RolloutStatusResponse } from "$lib/types/status";
   import { navigating } from "$app/stores";
-  import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
   import MetricsChart from "$lib/components/deployments/MetricsChart.svelte";
   import RolloutChart from "$lib/components/deployments/RolloutChart.svelte";
   import { determineRolloutColor } from "$lib/utils/color";
-
-  let current_rollout_status: RolloutStatusResponse | undefined;
-  let currentRollouts: RolloutsResponse<Rexpand>[] = [];
-  let currentRollout: RolloutsResponse<Rexpand> | undefined;
 
   let cpuRequests = 0;
   let cpuUsage = 0;
@@ -32,32 +26,16 @@
   let memoryRequests = 0;
   let memoryUsage = 0;
 
-  const updateCurrentRollout = () => {
-    currentRollouts = $rollouts.filter((r) => r.expand?.project.id === $selectedProjectId);
-    currentRollout = currentRollouts.find((r) => !r.endDate);
-    if (!currentRollout) {
-      current_rollout_status = undefined;
-      return;
-    }
-    getRolloutStatus($selectedProjectId, currentRollout.deployment)
-      .then((response) => {
-        current_rollout_status = response;
-        cpuRequests = Number(current_rollout_status?.deployment.resources.requestSum.cpu);
-        // round to 3 decimal places
-        cpuRequests = Math.round((cpuRequests + Number.EPSILON) * 1000) / 1000;
-        memoryRequests =
-          Number(current_rollout_status?.deployment.resources.requestSum.memory) /
-          1024 /
-          1024 /
-          1024;
-        // round to 3 decimal places
-        memoryRequests = Math.round((memoryRequests + Number.EPSILON) * 1000) / 1000;
-      })
-      .catch(() => {
-        current_rollout_status = undefined;
-      });
+  const updateStats = () => {
+    cpuRequests = Number($currentRolloutStatus?.deployment.resources.requestSum.cpu);
+    // round to 3 decimal places
+    cpuRequests = Math.round((cpuRequests + Number.EPSILON) * 1000) / 1000;
+    memoryRequests =
+      Number($currentRolloutStatus?.deployment.resources.requestSum.memory) / 1024 / 1024 / 1024;
+    // round to 3 decimal places
+    memoryRequests = Math.round((memoryRequests + Number.EPSILON) * 1000) / 1000;
 
-    getRolloutMetrics($selectedProjectId, currentRollout.deployment)
+    getRolloutMetrics($selectedProjectId, $currentRollout?.deployment ?? "")
       .then((response) => {
         // sum up cpu and memory Usage
         cpuUsage = 0;
@@ -82,9 +60,9 @@
 
   // update rollout status every 5 seconds
   onMount(() => {
-    updateCurrentRollout();
+    updateStats();
     intervalId = setInterval(() => {
-      updateCurrentRollout();
+      updateStats();
     }, 5000);
   });
 
@@ -93,7 +71,7 @@
   });
 
   $: if ($navigating) {
-    updateCurrentRollout();
+    updateStats();
   }
 </script>
 
@@ -108,7 +86,7 @@
     }}
   >
     <div class="relative">
-      {#if current_rollout_status?.deployment?.status === "OK"}
+      {#if $currentRolloutStatus?.deployment?.status === "OK"}
         <Indicator
           size="sm"
           color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
@@ -141,7 +119,7 @@
         </div>
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Rollouts</span>
-          <span class="text-sm font-semibold">{currentRollouts.length}</span>
+          <span class="text-sm font-semibold">{$rollouts.length}</span>
         </div>
       </Card>
     </a>
@@ -159,7 +137,7 @@
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Instances</span>
           <span class="text-sm font-semibold"
-            >{current_rollout_status?.deployment?.replicas ?? 0}</span
+            >{$currentRolloutStatus?.deployment?.replicas ?? 0}</span
           >
         </div>
       </Card>
@@ -177,7 +155,7 @@
         </div>
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Interfaces</span>
-          <span class="text-sm font-semibold">{current_rollout_status?.services?.length ?? 0}</span>
+          <span class="text-sm font-semibold">{$currentRolloutStatus?.services?.length ?? 0}</span>
         </div>
       </Card>
     </a>
@@ -193,7 +171,7 @@
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Volumes</span>
           <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec?.volumes?.length ?? 0}</span
+            >{$currentRollout?.manifest?.spec?.volumes?.length ?? 0}</span
           >
         </div>
       </Card>
@@ -215,9 +193,9 @@
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Image</span>
           <span class="text-sm font-semibold">
-            {currentRollout?.manifest?.spec.image.registry ??
-              ""}/{currentRollout?.manifest?.spec.image.repository.replace(/^library\//, "") ??
-              ""}:{currentRollout?.manifest?.spec.image.tag ?? ""}</span
+            {$currentRollout?.manifest?.spec.image.registry ??
+              ""}/{$currentRollout?.manifest?.spec.image.repository.replace(/^library\//, "") ??
+              ""}:{$currentRollout?.manifest?.spec.image.tag ?? ""}</span
           >
         </div>
       </Card>
@@ -236,7 +214,7 @@
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Envs</span>
           <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec?.env?.length ?? 0}</span
+            >{$currentRollout?.manifest?.spec?.env?.length ?? 0}</span
           >
         </div>
       </Card>
@@ -255,7 +233,7 @@
         <div class="flex flex-col ml-4">
           <span class="text-sm font-light">Secrets</span>
           <span class="text-sm font-semibold"
-            >{currentRollout?.manifest?.spec?.secrets?.length ?? 0}</span
+            >{$currentRollout?.manifest?.spec?.secrets?.length ?? 0}</span
           >
         </div>
       </Card>
@@ -263,7 +241,7 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {#if currentRollout}
+    {#if $currentRollout}
       <MetricsChart usage={cpuUsage} requests={cpuRequests} title="Total CPU (Cores)" />
 
       <MetricsChart usage={memoryUsage} requests={memoryRequests} title="Total Memory (GB)" />

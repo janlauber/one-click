@@ -1,7 +1,11 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
-  import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
+  import type {
+    AutoUpdatesRecord,
+    RolloutsRecord,
+    RolloutsResponse
+  } from "$lib/pocketbase/generated-types";
   import {
     type Rexpand,
     rollouts,
@@ -15,6 +19,7 @@
   import { goto } from "$app/navigation";
   import { ArrowRight, Clipboard } from "lucide-svelte";
   import { getRandomString } from "$lib/utils/random";
+  import selectedDeploymentId from "$lib/stores/deployment";
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
   let lastUpdatedRollout: RolloutsResponse<Rexpand> | undefined;
@@ -137,11 +142,12 @@
   async function handleInputSave() {
     if (current_rollout) {
       if (tagAutoUpdateEnabled) {
-        const data = {
+        const data: AutoUpdatesRecord = {
           interval: tagAutoUpdateInterval,
           pattern: tagAutoUpdatePattern,
           policy: tagAutoUpdatePolicy,
           project: $selectedProjectId,
+          deployment: $selectedDeploymentId,
           user: client.authStore.model?.id
         };
 

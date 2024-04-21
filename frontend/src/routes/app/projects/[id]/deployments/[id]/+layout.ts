@@ -12,6 +12,8 @@ export const load: PageLoad = async ({ params }: any) => {
 
     selectedDeploymentId.set(id);
 
+    console.log(id);
+
     await updateDataStores({
         filter: UpdateFilterEnum.ALL,
         projectId: projectId,

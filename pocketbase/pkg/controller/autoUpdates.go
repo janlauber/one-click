@@ -193,6 +193,7 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 			// set the fields
 			record.Set("user", runningRollout.GetString("user"))
 			record.Set("project", runningRollout.GetString("project"))
+			record.Set("deployment", runningRollout.GetString("deployment"))
 			record.Set("manifest", string(manifest))
 			record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
 
