@@ -161,8 +161,8 @@ func main() {
 			return controller.HandlePodDelete(c, app, projectId, podName)
 		}, apis.RequireRecordAuth("users"))
 
-		// websocket for rollouts status
-		e.Router.GET("/ws/k8s/rollouts", watcher.WsK8sRolloutsHandler)
+		// websocket for deployments status
+		e.Router.GET("/ws/k8s/deployments", watcher.WsK8sDeploymentsHandler)
 
 		// websocket for pod logs
 		e.Router.GET("/ws/k8s/logs", watcher.WsK8sRolloutLogsHandler)
