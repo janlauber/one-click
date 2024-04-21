@@ -29,7 +29,7 @@
     <slot />
   </main>
   <button
-    class="absolute bottom-2 right-2"
+    class="absolute bottom-2 right-0"
     on:click={() => {
       $colorTheme = $colorTheme === "light" ? "dark" : "light";
       localStorage.setItem("color-theme", $colorTheme);

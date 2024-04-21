@@ -33,19 +33,21 @@
       </div>
     {/if}
 
-    <Breadcrumb class="max-w-6xl mx-auto mt-3 px-5" solid>
-      {#each $breadcrumbItems as item, i}
-        <BreadcrumbItem href={item.href}>
-          <svelte:fragment slot="icon">
-            {#if i > 0}
-              <ChevronRight class="w-4 h-4 mr-1 inline-block" />
-            {/if}
-            <svelte:component this={item.icon} class="w-4 h-4 inline-block" />
-          </svelte:fragment>
-          {item.title}
-        </BreadcrumbItem>
-      {/each}
-    </Breadcrumb>
+    <div class="w-full mt-3">
+      <Breadcrumb class="max-w-6xl mx-auto " solid>
+        {#each $breadcrumbItems as item, i}
+          <BreadcrumbItem href={item.href}>
+            <svelte:fragment slot="icon">
+              {#if i > 0}
+                <ChevronRight class="w-4 h-4 mr-1 inline-block" />
+              {/if}
+              <svelte:component this={item.icon} class="w-4 h-4 inline-block" />
+            </svelte:fragment>
+            {item.title}
+          </BreadcrumbItem>
+        {/each}
+      </Breadcrumb>
+    </div>
 
     <slot />
   </div>

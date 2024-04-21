@@ -99,8 +99,12 @@
     });
   }
 
-  $: items = generateItems(); // Regenerate items on projectId change
-  $: setCurrentItem(); // Call setCurrentItem whenever items are updated
+  $: if ($page) {
+    items = generateItems();
+    // log the current item true
+    console.log(items.find((item) => item.current));
+    setCurrentItem();
+  }
 
   $: if ($page) {
     setCurrentItem();

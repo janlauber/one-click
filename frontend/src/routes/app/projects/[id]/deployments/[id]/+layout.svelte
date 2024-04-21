@@ -2,8 +2,7 @@
   import { deployments, updateCurrentRolloutStatus } from "$lib/stores/data";
   import { onDestroy, onMount } from "svelte";
   import { navigating } from "$app/stores";
-  import { TabItem, Tabs } from "flowbite-svelte";
-  import { recordLogoUrl } from "$lib/utils/blueprint.utils";
+  import DeploymentTab from "$lib/components/deployments/DeploymentTab.svelte";
 
   const updateCurrentRollout = () => {
     updateCurrentRolloutStatus();
@@ -28,7 +27,9 @@
   });
 </script>
 
-<Tabs tabStyle="underline">
+<DeploymentTab deployments={$deployments} />
+
+<!-- <Tabs tabStyle="underline">
   {#each $deployments as deployment}
     <TabItem>
       <div slot="title" class="flex items-center gap-2">
@@ -41,6 +42,6 @@
       </div>
     </TabItem>
   {/each}
-</Tabs>
+</Tabs> -->
 
 <slot />

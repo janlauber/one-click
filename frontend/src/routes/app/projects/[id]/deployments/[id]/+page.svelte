@@ -14,7 +14,7 @@
   import selectedProjectId from "$lib/stores/project";
   import { rollouts, type Rexpand, currentRolloutStatus } from "$lib/stores/data";
   import { getRolloutMetrics, getRolloutStatus } from "$lib/api/rollouts";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { navigating } from "$app/stores";
   import type { RolloutsResponse } from "$lib/pocketbase/generated-types";
@@ -78,7 +78,19 @@
       .catch(() => {});
   };
 
-  onMount(updateCurrentRollout);
+  let intervalId: any;
+
+  // update rollout status every 5 seconds
+  onMount(() => {
+    updateCurrentRollout;
+    intervalId = setInterval(() => {
+      updateCurrentRollout();
+    }, 5000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   $: if ($navigating) {
     updateCurrentRollout();
@@ -96,18 +108,18 @@
     }}
   >
     <div class="relative">
-      <Indicator
-        size="sm"
-        color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
-        class="mr-1.5 {$currentRolloutStatus ? 'absolute' : ''}"
-      />
-      {#if current_rollout_status}
+      {#if current_rollout_status?.deployment?.status === "OK"}
         <Indicator
           size="sm"
           color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "")}
-          class="mr-1.5 animate-ping"
+          class="mr-1.5 animate-ping absolute "
         />
       {/if}
+      <Indicator
+        size="sm"
+        color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "none")}
+        class="mr-1.5"
+      />
     </div>
     Current rollout (Status: {$currentRolloutStatus?.deployment?.status ?? "Unknown"})
     <ArrowRight class="w-4 h-4 ml-2" />
