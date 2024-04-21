@@ -71,7 +71,7 @@
   let filtered_blueprints = getOwnedBlueprints().concat(getCommunityBlueprints());
 </script>
 
-<div class="absolute w-full top-48 bottom-0 overflow-y-scroll scrollbar-none">
+<div class="absolute w-full top-44 bottom-0 overflow-y-scroll scrollbar-none p-3">
   <Modal bind:open={projectModal} size="lg" autoclose={false} class="w-full">
     <NewProject bind:projectModal />
   </Modal>

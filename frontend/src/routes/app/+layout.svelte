@@ -33,7 +33,7 @@
       </div>
     {/if}
 
-    <div class="w-full mt-3">
+    <div class="w-full px-3 pt-3 absolute z-20 bg-transparent">
       <Breadcrumb class="max-w-6xl mx-auto " solid>
         {#each $breadcrumbItems as item, i}
           <BreadcrumbItem href={item.href}>

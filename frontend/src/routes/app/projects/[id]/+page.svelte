@@ -7,7 +7,7 @@
 </script>
 
 <div class="absolute w-full top-0 bottom-0 overflow-y-scroll scrollbar-none">
-  <div class="max-w-6xl mx-auto pb-5 py-5 flex flex-col">
+  <div class="max-w-6xl mx-auto pt-5 pb-20 flex flex-col">
     <div class="flex mb-5">
       <Heading tag="h5" class="flex font-normal items-center w-auto"
         >Deployments ({$deployments.length})</Heading

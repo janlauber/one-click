@@ -22,10 +22,7 @@
 
   // update rollout status every 5 seconds
   onMount(() => {
-    updateCurrentRollout();
-    intervalId = setInterval(() => {
-      updateCurrentRollout();
-    }, 5000);
+    intervalId = setInterval(updateCurrentRollout, 5000);
   });
 
   onDestroy(() => {

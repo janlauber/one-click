@@ -82,7 +82,7 @@
 
   // update rollout status every 5 seconds
   onMount(() => {
-    updateCurrentRollout;
+    updateCurrentRollout();
     intervalId = setInterval(() => {
       updateCurrentRollout();
     }, 5000);

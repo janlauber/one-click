@@ -109,7 +109,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-y-4" role="group" aria-labelledby="projects-headline">
+<div class="flex flex-col gap-y-4 mt-3" role="group" aria-labelledby="projects-headline">
   <a
     href={"/app/projects/" + $selectedProjectId}
     class=" text-white hover:text-primary-700 dark:text-gray-100 dark:hover:text-gray-100 pl-4 pr-10 py-2 text-sm font-medium rounded-md transition-all duration-150 ease-in-out hover:bg-gray-200 dark:hover:bg-primary-600 dark:hover:bg-opacity-10
