@@ -168,7 +168,8 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
           });
         }),
       {
@@ -192,7 +193,8 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
           });
         }),
       {

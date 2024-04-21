@@ -160,7 +160,8 @@
               .then(() => {
                 updateDataStores({
                   filter: UpdateFilterEnum.ALL,
-                  projectId: $selectedProjectId
+                  projectId: $selectedProjectId,
+                  deploymentId: $selectedDeploymentId
                 });
               }),
             {
@@ -178,7 +179,8 @@
                 .then(() => {
                   updateDataStores({
                     filter: UpdateFilterEnum.ALL,
-                    projectId: $selectedProjectId
+                    projectId: $selectedProjectId,
+                    deploymentId: $selectedDeploymentId
                   });
                 }),
               {
@@ -198,7 +200,8 @@
               .then(() => {
                 updateDataStores({
                   filter: UpdateFilterEnum.ALL,
-                  projectId: $selectedProjectId
+                  projectId: $selectedProjectId,
+                  deploymentId: $selectedDeploymentId
                 });
               }),
             {
@@ -243,7 +246,8 @@
           .then(() => {
             updateDataStores({
               filter: UpdateFilterEnum.ALL,
-              projectId: $selectedProjectId
+              projectId: $selectedProjectId,
+              deploymentId: $selectedDeploymentId
             });
           }),
         {

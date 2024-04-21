@@ -114,11 +114,11 @@ async function updateDataStore<T, U>(
                         rollout.deployment === filter.deploymentId && rollout.endDate == ""
                 );
                 if (cRollout) {
-                    store.set([cRollout] as T[]);
-
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     currentRollout.set(cRollout as any);
                 }
+                // @ts-expect-error filterFunc is defined
+                store.set(response.filter(filterFunc) as T[]);
             } else {
                 // @ts-expect-error filterFunc is defined
                 store.set(response.filter(filterFunc) as T[]);
