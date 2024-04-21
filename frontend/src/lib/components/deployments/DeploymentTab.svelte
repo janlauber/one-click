@@ -55,10 +55,10 @@
               deployment.avatar ? deployment : getDeploymentBlueprint(deployment.blueprint)
             )}
             alt="Tuple"
-            class="h-9 w-9 flex-none rounded-lg object-cover p-1"
+            class="h-7 w-7 flex-none rounded-lg object-cover p-1"
           />
         {:else}
-          <div class="h-9 w-9">
+          <div class="h-7 w-7">
             <FileQuestion />
           </div>
         {/if}

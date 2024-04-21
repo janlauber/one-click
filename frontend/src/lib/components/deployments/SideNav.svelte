@@ -101,8 +101,6 @@
 
   $: if ($page) {
     items = generateItems();
-    // log the current item true
-    console.log(items.find((item) => item.current));
     setCurrentItem();
   }
 

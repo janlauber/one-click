@@ -1,8 +1,14 @@
 <script lang="ts">
-  import { deployments, updateCurrentRolloutStatus } from "$lib/stores/data";
+  import { deployments, selectedProject, updateCurrentRolloutStatus } from "$lib/stores/data";
   import { onDestroy, onMount } from "svelte";
   import { navigating } from "$app/stores";
   import DeploymentTab from "$lib/components/deployments/DeploymentTab.svelte";
+  import { metadata } from "$lib/stores/metadata";
+  import selectedDeploymentId from "$lib/stores/deployment";
+
+  let currentDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
+
+  $metadata.title = currentDeployment?.name + " | " + $selectedProject?.name || "Rollouts";
 
   const updateCurrentRollout = () => {
     updateCurrentRolloutStatus();
@@ -28,20 +34,5 @@
 </script>
 
 <DeploymentTab deployments={$deployments} />
-
-<!-- <Tabs tabStyle="underline">
-  {#each $deployments as deployment}
-    <TabItem>
-      <div slot="title" class="flex items-center gap-2">
-        <img
-          src={recordLogoUrl(deployment)}
-          alt="Tuple"
-          class="h-9 w-9 flex-none rounded-lg object-cover p-1"
-        />
-        {deployment.name}
-      </div>
-    </TabItem>
-  {/each}
-</Tabs> -->
 
 <slot />
