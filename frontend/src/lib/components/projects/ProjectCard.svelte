@@ -64,13 +64,6 @@
         <span class="cursor-default">{project.id}</span>
       </dd>
     </div>
-
-    <div class="flex justify-between gap-x-4 py-3">
-      <dt class="">Description</dt>
-      <dd class="cursor-default flex flex-wrap text-light">
-        {project.description}
-      </dd>
-    </div>
     <div class="flex justify-between gap-x-4 py-3">
       <dt class="">Last rollout</dt>
       {#if these_rollouts.length > 0}

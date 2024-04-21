@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import NewProject from "$lib/components/dashboard/NewProject.svelte";
-  import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
+  import NewProject from "$lib/components/projects/NewProject.svelte";
+  import ProjectCard from "$lib/components/projects/ProjectCard.svelte";
   import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { projects, blueprints } from "$lib/stores/data";

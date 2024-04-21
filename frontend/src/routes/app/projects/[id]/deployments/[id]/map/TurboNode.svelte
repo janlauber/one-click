@@ -4,8 +4,9 @@
 
   import { ArrowLeftRight, Box, Database, Lock, NetworkIcon } from "lucide-svelte";
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = NodeProps;
-  export let data: $$Props["data"] | any;
+  export let data: any;
 
   let statusClass = "";
   let containerStatusClass = "";

@@ -23,7 +23,7 @@ async function fetchFromAPI(endpoint: string) {
 }
 
 export async function getClusterInfo() {
-    return fetchFromAPI("cluster-info");
+    return fetchFromAPI("pb/cluster-info");
 }
 
 export type ClusterInfoResponse = {

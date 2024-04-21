@@ -117,7 +117,8 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: $currentRollout?.deployment
           });
           modal = false;
         }),

@@ -4,7 +4,6 @@
   import selectedDeploymentId from "$lib/stores/deployment";
   import {
     ArrowLeft,
-    Boxes,
     Cog,
     Database,
     Expand,
@@ -60,12 +59,6 @@
         href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/volumes`,
         current: false,
         icon: Database
-      },
-      {
-        name: "Instances",
-        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/instances`,
-        current: false,
-        icon: Boxes
       },
       {
         name: "Envs & Secrets",

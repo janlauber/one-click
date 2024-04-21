@@ -2,9 +2,10 @@
   import { client } from "$lib/pocketbase";
   import type { ProjectsRecord } from "$lib/pocketbase/generated-types";
   import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
+  import { getTagColor } from "$lib/utils/tags";
 
-  import { Button, Fileupload, Input, Label, Textarea } from "flowbite-svelte";
-  import { ArrowRight, XIcon } from "lucide-svelte";
+  import { Badge, Button, Fileupload, Input, Label, Textarea } from "flowbite-svelte";
+  import { ArrowRight, Tag, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let projectModal: boolean;
@@ -150,13 +151,12 @@
     {#if localTags.size > 0}
       <div class="flex flex-wrap">
         {#each [...localTags] as tag (tag)}
-          <div
-            class="group relative bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-1 text-sm font-semibold mr-2 mb-2"
-          >
-            {tag}
+          <Badge color={getTagColor(tag)} class="mr-2 mb-2 relative group">
+            <Tag class="w-3 h-3 inline-block mr-1" />{tag}
+
             <button
               type="button"
-              class="absolute top-0 left-0 right-0 bottom-0 w-full rounded-lg opacity-0 -z-10 group-hover:z-10 group-hover:opacity-100 bg-red-500 transition-opacity text-white"
+              class="absolute top-0 left-0 right-0 bottom-0 w-full rounded-md opacity-0 -z-10 group-hover:z-10 group-hover:opacity-100 bg-red-500 transition-opacity text-white"
               on:click={() => {
                 localTags.delete(tag);
                 localTags = localTags;
@@ -166,7 +166,7 @@
                 class="w-4 h-4 inline-block ml-20 group-hover:ml-0 duration-150 transition-all ease-in-out"
               />
             </button>
-          </div>
+          </Badge>
         {/each}
       </div>
     {/if}

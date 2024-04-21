@@ -27,6 +27,10 @@
   let memoryUsage = 0;
 
   const updateStats = () => {
+    if (!$currentRolloutStatus?.deployment) {
+      return;
+    }
+
     cpuRequests = Number($currentRolloutStatus?.deployment.resources.requestSum.cpu);
     // round to 3 decimal places
     cpuRequests = Math.round((cpuRequests + Number.EPSILON) * 1000) / 1000;
