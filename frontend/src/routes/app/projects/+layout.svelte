@@ -16,12 +16,12 @@
     <Modal bind:open={modal} size="lg" autoclose={false} class="w-full">
       <NewDeployment bind:modal />
     </Modal>
-    <div class="absolute top-10 left-2 bottom-10 overflow-y-hidden">
+    <div class="absolute top-5 left-2 bottom-10 overflow-y-hidden">
       <ProjectSideNav bind:modal />
     </div>
     {#key data.url}
       <div
-        class="absolute top-4 pt-4 left-64 right-2 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden"
+        class="absolute top-0 left-64 right-2 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden"
       >
         <slot />
       </div>

@@ -7,7 +7,7 @@
   import { projects, blueprints } from "$lib/stores/data";
   import { getTagColor } from "$lib/utils/tags";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
-  import { Plus, BookDashed, Tag } from "lucide-svelte";
+  import { BookDashed, Tag, FolderPlus } from "lucide-svelte";
 
   let projectModal = false;
 
@@ -71,12 +71,12 @@
   let filtered_blueprints = getOwnedBlueprints().concat(getCommunityBlueprints());
 </script>
 
-<div class="absolute w-full top-28 bottom-0 overflow-y-scroll scrollbar-none">
+<div class="absolute w-full top-48 bottom-0 overflow-y-scroll scrollbar-none">
   <Modal bind:open={projectModal} size="lg" autoclose={false} class="w-full">
     <NewProject bind:projectModal />
   </Modal>
 
-  <div class="max-w-6xl mx-auto px-5 pb-5 py-5 flex flex-col">
+  <div class="max-w-6xl mx-auto px-5 pb-5 flex flex-col">
     <div class="flex mb-5">
       <Heading tag="h5" class="flex font-normal items-center w-auto"
         >Your Projects ({$projects.length})</Heading
@@ -99,7 +99,7 @@
             projectModal = true;
           }}
         >
-          <Plus class="w-4 h-4 mr-2 inline-block" />
+          <FolderPlus class="w-4 h-4 mr-2 inline-block" />
           New Project
         </Button>
       </div>

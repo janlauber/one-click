@@ -1,17 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { client } from "$lib/pocketbase";
-  import { blueprints } from "$lib/stores/data";
-  import { ArrowLeft, BookDashed, Boxes, Cog, Plus } from "lucide-svelte";
+  import { ArrowLeft, Boxes, Cog, Plus } from "lucide-svelte";
   import selectedProjectId from "$lib/stores/project";
 
   export let modal: boolean;
-
-  function getOwnedBlueprints() {
-    return $blueprints.filter(
-      (blueprint) => blueprint.owner === (client.authStore?.model?.id ?? null)
-    );
-  }
 
   // Return navigation items based on project settings
   let generateItems = () => {
@@ -21,12 +13,6 @@
         href: `/app/projects/${$selectedProjectId}`,
         current: false,
         icon: Boxes
-      },
-      {
-        name: `Blueprints (${getOwnedBlueprints().length})`,
-        href: "/app/blueprints/my-blueprints",
-        current: false,
-        icon: BookDashed
       },
       {
         name: `Project Settings`,

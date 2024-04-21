@@ -3,7 +3,7 @@
   import { client } from "$lib/pocketbase";
   import { UpdateFilterEnum, blueprints, updateDataStores } from "$lib/stores/data";
   import { Button, Fileupload, Input, Label, Modal, Toggle } from "flowbite-svelte";
-  import { ArrowLeft, BookLock, BookPlus, BookUser, Code2, FolderGit } from "lucide-svelte";
+  import { ArrowLeft, BookLock, BookPlus, BookUser, Code2 } from "lucide-svelte";
   import MonacoEditor from "svelte-monaco";
   // @ts-expect-error - MonacoEditor types are not available
   import yaml from "js-yaml";
@@ -49,13 +49,13 @@
         href: `/app/blueprints/community`,
         current: false,
         icon: BookUser
-      },
-      {
-        name: `Git`,
-        href: `/app/blueprints/git`,
-        current: false,
-        icon: FolderGit
       }
+      // {
+      //   name: `Git`,
+      //   href: `/app/blueprints/git`,
+      //   current: false,
+      //   icon: FolderGit
+      // }
     ];
 
     return items;

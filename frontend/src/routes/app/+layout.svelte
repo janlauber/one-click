@@ -1,7 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
-  import { Heading } from "flowbite-svelte";
+  import { breadcrumbItems } from "$lib/stores/breadcrumb";
+  import { Breadcrumb, BreadcrumbItem, Heading } from "flowbite-svelte";
+  import { ChevronRight } from "lucide-svelte";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 </script>
@@ -11,7 +13,7 @@
     <Nav />
   </div>
 
-  <div class="absolute top-12 left-0 right-0 bottom-0">
+  <div class="absolute top-14 left-0 right-0 bottom-0">
     {#if !$page.url.pathname.startsWith("/app/projects/") && !$page.url.pathname.startsWith("/app/deployments/") && !$page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/admin/")}
       <div
         class="bg-primary-600 w-full p-4 relative"
@@ -30,6 +32,21 @@
         </div>
       </div>
     {/if}
+
+    <Breadcrumb class="max-w-6xl mx-auto mt-3 px-5" solid>
+      {#each $breadcrumbItems as item, i}
+        <BreadcrumbItem href={item.href}>
+          <svelte:fragment slot="icon">
+            {#if i > 0}
+              <ChevronRight class="w-4 h-4 mr-1 inline-block" />
+            {/if}
+            <svelte:component this={item.icon} class="w-4 h-4 inline-block" />
+          </svelte:fragment>
+          {item.title}
+        </BreadcrumbItem>
+      {/each}
+    </Breadcrumb>
+
     <slot />
   </div>
 </div>

@@ -115,7 +115,7 @@
         />
       {/if}
       <h2 class="min-w-0 text-sm font-semibold leading-6 ml-5">
-        <a href="deployments/{deployment.id}/overview" class="flex gap-x-2">
+        <a href="deployments/{deployment.id}" class="flex gap-x-2">
           <span class="whitespace-nowrap">{deployment.name}</span>
           <span class="font-normal">/</span>
           <Badge color="dark" class="text-xs ">

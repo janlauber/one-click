@@ -17,65 +17,65 @@
   } from "lucide-svelte";
 
   // Return navigation items based on project settings
-  const generateItems = (projectId: string, deploymentId: string) => {
+  const generateItems = () => {
     const items = [
       {
         name: "Overview",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/overview`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}`,
         current: false,
         icon: LineChart
       },
       {
         name: "Map",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/map`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/map`,
         current: false,
         icon: Map
       },
       {
         name: "Rollouts",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/rollouts`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/rollouts`,
         current: false,
         icon: History
       },
       {
         name: "Image",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/image`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/image`,
         current: false,
         icon: HardDrive
       },
       {
         name: "Scale",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/scale`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/scale`,
         current: false,
         icon: Expand
       },
       {
         name: "Network",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/network`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/network`,
         current: false,
         icon: Network
       },
       {
         name: "Volumes",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/volumes`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/volumes`,
         current: false,
         icon: Database
       },
       {
         name: "Instances",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/instances`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/instances`,
         current: false,
         icon: Boxes
       },
       {
         name: "Envs & Secrets",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/envs`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/envs`,
         current: false,
         icon: Variable
       },
       {
         name: "Settings",
-        href: `/app/projects/${projectId}/deployments/${deploymentId}/settings`,
+        href: `/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/settings`,
         current: false,
         icon: Cog
       }
@@ -84,11 +84,13 @@
     return items;
   };
 
-  let items = generateItems($selectedProjectId, $selectedDeploymentId);
+  let items = generateItems();
 
   function setCurrentItem() {
     items = items.map((item) => {
-      if ($page.url.pathname.startsWith(item.href)) {
+      let normalizedPathname = $page.url.pathname.replace(/\/$/, "");
+      let normalizedHref = item.href.replace(/\/$/, "");
+      if (normalizedPathname === normalizedHref) {
         item.current = true;
       } else {
         item.current = false;
@@ -97,7 +99,7 @@
     });
   }
 
-  $: items = generateItems($selectedProjectId, $selectedDeploymentId); // Regenerate items on projectId change
+  $: items = generateItems(); // Regenerate items on projectId change
   $: setCurrentItem(); // Call setCurrentItem whenever items are updated
 
   $: if ($page) {
