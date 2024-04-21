@@ -31,5 +31,6 @@
 </script>
 
 <DeploymentTab deployments={$deployments} />
-
-<slot />
+<div class="px-1">
+  <slot />
+</div>
