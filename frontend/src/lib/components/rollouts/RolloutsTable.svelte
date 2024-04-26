@@ -29,6 +29,7 @@
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import {
+    Box,
     Copy,
     Database,
     Ellipsis,
@@ -39,7 +40,8 @@
     Info,
     Network,
     PanelRightOpen,
-    Pause
+    Pause,
+    Trash
   } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
@@ -205,6 +207,31 @@
     );
   }
 
+  async function handleDelete(rollout: RolloutsResponse<Rexpand>) {
+    if (rollout.endDate == "") {
+      toast.error("This rollout is currently deployed.");
+      return;
+    }
+
+    toast.promise(
+      client
+        .collection("rollouts")
+        .delete(rollout.id)
+        .then(() => {
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
+          });
+        }),
+      {
+        loading: "Deleting rollout...",
+        success: "Rollout deleted.",
+        error: "Error deleting rollout."
+      }
+    );
+  }
+
   // search rollouts by searchTerm in each rollout's manifest and id and name
   function flattenObject(obj: any, prefix = "") {
     return Object.keys(obj).reduce((acc, k) => {
@@ -363,15 +390,19 @@
                     >ID</th
                   >
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <HardDrive class="w-5 h-5 mx-auto" />
+                    <HardDrive class="w-5 h-5" />
                     <Tooltip>Image</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <Network class="w-5 h-5 mx-auto" />
+                    <Box class="w-5 h-5" />
+                    <Tooltip>Min Replicas</Tooltip>
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Network class="w-5 h-5" />
                     <Tooltip>Interfaces</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <Database class="w-5 h-5 mx-auto" />
+                    <Database class="w-5 h-5" />
                     <Tooltip>Volumes</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
@@ -391,6 +422,11 @@
                     ><td class="whitespace-nowrap px-3 py-4 text-sm">
                       {#if rollout.manifest}{rollout.manifest.spec.image.repository}:{rollout
                           .manifest.spec.image.tag}
+                      {/if}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.horizontalScale.minReplicas ?? "None"}
                       {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -476,7 +512,10 @@
                             Rollback</DropdownItem
                           >
                           {#if !rollout.hide}
-                            <DropdownItem class="text-red-500" on:click={() => handleHide(rollout)}>
+                            <DropdownItem
+                              class="text-yellow-500"
+                              on:click={() => handleHide(rollout)}
+                            >
                               <EyeOff class="w-4 h-4 mr-2 inline-block" />
                               Hide</DropdownItem
                             >
@@ -486,9 +525,10 @@
                               Unhide</DropdownItem
                             >
                           {/if}
-                          <!-- <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
-                            >Delete</DropdownItem
-                          > -->
+                          <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}>
+                            <Trash class="w-4 h-4 mr-2 inline-block" />
+                            Delete</DropdownItem
+                          >
                         </Dropdown>
                       {/if}
                     </td>
