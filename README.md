@@ -65,8 +65,12 @@ Check out the [blueprints](./docs/blueprints/) folder for examples.
 
 ### Projects
 
-Projects are the actual deployments. They are based on blueprints. You can create a project from a blueprint and customize it to your needs.
-Each configuration is stored in a rollout. A rollout is a version of a project configuration. So each time you change a configuration, a new rollout is created. You can then rollback to a previous rollout.
+You can create projects which their id's will be the name of the namespace inside the Kubernetes cluster. You can tag these projects to make it more easy to filter (e.g. by environment).
+
+### Deployments
+
+Deployments are based on blueprints. You **must** create a deployment from a blueprint and customize it to your needs.
+Each configuration is stored in a rollout. A rollout is a version of a deployment configuration (like a snapshot). So each time you change a configuration, a new rollout is created. You can then rollback to a previous rollout. Deployments within the same project will get created in the same namespace. So keep in mind to not use the same ingress hosts.
 
 ## Roadmap
 
