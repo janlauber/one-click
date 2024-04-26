@@ -79,7 +79,7 @@
       {:else}
         <Avatar size="lg" src={recordLogoUrl(blueprint)} />
       {/if}
-      <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
+      <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-gray-400">
         {blueprint?.name || "Private Blueprint"}
       </h5>
       <span class="text-sm text-gray-500 dark:text-gray-400">

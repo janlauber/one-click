@@ -149,7 +149,7 @@
 </script>
 
 <div class="flex flex-col space-y-6">
-  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Create a new interface</h3>
+  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-gray-400">Create a new interface</h3>
   <Label class="space-y-2">
     <span>Interface name *</span>
     <Input type="text" name="name" placeholder="http" size="sm" required bind:value={inf.name} />

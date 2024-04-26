@@ -229,7 +229,7 @@
 <Card size="xl">
   <div class="flex justify-between">
     <div>
-      <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
+      <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-gray-400 pb-2">
         <History class="w-6 h-6 inline-block mr-1 -mt-1" />
         {filteredRollouts.length}
       </h5>

@@ -92,7 +92,7 @@
   <div class="flex justify-between items-start w-full">
     <div class="flex-col items-center">
       <div class="flex items-center mb-1">
-        <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white mr-1">
+        <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-gray-400 mr-1">
           {#if title === "Total CPU (Cores)"}
             <Cpu class="inline -mt-1" />
           {:else if title === "Total Memory (GB)"}

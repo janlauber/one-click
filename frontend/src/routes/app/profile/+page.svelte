@@ -73,7 +73,7 @@
       <div class="flex flex-col space-y-4">
         <div class="flex justify-between">
           <div class="flex flex-col space-y-2">
-            <h3 class="text-xl font-medium text-gray-900 dark:text-white">Avatar</h3>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-gray-400">Avatar</h3>
             <p>
               This is your avatar. <br /> Click on the avatar to upload a custom one from your files.
             </p>
@@ -97,7 +97,7 @@
     </Card>
     <Card size="xl">
       <div class="flex flex-col space-y-4">
-        <h3 class="text-xl font-medium text-gray-900 dark:text-white">Profile</h3>
+        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-400">Profile</h3>
         <p>Update your profile information</p>
         <div class="mb-6">
           <span class="text-sm text-gray-500 dark:text-gray-400">Display Name</span>
