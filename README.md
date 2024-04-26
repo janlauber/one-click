@@ -59,7 +59,7 @@ You will need the following to run this project:
 
 ### Blueprints
 
-Blueprints are an abstraction of a project. They contain some predefined values and can be used to deploy a certain container with a single click. You can create your own blueprints and share them with others.
+Blueprints are an abstraction of a deployment. They contain some predefined values and can be used to deploy a certain container with a single click. You can create your own blueprints and share them with others.
 
 Check out the [blueprints](./docs/blueprints/) folder for examples.
 
