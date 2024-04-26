@@ -79,8 +79,9 @@
   }
 </script>
 
-<li
+<a
   class="relative flex items-center space-x-4 py-4 px-4 lg:px-8 dark:text-gray-400 group hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+  href="deployments/{deployment.id}"
 >
   {#if deployment?.avatar}
     <img
@@ -115,7 +116,12 @@
         />
       {/if}
       <h2 class="min-w-0 text-sm font-semibold leading-6 ml-5">
-        <a href="deployments/{deployment.id}" class="flex gap-x-2">
+        <a
+          href="deployments/{deployment.id}"
+          class="flex gap-x-2
+          dark:text-gray-400 group-hover:text-gray-600 transition-all
+        "
+        >
           <span class="whitespace-nowrap">{deployment.name}</span>
           <span class="font-normal">/</span>
           <Badge color="dark" class="text-xs ">
@@ -173,4 +179,4 @@
     {/if}
   </div>
   <ChevronRight class="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-all" />
-</li>
+</a>
