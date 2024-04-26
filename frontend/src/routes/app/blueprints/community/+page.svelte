@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ProjectCard from "$lib/components/blueprints/ProjectCard.svelte";
+  import BlueprintCard from "$lib/components/blueprints/BlueprintCard.svelte";
   import { blueprints } from "$lib/stores/data";
   import { client } from "$lib/pocketbase";
   import type { BlueprintsResponse } from "$lib/pocketbase/generated-types";
@@ -14,6 +14,6 @@
 
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
   {#each filteredBlueprints as blueprint (blueprint.id)}
-    <ProjectCard {blueprint} community={true} />
+    <BlueprintCard {blueprint} community={true} />
   {/each}
 </div>

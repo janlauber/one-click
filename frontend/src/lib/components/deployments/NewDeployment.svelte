@@ -104,7 +104,7 @@
 </script>
 
 <div class="flex flex-col space-y-6">
-  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Create your deployment</h3>
+  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-gray-400">Create your deployment</h3>
   <Label class="space-y-2">
     <span>Deployment name *</span>
     <Input

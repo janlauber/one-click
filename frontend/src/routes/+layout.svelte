@@ -22,7 +22,7 @@
   <meta name="description" content={description} />
 </svelte:head>
 
-<div class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden">
+<div class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden dark:text-gray-400">
   <Toaster position="top-center" />
   <!-- only display nav when not on /login -->
   <main class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden scrollbar-none">

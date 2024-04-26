@@ -80,7 +80,7 @@
 </script>
 
 <li
-  class="relative flex items-center space-x-4 py-4 px-4 lg:px-8 dark:text-white group hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+  class="relative flex items-center space-x-4 py-4 px-4 lg:px-8 dark:text-gray-400 group hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
 >
   {#if deployment?.avatar}
     <img
@@ -150,7 +150,7 @@
       <Dot class="w-2 h-2" />
       <Box class="w-4 h-4 inline-block -mr-2" />{current_rollout_status?.deployment?.replicas ?? 0}
       <Dot class="w-2 h-2" />
-      <p class="whitespace-nowrap dark:text-white">
+      <p class="whitespace-nowrap dark:text-gray-400">
         Last Rollout:
         {current_rollout ? timeAgo(current_rollout.startDate) : "No Rollouts"}
       </p>

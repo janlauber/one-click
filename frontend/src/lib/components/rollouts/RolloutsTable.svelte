@@ -267,14 +267,14 @@
     <div class="flex items-center">
       <h5
         id="drawer-label"
-        class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-white"
+        class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"
       >
         <Info class="w-4 h-4 mr-2.5" /> Rollout details
       </h5>
-      <CloseButton on:click={() => (hidden6 = true)} class="mb-4 dark:text-white" />
+      <CloseButton on:click={() => (hidden6 = true)} class="mb-4 dark:text-gray-400" />
     </div>
     {#if !loadingStatus && !loadingEvents}
-      <p class="mb-6 text-sm text-gray-500 dark:text-white">
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
         {#if !selectedRollout?.endDate}
           This rollout is currently deployed.
         {:else}
@@ -289,7 +289,7 @@
         >
           <HardDrive class="w-5 h-5 " />
         </div>
-        <div class="flex flex-col dark:text-white">
+        <div class="flex flex-col dark:text-gray-400">
           <span class="text-sm font-light">Image</span>
           <span class="text-sm font-semibold">
             {#if selectedRollout?.manifest}
@@ -308,7 +308,7 @@
           >
             <Copy class="w-5 h-5" />
           </div>
-          <div class="flex flex-col dark:text-white">
+          <div class="flex flex-col dark:text-gray-400">
             <span class="text-sm font-light">Replicas</span>
             <span class="text-sm font-semibold">
               {#if selectedRolloutStatus}
@@ -319,8 +319,8 @@
         </div>
       {/if}
       {#if selectedRolloutEvents}
-        <div class="items-center mb-6 dark:text-white">
-          <h5 class="mr-4 text-sm font-semibold text-gray-500 dark:text-white">
+        <div class="items-center mb-6 dark:text-gray-400">
+          <h5 class="mr-4 text-sm font-semibold text-gray-500 dark:text-gray-400">
             Events <i>(up to 1h)</i>
           </h5>
           <div class="flex flex-col">
@@ -361,7 +361,7 @@
   </svelte:fragment>
 </Modal>
 
-<div class="dark:text-white">
+<div class="dark:text-gray-400">
   <div class="mt-8 flow-root">
     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -496,12 +496,12 @@
                           class="active:scale-95 transition-all duration-150 ease-in-out"
                         >
                           <PanelRightOpen
-                            class="inline-block ml-2 cursor-pointer dark:text-white"
+                            class="inline-block ml-2 cursor-pointer dark:text-gray-400"
                           />
                         </button>
                       {:else}
                         <Ellipsis
-                          class="dots-menu-{idx} dark:text-white inline-block cursor-pointer outline-none"
+                          class="dots-menu-{idx} dark:text-gray-400 inline-block cursor-pointer outline-none"
                         />
                         <Dropdown triggeredBy=".dots-menu-{idx}" class="p-0">
                           <DropdownItem

@@ -534,7 +534,7 @@
         {$selectedNode?.name ?? "Node"}
       </h5>
     </div>
-    <div class="mb-4 dark:text-white absolute top-2 right-2 z-50 space-x-2">
+    <div class="mb-4 dark:text-gray-400 absolute top-2 right-2 z-50 space-x-2">
       {#if $selectedNode?.kind == "pod"}
         <Button
           color="red"

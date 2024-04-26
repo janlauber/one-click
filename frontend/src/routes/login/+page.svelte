@@ -6,6 +6,7 @@
   import { Label, Input, Button } from "flowbite-svelte";
   import { onMount } from "svelte";
   import type { AuthProviderInfo } from "pocketbase";
+  import colorTheme from "$lib/stores/theme";
 
   const DEFAULTS = {
     email: "",
@@ -67,7 +68,12 @@
   <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
     <div class="bg-background dark:bg-gray-800 px-6 py-12 shadow sm:rounded-lg sm:px-12">
       <div class="sm:mx-auto sm:w-full sm:max-w-md mb-5">
-        <img class="h-20 w-auto mx-auto" src="/images/logo_primary_typo.png" alt="logo" />
+        {#if $colorTheme == "light"}
+          <img class="h-20 w-auto mx-auto" src="/images/logo_primary_typo.png" alt="logo" />
+        {/if}
+        {#if $colorTheme == "dark"}
+          <img class="h-20 w-auto mx-auto" src="/images/logo_background_typo.png" alt="logo" />
+        {/if}
       </div>
       <form class="space-y-6" on:submit|preventDefault={submit} method="POST">
         <div>
@@ -98,7 +104,7 @@
               <div class="w-full border-t border-gray-200" />
             </div>
             <div class="relative flex justify-center text-sm font-medium leading-6">
-              <span class="bg-background dark:bg-gray-800 px-6 dark:text-white">or</span>
+              <span class="bg-background dark:bg-gray-800 px-6 dark:text-gray-400">or</span>
             </div>
           </div>
 

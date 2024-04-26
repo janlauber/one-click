@@ -166,7 +166,7 @@
       </div>
       <div class="text-sm font-medium leading-6">{blueprint.name}</div>
       <Ellipsis
-        class="dots-menu{blueprint.id} dark:text-white ml-auto outline-none cursor-pointer"
+        class="dots-menu{blueprint.id} dark:text-gray-400 ml-auto outline-none cursor-pointer"
       />
       <Dropdown triggeredBy=".dots-menu{blueprint.id}" class="p-0">
         <DropdownItem

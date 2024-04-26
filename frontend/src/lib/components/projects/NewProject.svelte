@@ -99,7 +99,7 @@
 </script>
 
 <div class="flex flex-col space-y-6">
-  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Create your project</h3>
+  <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-gray-400">Create your project</h3>
   <Label class="space-y-2">
     <span>Project name *</span>
     <Input
