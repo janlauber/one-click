@@ -20,7 +20,7 @@
   }
 </script>
 
-<div class="flex gap-4 dark-text-white mb-2">
+<div class="flex gap-4 dark-text-white mb-2 overflow-x-auto whitespace-nowrap">
   {#each deployments as deployment}
     <button
       on:click={() => {
@@ -55,7 +55,7 @@
               deployment.avatar ? deployment : getDeploymentBlueprint(deployment.blueprint)
             )}
             alt="Tuple"
-            class="h-7 w-7 flex-none rounded-lg object-cover p-1"
+            class="h-7 w-7 min-w-7 flex-none rounded-lg object-cover p-1"
           />
         {:else}
           <div class="h-7 w-7">
