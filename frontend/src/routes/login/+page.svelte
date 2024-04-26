@@ -83,16 +83,6 @@
             <Input type="password" size="md" bind:value={user.password} />
           </Label>
         </div>
-        <!--
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <Checkbox>Remember me</Checkbox>
-          </div>
-
-          <div class="text-sm leading-6">
-            <a href="#" class="font-medium dark:text-gray-200">Forgot password?</a>
-          </div>
-        </div> -->
 
         <div>
           <Button class="w-full" color="alternative" type="submit" on:submit={() => submit()}

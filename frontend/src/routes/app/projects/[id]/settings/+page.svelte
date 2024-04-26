@@ -240,23 +240,6 @@
               />
             </button>
           </Badge>
-          <!-- <div
-            class="group relative bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-1 text-sm font-semibold mr-2 mb-2"
-          >
-            {tag}
-            <button
-              type="button"
-              class="absolute top-0 left-0 right-0 bottom-0 w-full rounded-lg opacity-0 -z-10 group-hover:z-10 group-hover:opacity-100 bg-red-500 transition-opacity text-white"
-              on:click={() => {
-                localTags.delete(tag);
-                localTags = localTags;
-              }}
-            >
-              <XIcon
-                class="w-4 h-4 inline-block ml-20 group-hover:ml-0 duration-150 transition-all ease-in-out"
-              />
-            </button>
-          </div> -->
         {/each}
       </div>
     {/if}

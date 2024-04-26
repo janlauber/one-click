@@ -1,10 +1,16 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
-  import type { BlueprintsRecord, RolloutsRecord } from "$lib/pocketbase/generated-types";
+  import type {
+    BlueprintsRecord,
+    DeploymentsRecord,
+    DeploymentsResponse,
+    RolloutsRecord
+  } from "$lib/pocketbase/generated-types";
   import {
     UpdateFilterEnum,
     currentRollout,
+    deployments,
     selectedProject,
     updateDataStores
   } from "$lib/stores/data";
@@ -16,6 +22,11 @@
   import yaml from "js-yaml";
   import selectedDeploymentId from "$lib/stores/deployment";
   import selectedProjectId from "$lib/stores/project";
+
+  let initialLoad = true;
+  let deploymentName: string = "";
+  let localSelectedDeployment: DeploymentsResponse | undefined = undefined;
+  let inFocus = false;
 
   let modalAdvancedOpen = false;
   let modalBluprintOpen = false;
@@ -31,6 +42,47 @@
 
   function jsonToYaml(json: any): string {
     return yaml.dump(json);
+  }
+
+  $: (inFocus || !inFocus) && saveName();
+
+  $: {
+    if (initialLoad) {
+      localSelectedDeployment = $deployments.find((d) => d.id === $selectedDeploymentId);
+      if (localSelectedDeployment) deploymentName = localSelectedDeployment.name;
+
+      initialLoad = false;
+    }
+  }
+
+  async function saveName() {
+    // check if the name changed and input is not in focus
+    if (deploymentName === localSelectedDeployment?.name || inFocus) return;
+
+    if (!localSelectedDeployment) return;
+
+    const deployment: DeploymentsRecord = {
+      ...localSelectedDeployment,
+      name: deploymentName
+    };
+
+    client
+      .collection("deployments")
+      .update($selectedDeploymentId, deployment)
+      .then(() => {
+        // update the selected project
+        if ($currentRollout) {
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProject?.id,
+            deploymentId: $selectedDeploymentId
+          });
+        }
+        toast.success("Name updated");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
   }
 
   async function handleDelete() {
@@ -199,6 +251,25 @@
 </div>
 
 <div class="mt-8 space-y-4">
+  <Label class="space-y-2">
+    <span>Deployment name</span>
+    <div class="flex whitespace-nowrap gap-2">
+      <Input
+        id="name"
+        type="text"
+        name="name"
+        size="sm"
+        placeholder="Enter the name of your deployment"
+        bind:value={deploymentName}
+        on:focus={() => {
+          inFocus = true;
+        }}
+        on:blur={() => {
+          inFocus = false;
+        }}
+      />
+    </div>
+  </Label>
   <div>
     <Label class="pb-2">Change Avatar</Label>
     <label

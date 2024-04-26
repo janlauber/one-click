@@ -1,4 +1,9 @@
-import { UpdateFilterEnum, updateDataStores } from "$lib/stores/data";
+import {
+    UpdateFilterEnum,
+    deployments,
+    selectedDeployment,
+    updateDataStores
+} from "$lib/stores/data";
 import selectedProjectId from "$lib/stores/project";
 import { get } from "svelte/store";
 import type { PageLoad } from "../../../../$types";
@@ -16,7 +21,11 @@ export const load: PageLoad = async ({ params }: any) => {
         filter: UpdateFilterEnum.ALL,
         projectId: projectId,
         deploymentId: id
-    }).catch((error) => {
-        console.error(error);
-    });
+    })
+        .then(() => {
+            selectedDeployment.set(get(deployments).find((deployment) => deployment.id === id));
+        })
+        .catch((error) => {
+            console.error(error);
+        });
 };
