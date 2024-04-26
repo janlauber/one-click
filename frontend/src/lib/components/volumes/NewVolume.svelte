@@ -48,7 +48,9 @@
     }
 
     if (!isValidName(volume.name)) {
-      toast.error("Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)");
+      toast.error(
+        "Volume name should only contain lowercase alphanumeric characters or '-' (max 63 characters)"
+      );
       return;
     }
 
@@ -73,9 +75,7 @@
     }
 
     // Check for existing volume with same name, host, or port
-    // @ts-ignore
     if ($currentRollout.manifest.volumes) {
-      // @ts-ignore
       const existingVolume = $currentRollout.manifest.volumes.find(
         (v: Volume) => v.name === volume.name
       );
@@ -86,12 +86,10 @@
     }
 
     let new_manifest: any = {
-      ...$currentRollout.manifest,
+      ...($currentRollout.manifest as any),
       spec: {
-        // @ts-ignore
         ...$currentRollout.manifest.spec,
         volumes: [
-          // @ts-ignore
           ...$currentRollout.manifest.spec.volumes,
           {
             name: volume.name,
@@ -108,6 +106,7 @@
       startDate: $currentRollout.startDate,
       endDate: "",
       project: $selectedProjectId,
+      deployment: $currentRollout.deployment,
       user: client.authStore.model?.id
     };
 
@@ -118,7 +117,8 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: $currentRollout?.deployment
           });
           modal = false;
         }),

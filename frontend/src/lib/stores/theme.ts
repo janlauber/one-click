@@ -1,9 +1,8 @@
 // get localStorage theme
 import { writable } from "svelte/store";
 
-const defaultValue = 'light';
-const colorThemeValue: string | null =
-    localStorage.getItem("color-theme");
+const defaultValue = "light";
+const colorThemeValue: string | null = localStorage.getItem("color-theme");
 
 const colorTheme = writable<string>(colorThemeValue || defaultValue);
 

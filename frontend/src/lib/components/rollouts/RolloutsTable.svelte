@@ -7,16 +7,16 @@
     updateDataStores,
     UpdateFilterEnum,
     currentRollout,
-    currentRolloutStatus
+    currentRolloutStatus,
+    type ExpandableResponse
   } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
   import type { RolloutStatusResponse } from "$lib/types/status";
   import { formatDateTime, timeAgo } from "$lib/utils/date.utils";
-  import { getRolloutEvents, getRolloutStatus } from "$lib/utils/rollouts";
+  import { getRolloutEvents, getRolloutStatus } from "$lib/api/rollouts";
   import {
     Badge,
     Button,
-    Checkbox,
     CloseButton,
     Drawer,
     Indicator,
@@ -28,22 +28,26 @@
   } from "flowbite-svelte";
 
   import { Dropdown, DropdownItem } from "flowbite-svelte";
-  import { DotsHorizontalOutline, InfoCircleSolid } from "flowbite-svelte-icons";
   import {
+    Box,
     Copy,
     Database,
+    Ellipsis,
     Eye,
     EyeOff,
     HardDrive,
     History,
+    Info,
     Network,
     PanelRightOpen,
-    Pause
+    Pause,
+    Trash
   } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import { sineIn } from "svelte/easing";
   import DiffLines from "../base/DiffLines.svelte";
   import { getRandomString } from "$lib/utils/random";
+  import { type RolloutEventsResponse } from "$lib/types/events";
 
   let hidden6 = true;
   let showHiddenRollouts = false;
@@ -63,7 +67,7 @@
   let modalTitle1: string = "";
   let modalTitle2: string = "";
 
-  const determineRolloutColor = (status: string) => {
+  const determineRolloutColor = (status: string): any => {
     switch (status) {
       case "Pending":
         return "yellow";
@@ -118,17 +122,13 @@
 
   function confirmRollback(rollout: RolloutsResponse<Rexpand>) {
     selectedRollout = rollout;
-    $currentRollout = $rollouts.find((r) => !r.endDate);
-
-    // if ($currentRollout == undefined) {
-    //   toast.error("There is no rollout to rollback to.");
-    //   return;
-    // }
-
-    // if ($currentRollout.manifest == undefined) {
-    //   toast.error("The current rollout has no manifest.");
-    //   return;
-    // }
+    $currentRollout = $rollouts.find((r) => !r.endDate) as
+      | ExpandableResponse<RolloutsResponse, Rexpand>
+      | undefined;
+    if ($currentRollout == undefined) {
+      toast.error("No rollout selected.");
+      return;
+    }
 
     if (rollout.manifest == undefined) {
       toast.error("This rollout has no manifest.");
@@ -158,6 +158,7 @@
       startDate: new Date().toISOString(),
       endDate: "",
       project: $selectedProjectId,
+      deployment: rollout.deployment,
       user: client.authStore.model?.id,
       hide: false
     };
@@ -169,7 +170,8 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
           });
         }),
       {
@@ -193,13 +195,39 @@
         .then(() => {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProjectId
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
           });
         }),
       {
         loading: "Hiding rollout...",
         success: "Rollout hidden.",
         error: "Error hiding rollout."
+      }
+    );
+  }
+
+  async function handleDelete(rollout: RolloutsResponse<Rexpand>) {
+    if (rollout.endDate == "") {
+      toast.error("This rollout is currently deployed.");
+      return;
+    }
+
+    toast.promise(
+      client
+        .collection("rollouts")
+        .delete(rollout.id)
+        .then(() => {
+          updateDataStores({
+            filter: UpdateFilterEnum.ALL,
+            projectId: $selectedProjectId,
+            deploymentId: rollout.deployment
+          });
+        }),
+      {
+        loading: "Deleting rollout...",
+        success: "Rollout deleted.",
+        error: "Error deleting rollout."
       }
     );
   }
@@ -224,7 +252,7 @@
         rollout.id.toLowerCase().includes(searchTermLower)) &&
       (showHiddenRollouts || !rollout.hide)
     );
-  });
+  }) as RolloutsResponse<Rexpand>[];
 </script>
 
 <Drawer
@@ -241,7 +269,7 @@
         id="drawer-label"
         class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-white"
       >
-        <InfoCircleSolid class="w-4 h-4 mr-2.5" /> Rollout details
+        <Info class="w-4 h-4 mr-2.5" /> Rollout details
       </h5>
       <CloseButton on:click={() => (hidden6 = true)} class="mb-4 dark:text-white" />
     </div>
@@ -362,15 +390,19 @@
                     >ID</th
                   >
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <HardDrive class="w-5 h-5 mx-auto" />
+                    <HardDrive class="w-5 h-5" />
                     <Tooltip>Image</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <Network class="w-5 h-5 mx-auto" />
+                    <Box class="w-5 h-5" />
+                    <Tooltip>Min Replicas</Tooltip>
+                  </th>
+                  <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
+                    <Network class="w-5 h-5" />
                     <Tooltip>Interfaces</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">
-                    <Database class="w-5 h-5 mx-auto" />
+                    <Database class="w-5 h-5" />
                     <Tooltip>Volumes</Tooltip>
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">Created</th>
@@ -390,6 +422,11 @@
                     ><td class="whitespace-nowrap px-3 py-4 text-sm">
                       {#if rollout.manifest}{rollout.manifest.spec.image.repository}:{rollout
                           .manifest.spec.image.tag}
+                      {/if}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      {#if rollout.manifest}
+                        {rollout.manifest.spec.horizontalScale.minReplicas ?? "None"}
                       {/if}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -438,13 +475,13 @@
                           Deployed</Badge
                         > -->
                       {:else if rollout.hide}
-                        <Badge border color={"gray"} class="relative pl-2">
+                        <Badge border color={"dark"} class="relative pl-2">
                           <EyeOff class="w-4 h-4 mr-2" />
                           Hidden
                         </Badge>
                         <Tooltip>{formatDateTime(rollout.endDate)}</Tooltip>
                       {:else}
-                        <Badge border color={"gray"} class="relative pl-1">
+                        <Badge border color={"dark"} class="relative pl-1">
                           <!-- <Indicator size="sm" color={"gray"} class="mr-2" /> -->
                           <Pause class="w-4 h-4 mr-1" />
                           <span class="text-center">Ended</span>
@@ -463,7 +500,7 @@
                           />
                         </button>
                       {:else}
-                        <DotsHorizontalOutline
+                        <Ellipsis
                           class="dots-menu-{idx} dark:text-white inline-block cursor-pointer outline-none"
                         />
                         <Dropdown triggeredBy=".dots-menu-{idx}" class="p-0">
@@ -475,7 +512,10 @@
                             Rollback</DropdownItem
                           >
                           {#if !rollout.hide}
-                            <DropdownItem class="text-red-500" on:click={() => handleHide(rollout)}>
+                            <DropdownItem
+                              class="text-yellow-500"
+                              on:click={() => handleHide(rollout)}
+                            >
                               <EyeOff class="w-4 h-4 mr-2 inline-block" />
                               Hide</DropdownItem
                             >
@@ -485,9 +525,10 @@
                               Unhide</DropdownItem
                             >
                           {/if}
-                          <!-- <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}
-                            >Delete</DropdownItem
-                          > -->
+                          <DropdownItem class="text-red-500" on:click={() => handleDelete(rollout)}>
+                            <Trash class="w-4 h-4 mr-2 inline-block" />
+                            Delete</DropdownItem
+                          >
                         </Dropdown>
                       {/if}
                     </td>

@@ -4,61 +4,78 @@ import type {
     ProjectsResponse,
     AutoUpdatesResponse,
     BlueprintsResponse,
-    UsersResponse
+    UsersResponse,
+    DeploymentsResponse
 } from "$lib/pocketbase/generated-types";
-import { getClusterInfo, type ClusterInfoResponse } from "$lib/utils/cluster-info";
+import { getClusterInfo, type ClusterInfoResponse } from "$lib/api/cluster-info";
 import { get, writable, type Writable } from "svelte/store";
-import selectedProjectId from "./project";
 import type { RolloutStatusResponse } from "$lib/types/status";
-import { getRolloutStatus } from "$lib/utils/rollouts";
+import { getRolloutStatus } from "$lib/api/rollouts";
+import selectedProjectId from "./project";
+import selectedDeploymentId from "./deployment";
 
-// Blueprints //
+// Generic type for expandable responses
+export type ExpandableResponse<T, U> = T & { expand?: U };
+
+// Generic writable store
+export function createWritableStore<T>(initialValue: T) {
+    return writable<T>(initialValue);
+}
+
+// Blueprints
 export type Bexpand = {
     owner: UsersResponse;
     users?: UsersResponse[];
 };
-export const blueprints: Writable<BlueprintsResponse[]> = writable<BlueprintsResponse[]>([]);
+export const blueprints = createWritableStore<ExpandableResponse<BlueprintsResponse[], Bexpand>>(
+    []
+);
 
-// Rollouts //
+// Rollouts
 export type Rexpand = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spec: any;
+    deployment: DeploymentsResponse;
     project: ProjectsResponse;
 };
-export const rollouts: Writable<RolloutsResponse<Rexpand>[]> = writable<
-    RolloutsResponse<Rexpand>[]
+export const rollouts = createWritableStore<
+    ExpandableResponse<RolloutsResponse[], Rexpand | undefined>
 >([]);
-export const currentRollout: Writable<RolloutsResponse<Rexpand> | undefined> = writable<
-    RolloutsResponse<Rexpand> | undefined
+export const currentRollout = createWritableStore<
+    ExpandableResponse<RolloutsResponse, Rexpand> | undefined
 >(undefined);
 
-// Rollout Status //
-export const currentRolloutStatus: Writable<RolloutStatusResponse | undefined> = writable<
-    RolloutStatusResponse | undefined
->(undefined);
+// Rollout Status
+export const currentRolloutStatus = createWritableStore<RolloutStatusResponse | undefined>(
+    undefined
+);
 
-// Projects //
-export type Pexpand = {
+// Deployments
+export type Dexpand = {
+    project: ProjectsResponse;
     blueprint?: BlueprintsResponse;
 };
-export const projects: Writable<ProjectsResponse<Pexpand>[]> = writable<
-    ProjectsResponse<Pexpand>[]
->([]);
-export const selectedProject: Writable<ProjectsResponse<Pexpand> | undefined> = writable<
-    ProjectsResponse<Pexpand> | undefined
+export const deployments = createWritableStore<ExpandableResponse<DeploymentsResponse[], Dexpand>>(
+    []
+);
+export const selectedDeployment = createWritableStore<
+    ExpandableResponse<DeploymentsResponse, Dexpand> | undefined
 >(undefined);
 
-// Auto Updates //
+// Projects
+export const projects = createWritableStore<ProjectsResponse[]>([]);
+export const selectedProject = createWritableStore<ProjectsResponse | undefined>(undefined);
+
+// Auto Updates
 export type Aexpand = {
     project: ProjectsResponse;
 };
-export const autoUpdates: Writable<AutoUpdatesResponse<Aexpand>[]> = writable<
-    AutoUpdatesResponse<Aexpand>[]
->([]);
+export const autoUpdates = createWritableStore<ExpandableResponse<AutoUpdatesResponse[], Aexpand>>(
+    []
+);
 
-// Cluster Info //
-export const clusterInfo: Writable<ClusterInfoResponse | undefined> = writable<
-    ClusterInfoResponse | undefined
->(undefined);
+// Cluster Info
+export const clusterInfo = createWritableStore<ClusterInfoResponse | undefined>(undefined);
 
 export enum UpdateFilterEnum {
     ALL = "all"
@@ -67,136 +84,106 @@ export enum UpdateFilterEnum {
 export interface UpdateFilter {
     filter: UpdateFilterEnum;
     projectId?: string;
+    deploymentId?: string;
     blueprintId?: string;
 }
 
-export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
-    if (filter.filter === UpdateFilterEnum.ALL) {
-        await updateBlueprints(filter.blueprintId);
-        await updateProjects(filter.projectId);
-        await updateRollouts(filter.projectId);
-        await updateAutoUpdates(filter.projectId);
-        await updateClusterInfo();
-    }
-}
-
-export async function updateBlueprints(blueprintId?: string) {
-    await client
-        .collection("blueprints")
-        .getFullList({
+async function updateDataStore<T, U>(
+    collectionName: string,
+    store: Writable<T[]>,
+    filterFunc?: (item: T) => boolean,
+    filter?: UpdateFilter,
+    expand?: string
+) {
+    try {
+        const queryOptions = {
             sort: "-created",
-            expand: "owner,users"
-        })
-        .then((response: unknown) => {
-            // if blueprintId is set, set the selected blueprint filtered by the id
-            if (blueprintId) {
-                // @ts-ignore
-                blueprints.set(response.filter((blueprint) => blueprint.id === blueprintId));
-                return;
-            }
-            blueprints.set(response as BlueprintsResponse[]);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-}
+            expand: expand
+        };
 
-export async function updateRollouts(projectId?: string) {
-    try {
-        const response = await fetchRollouts();
-        if (projectId) {
-            // set selected project
-            selectedProjectId.set(projectId);
-            // @ts-ignore
-            rollouts.set(response.filter((rollout) => rollout.project === projectId));
+        const response = await client.collection(collectionName).getFullList<U>(queryOptions);
 
-            // set the current rollout to the one without an endDate and the project id
-            // @ts-ignore
-            currentRollout.set(
-                response.find((rollout) => rollout.project === projectId && !rollout.endDate)
-            );
-
-            if (currentRollout && projectId && get(currentRollout) !== undefined) {
-                const response = await getRolloutStatus(projectId, get(currentRollout)!.id);
-                currentRolloutStatus.set(response);
+        // if filter.projectId is defined, filter the response
+        if (filterFunc) {
+            // set the currentRollout if the filter is deploymentId and collectionName is rollouts
+            if (filter?.deploymentId && collectionName === "rollouts") {
+                // currentRollout should be the one that has no endDate
+                const cRollout = response.find(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (rollout: any) =>
+                        rollout.deployment === filter.deploymentId && rollout.endDate == ""
+                );
+                if (cRollout) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    currentRollout.set(cRollout as any);
+                }
+                // @ts-expect-error filterFunc is defined
+                store.set(response.filter(filterFunc) as T[]);
             } else {
-                currentRolloutStatus.set(undefined);
+                // @ts-expect-error filterFunc is defined
+                store.set(response.filter(filterFunc) as T[]);
             }
-
-            return;
+        } else {
+            store.set(response as unknown as T[]);
         }
-        rollouts.set(response);
     } catch (error) {
         // Handle error
     }
-}
-
-export async function updateCurrentRolloutStatus(projectId: string) {
-    const rolloutId = get(currentRollout)!.id;
-    const response = await getRolloutStatus(projectId, rolloutId);
-    currentRolloutStatus.set(response);
-}
-
-async function fetchRollouts(): Promise<RolloutsResponse<Rexpand>[]> {
-    const queryOptions = {
-        sort: "-created",
-        expand: "project"
-    };
-
-    return await client.collection("rollouts").getFullList<RolloutsResponse<Rexpand>>(queryOptions);
-}
-
-export async function updateProjects(projectId?: string) {
-    try {
-        const response = await fetchProjects();
-        if (projectId) {
-            // set selected project
-            selectedProjectId.set(projectId);
-            selectedProject.set(response.find((project) => project.id === projectId));
-        }
-        projects.set(response);
-    } catch (error) {
-        // Handle error
-    }
-}
-
-async function fetchProjects(): Promise<ProjectsResponse<Pexpand>[]> {
-    const queryOptions = {
-        sort: "-created",
-        expand: "blueprint"
-    };
-
-    return await client.collection("projects").getFullList<ProjectsResponse<Pexpand>>(queryOptions);
-}
-
-export async function updateAutoUpdates(projectId?: string) {
-    try {
-        const response = await fetchAutoUpdates();
-        if (projectId) {
-            // set selected project
-            selectedProjectId.set(projectId);
-            // @ts-ignore
-            autoUpdates.set(response.filter((update) => update.project === projectId));
-            return;
-        }
-        autoUpdates.set(response);
-    } catch (error) {
-        // Handle error
-    }
-}
-
-async function fetchAutoUpdates(): Promise<AutoUpdatesResponse<Aexpand>[]> {
-    const queryOptions = {
-        sort: "-created",
-        expand: "project"
-    };
-
-    return await client
-        .collection("autoUpdates")
-        .getFullList<AutoUpdatesResponse<Aexpand>>(queryOptions);
 }
 
 export async function updateClusterInfo() {
     const response = await getClusterInfo();
     clusterInfo.set(response);
+}
+
+export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
+    if (filter.filter === UpdateFilterEnum.ALL) {
+        await updateDataStore(
+            "projects",
+            projects,
+            (project) => !filter.projectId || project.id === filter.projectId,
+            filter,
+            "blueprint"
+        );
+        await updateDataStore(
+            "deployments",
+            deployments,
+            (deployment) => !filter.projectId || deployment.project === filter.projectId,
+            filter,
+            "project,blueprint"
+        );
+        await updateDataStore(
+            "blueprints",
+            blueprints,
+            (blueprint) => !filter.blueprintId || blueprint.id === filter.blueprintId,
+            filter,
+            "owner,users"
+        );
+        await updateDataStore(
+            "autoUpdates",
+            autoUpdates,
+            (update) => update.deployment === filter.deploymentId,
+            filter,
+            "project"
+        );
+        await updateDataStore(
+            "rollouts",
+            rollouts,
+            (rollout) =>
+                !filter.deploymentId ||
+                (rollout.project === filter.projectId &&
+                    rollout.deployment === filter.deploymentId),
+            filter,
+            "project,deployment"
+        );
+        await updateClusterInfo();
+    }
+}
+
+export async function updateCurrentRolloutStatus() {
+    const response: RolloutStatusResponse | undefined = await getRolloutStatus(
+        get(selectedProjectId),
+        get(selectedDeploymentId)
+    );
+    currentRolloutStatus.set(response);
 }

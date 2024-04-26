@@ -13,17 +13,12 @@ import (
 )
 
 // Watch all k8s resources with the specified label selector and send updates over WebSocket
-func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, rolloutId string) {
+func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, labelSelector string) {
 
-	if projectId == "" || rolloutId == "" {
-		log.Printf("Error: projectId and rolloutId must not be empty")
+	if projectId == "" {
+		log.Printf("Error: projectId must not be empty")
 		return
 	}
-
-	// resources to watch "deployments", "replicasets", "pods", "services", "ingresses", "configmaps", "secrets", "persistentvolumeclaims", "persistentvolumes", "serviceaccounts"
-
-	// Start watching resources with the specified label selector
-	labelSelector := fmt.Sprintf("rollout.one-click.dev/name=%s", rolloutId)
 
 	// deploymentWatchInterface, err := Clientset.AppsV1().Deployments(projectId).Watch(Ctx, metav1.ListOptions{
 	// 	LabelSelector: labelSelector,

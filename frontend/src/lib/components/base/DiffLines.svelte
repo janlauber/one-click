@@ -1,8 +1,9 @@
 <script lang="ts">
-  // @ts-ignore
+  // @ts-expect-error - Diff2HTML types are not available
   import { createPatch } from "diff";
   import { html } from "diff2html";
-  // @ts-ignore
+  import { Render } from "svelte-purify";
+  // @ts-expect-error - js-yaml types are not available
   import yaml from "js-yaml";
   import "diff2html/bundles/css/diff2html.min.css"; // Import the CSS for diff2html
 
@@ -41,4 +42,6 @@
   </div>
 </div>
 
-<div class="overflow-auto">{@html diffHTML}</div>
+<div class="overflow-auto">
+  <Render html={diffHTML} />
+</div>

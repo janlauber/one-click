@@ -2,7 +2,7 @@
   import ProjectCard from "$lib/components/blueprints/ProjectCard.svelte";
   import { blueprints } from "$lib/stores/data";
   import { client } from "$lib/pocketbase";
-    import type { BlueprintsResponse } from "$lib/pocketbase/generated-types";
+  import type { BlueprintsResponse } from "$lib/pocketbase/generated-types";
 
   // filter blueprints to only show the ones owned by the user
   let filteredBlueprints: BlueprintsResponse[] = [];

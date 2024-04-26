@@ -3,7 +3,7 @@
   import { client } from "$lib/pocketbase";
   import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
   import { type Rexpand, rollouts, updateDataStores, UpdateFilterEnum } from "$lib/stores/data";
-  import { Badge, Button, Heading, Input, Label, P, Radio, Range } from "flowbite-svelte";
+  import { Badge, Button, Heading, Input, Label, P, Range } from "flowbite-svelte";
   import selectedProjectId from "$lib/stores/project";
   import toast from "svelte-french-toast";
   import CpuSettings from "./CPUSettings.svelte";
@@ -41,7 +41,7 @@
 
     const temp_rollouts = $rollouts.filter((r) => !r.endDate);
     if (temp_rollouts.length > 0) {
-      current_rollout = temp_rollouts[0];
+      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;
     } else {
       current_rollout = $rollouts.sort((a, b) => {
         if (a.endDate && b.endDate) {
@@ -53,7 +53,7 @@
         } else {
           return 0;
         }
-      })[0];
+      })[0] as RolloutsResponse<Rexpand>;
     }
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
@@ -180,7 +180,6 @@
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
-          // @ts-ignore
           ...current_rollout.manifest.spec,
           horizontalScale: {
             maxReplicas: parseInt(maxInstances.toString()),
@@ -205,6 +204,7 @@
         startDate: current_rollout.startDate,
         endDate: "",
         project: $selectedProjectId,
+        deployment: current_rollout.deployment,
         user: client.authStore.model?.id
       };
 
@@ -220,7 +220,8 @@
           .then(() => {
             updateDataStores({
               filter: UpdateFilterEnum.ALL,
-              projectId: $selectedProjectId
+              projectId: $selectedProjectId,
+              deploymentId: current_rollout?.deployment
             });
           }),
         {

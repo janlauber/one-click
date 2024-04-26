@@ -15,12 +15,20 @@
     Toggle,
     Tooltip
   } from "flowbite-svelte";
-  import { DotsVerticalOutline } from "flowbite-svelte-icons";
-  import { Clipboard, Code2, FileQuestion, Lock, Share2, Trash, Trash2 } from "lucide-svelte";
+  import {
+    Clipboard,
+    Code2,
+    Ellipsis,
+    FileQuestion,
+    Lock,
+    Share2,
+    Trash,
+    Trash2
+  } from "lucide-svelte";
   import toast from "svelte-french-toast";
   import MonacoEditor from "svelte-monaco";
   import { getRandomString } from "$lib/utils/random";
-  // @ts-ignore
+  // @ts-expect-error - js-yaml types are not available
   import yaml from "js-yaml";
 
   export let blueprint: BlueprintsResponse;
@@ -157,7 +165,7 @@
         {/if}
       </div>
       <div class="text-sm font-medium leading-6">{blueprint.name}</div>
-      <DotsVerticalOutline
+      <Ellipsis
         class="dots-menu{blueprint.id} dark:text-white ml-auto outline-none cursor-pointer"
       />
       <Dropdown triggeredBy=".dots-menu{blueprint.id}" class="p-0">
@@ -221,11 +229,11 @@
         <Tooltip>
           {#if blueprint.users.length > 0}
             <div class="flex flex-wrap gap-2">
-              {#each blueprint.expand?.users as user (user)}
+              {#each blueprint.expand.users as user (user)}
                 <div class="flex items-center gap-x-2">
                   {#if user.avatar}
                     <img
-                      src={avatarUrl(user)}
+                      src={avatarUrl()}
                       alt={user.name}
                       class="h-8 w-8 rounded-full object-cover ring-1 ring-gray-900/10"
                     />
@@ -285,7 +293,7 @@
         <Fileupload
           bind:value={avatar}
           on:change={(event) => {
-            // @ts-ignore
+            // @ts-expect-error - event.target.files is not available
             avatarFile = event.target.files[0];
           }}
         />

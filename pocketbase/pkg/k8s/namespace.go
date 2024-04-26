@@ -19,10 +19,10 @@ func CreateNamespace(params NamespaceParams) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: params.Name,
 			Labels: map[string]string{
-				"project.one-click.dev/name":        params.Name,
-				"project.one-click.dev/userId":      params.UserRecord.GetString("id"),
-				"project.one-click.dev/username":    params.UserRecord.GetString("username"),
-				"project.one-click.dev/displayName": util.StringParser(params.UserRecord.GetString("name")),
+				"one-click.dev/projectId":   params.Name,
+				"one-click.dev/userId":      params.UserRecord.GetString("id"),
+				"one-click.dev/username":    params.UserRecord.GetString("username"),
+				"one-click.dev/displayName": util.StringParser(params.UserRecord.GetString("name")),
 			},
 		},
 	}

@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: frontend-check
+        name: Frontend Check
+        entry: ./scripts/frontend-check.sh
+        language: script
+        pass_filenames: false
+        stages: [commit]

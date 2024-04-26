@@ -1,7 +1,11 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { client } from "$lib/pocketbase";
-  import type { RolloutsRecord, RolloutsResponse } from "$lib/pocketbase/generated-types";
+  import type {
+    AutoUpdatesRecord,
+    RolloutsRecord,
+    RolloutsResponse
+  } from "$lib/pocketbase/generated-types";
   import {
     type Rexpand,
     rollouts,
@@ -15,6 +19,7 @@
   import { goto } from "$app/navigation";
   import { ArrowRight, Clipboard } from "lucide-svelte";
   import { getRandomString } from "$lib/utils/random";
+  import selectedDeploymentId from "$lib/stores/deployment";
 
   let current_rollout: RolloutsResponse<Rexpand> | undefined;
   let lastUpdatedRollout: RolloutsResponse<Rexpand> | undefined;
@@ -56,7 +61,7 @@
 
     const temp_rollouts = $rollouts.filter((r) => !r.endDate);
     if (temp_rollouts.length > 0) {
-      current_rollout = temp_rollouts[0];
+      current_rollout = temp_rollouts[0] as RolloutsResponse<Rexpand>;
     } else {
       current_rollout = $rollouts.sort((a, b) => {
         if (a.endDate && b.endDate) {
@@ -68,7 +73,7 @@
         } else {
           return 0;
         }
-      })[0];
+      })[0] as RolloutsResponse<Rexpand>;
     }
 
     if (current_rollout && current_rollout !== lastUpdatedRollout) {
@@ -137,11 +142,12 @@
   async function handleInputSave() {
     if (current_rollout) {
       if (tagAutoUpdateEnabled) {
-        const data = {
+        const data: AutoUpdatesRecord = {
           interval: tagAutoUpdateInterval,
           pattern: tagAutoUpdatePattern,
           policy: tagAutoUpdatePolicy,
           project: $selectedProjectId,
+          deployment: $selectedDeploymentId,
           user: client.authStore.model?.id
         };
 
@@ -154,7 +160,8 @@
               .then(() => {
                 updateDataStores({
                   filter: UpdateFilterEnum.ALL,
-                  projectId: $selectedProjectId
+                  projectId: $selectedProjectId,
+                  deploymentId: $selectedDeploymentId
                 });
               }),
             {
@@ -172,7 +179,8 @@
                 .then(() => {
                   updateDataStores({
                     filter: UpdateFilterEnum.ALL,
-                    projectId: $selectedProjectId
+                    projectId: $selectedProjectId,
+                    deploymentId: $selectedDeploymentId
                   });
                 }),
               {
@@ -192,7 +200,8 @@
               .then(() => {
                 updateDataStores({
                   filter: UpdateFilterEnum.ALL,
-                  projectId: $selectedProjectId
+                  projectId: $selectedProjectId,
+                  deploymentId: $selectedDeploymentId
                 });
               }),
             {
@@ -207,7 +216,6 @@
       const new_manifest = {
         ...current_rollout.manifest,
         spec: {
-          // @ts-ignore
           ...current_rollout.manifest.spec,
           image: {
             password: password,
@@ -220,15 +228,14 @@
       };
 
       // check if the manifest has changed, it could be that the key values are in different order
-      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest))
-      return;
-
+      if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest)) return;
 
       const data: RolloutsRecord = {
         manifest: new_manifest,
         startDate: current_rollout.startDate,
         endDate: "",
         project: $selectedProjectId,
+        deployment: current_rollout.deployment,
         user: client.authStore.model?.id
       };
 
@@ -239,7 +246,8 @@
           .then(() => {
             updateDataStores({
               filter: UpdateFilterEnum.ALL,
-              projectId: $selectedProjectId
+              projectId: $selectedProjectId,
+              deploymentId: $selectedDeploymentId
             });
           }),
         {

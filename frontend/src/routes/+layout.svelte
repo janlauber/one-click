@@ -28,7 +28,8 @@
   <main class="absolute top-0 left-0 right-0 bottom-0 overflow-hidden scrollbar-none">
     <slot />
   </main>
-  <button class="absolute bottom-2 right-2"
+  <button
+    class="absolute bottom-2 right-0"
     on:click={() => {
       $colorTheme = $colorTheme === "light" ? "dark" : "light";
       localStorage.setItem("color-theme", $colorTheme);

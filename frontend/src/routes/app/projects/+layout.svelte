@@ -1,25 +1,34 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import SideNav from "$lib/components/projects/SideNav.svelte";
-  import { cubicOut } from "svelte/easing";
-  import { fly, slide } from "svelte/transition";
+  import ProjectSideNav from "$lib/components/projects/ProjectSideNav.svelte";
+  import selectedProjectId from "$lib/stores/project";
+  import { Modal } from "flowbite-svelte";
+  import NewDeployment from "$lib/components/deployments/NewDeployment.svelte";
 
   export let data: any;
+  let modal = false;
+
+  const projectPathRegex = new RegExp(`/app/projects/${$selectedProjectId}(/)?(?!.*deployments).*`);
 </script>
 
-{#if $page.url.pathname.startsWith("/app/projects/")}
-  <div
-    class="relative h-full max-w-6xl mx-auto"
-  >
-    <div class="absolute top-10 left-2 bottom-10 overflow-y-hidden">
-      <SideNav />
-    </div>
-    {#key data.url}
-      <div
-        class="absolute top-4 pt-4 left-64 right-2 bottom-0 overflow-y-auto scrollbar-none pb-8 px-2 overflow-x-hidden"
-      >
-        <slot />
+{#if projectPathRegex.test($page.url.pathname)}
+  <div class="relative h-full max-w-6xl mx-auto top-16">
+    <div class="absolute top-0 left-3 right-3 bottom-0">
+      <Modal bind:open={modal} size="lg" autoclose={false} class="w-full">
+        <NewDeployment bind:modal />
+      </Modal>
+      <div class="absolute top-0 left-0 bottom-10 overflow-y-hidden">
+        <ProjectSideNav bind:modal />
       </div>
-    {/key}
+      {#key data.url}
+        <div
+          class="absolute top-0 left-64 right-0 bottom-0 overflow-y-auto scrollbar-none pb-8 overflow-x-hidden"
+        >
+          <slot />
+        </div>
+      {/key}
+    </div>
   </div>
+{:else}
+  <slot />
 {/if}

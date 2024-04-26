@@ -193,6 +193,7 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 			// set the fields
 			record.Set("user", runningRollout.GetString("user"))
 			record.Set("project", runningRollout.GetString("project"))
+			record.Set("deployment", runningRollout.GetString("deployment"))
 			record.Set("manifest", string(manifest))
 			record.Set("startDate", time.Now().UTC().Format(time.RFC3339))
 
@@ -210,7 +211,7 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 			}
 
 			// create the rollout in k8s
-			err = k8s.CreateOrUpdateRollout(record.Id, user, record.GetString("project"), record.GetString("manifest"))
+			err = k8s.CreateOrUpdateRollout(record.Id, user, record.GetString("project"), record.GetString("deployment"), record.GetString("manifest"))
 			if err != nil {
 				log.Printf("Error creating or updating rollout: %v\n", err)
 				return err

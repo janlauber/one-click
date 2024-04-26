@@ -1,18 +1,19 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import NewProject from "$lib/components/dashboard/NewProject.svelte";
-  import ProjectCard from "$lib/components/dashboard/ProjectCard.svelte";
+  import NewProject from "$lib/components/projects/NewProject.svelte";
+  import ProjectCard from "$lib/components/projects/ProjectCard.svelte";
   import { client } from "$lib/pocketbase";
   import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
-  import { projects, type Pexpand, blueprints } from "$lib/stores/data";
+  import { projects, blueprints } from "$lib/stores/data";
+  import { getTagColor } from "$lib/utils/tags";
   import { Badge, Button, Heading, Modal } from "flowbite-svelte";
-  import { Plus, BookDashed } from "lucide-svelte";
+  import { BookDashed, Tag, FolderPlus } from "lucide-svelte";
 
   let projectModal = false;
 
   let tags: Set<string> = new Set();
   let selectedTags: Set<string> = new Set();
-  let filteredProjects: ProjectsResponse<Pexpand>[] = [];
+  let filteredProjects: ProjectsResponse[] = [];
 
   $: {
     if ($projects) {
@@ -70,12 +71,12 @@
   let filtered_blueprints = getOwnedBlueprints().concat(getCommunityBlueprints());
 </script>
 
-<div class="absolute w-full top-28 bottom-0 overflow-y-scroll scrollbar-none">
+<div class="absolute w-full top-44 bottom-0 overflow-y-scroll scrollbar-none p-3">
   <Modal bind:open={projectModal} size="lg" autoclose={false} class="w-full">
     <NewProject bind:projectModal />
   </Modal>
 
-  <div class="max-w-6xl mx-auto px-5 pb-5 py-5 flex flex-col">
+  <div class="max-w-6xl mx-auto pb-5 flex flex-col">
     <div class="flex mb-5">
       <Heading tag="h5" class="flex font-normal items-center w-auto"
         >Your Projects ({$projects.length})</Heading
@@ -98,7 +99,7 @@
             projectModal = true;
           }}
         >
-          <Plus class="w-4 h-4 mr-2 inline-block" />
+          <FolderPlus class="w-4 h-4 mr-2 inline-block" />
           New Project
         </Button>
       </div>
@@ -114,7 +115,7 @@
           }}
         >
           <Badge
-            color="alternative"
+            color="primary"
             class="text-sm cursor-pointer
         {selectedTags.size === 0 ? 'bg-primary-600 text-white' : ''}
       "
@@ -126,12 +127,12 @@
       {#each Array.from(tags) as tag (tag)}
         <button on:click={() => handleFilterProjects(tag)}>
           <Badge
-            color={selectedTags.has(tag) ? "primary" : "alternative"}
+            color={getTagColor(tag)}
             class="text-sm cursor-pointer
           {selectedTags.has(tag) ? 'bg-primary-600 text-white' : ''}
         "
           >
-            {tag}
+            <Tag class="w-4 h-4 inline-block" strokeWidth={2} />&nbsp;{tag}
           </Badge>
         </button>
       {/each}

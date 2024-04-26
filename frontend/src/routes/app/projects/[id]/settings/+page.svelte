@@ -1,43 +1,24 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { client } from "$lib/pocketbase";
-  import type {
-    BlueprintsRecord,
-    ProjectsRecord,
-    RolloutsRecord
-  } from "$lib/pocketbase/generated-types";
+  import type { ProjectsRecord } from "$lib/pocketbase/generated-types";
   import {
     UpdateFilterEnum,
     currentRollout,
     selectedProject,
     updateDataStores
   } from "$lib/stores/data";
-  import { Button, Fileupload, Heading, Input, Label, Modal, P } from "flowbite-svelte";
-  import { BookDashed, Code2, Image, Trash, XIcon } from "lucide-svelte";
+  import { getTagColor } from "$lib/utils/tags";
+  import { Badge, Button, Heading, Input, Label, Modal, P } from "flowbite-svelte";
+  import { Image, Tag, Trash, XIcon } from "lucide-svelte";
   import toast from "svelte-french-toast";
-  import MonacoEditor from "svelte-monaco";
-  // @ts-ignore
-  import yaml from "js-yaml";
 
   let localTags: Set<string> = new Set();
   let initialLoad = true;
   let projectName: string = "";
   let inFocus = false;
-  let modalAdvancedOpen = false;
-  let modalBluprintOpen = false;
   let modalDeleteOpen = false;
   let avatar: File;
-
-  let blueprintName: string = $selectedProject?.name || "";
-  let blueprintDescription: string = $selectedProject?.description || "";
-  let blueprintAvatar: string = $selectedProject?.avatar || "";
-  let blueprintAvatarFile: File;
-  let blueprintManifest: any = jsonToYaml($currentRollout?.manifest) || "";
-  let advancedManifest: any = jsonToYaml($currentRollout?.manifest) || "";
-
-  function jsonToYaml(json: any): string {
-    return yaml.dump(json);
-  }
 
   $: {
     // update tags
@@ -118,7 +99,7 @@
         if ($currentRollout) {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $currentRollout.project
+            projectId: $selectedProject?.id
           });
         }
       });
@@ -143,7 +124,7 @@
         if ($currentRollout) {
           updateDataStores({
             filter: UpdateFilterEnum.ALL,
-            projectId: $currentRollout.project
+            projectId: $selectedProject?.id
           });
         }
         toast.success("Name updated");
@@ -195,120 +176,11 @@
         toast.error(error.message);
       });
   }
-
-  async function handleCreateBlueprint() {
-    if (!$selectedProject) return;
-
-    if (!blueprintName) {
-      toast.error("Blueprint name is required");
-      return;
-    }
-
-    if (!blueprintDescription) {
-      toast.error("Blueprint description is required");
-      return;
-    }
-
-    if (!blueprintAvatar) {
-      toast.error("Blueprint avatar is required");
-      return;
-    }
-
-    if (!blueprintManifest) {
-      toast.error("Blueprint manifest is required");
-      return;
-    }
-
-    let formData = new FormData();
-    formData.append("avatar", blueprintAvatarFile);
-
-    // parse the manifest yaml to json
-    const parsedManifest = yaml.load(blueprintManifest);
-
-    let data: BlueprintsRecord = {
-      name: blueprintName,
-      description: blueprintDescription,
-      manifest: parsedManifest,
-      owner: client.authStore?.model?.id
-    };
-
-    client
-      .collection("blueprints")
-      .create(data)
-      .then((response) => {
-        client
-          .collection("blueprints")
-          .update(response?.id ?? "", formData)
-          .catch((error) => {
-            toast.error(error.message);
-          });
-
-        toast.success("Blueprint created");
-
-        goto(`/app/blueprints/my-blueprints`);
-      })
-      .catch((error) => {
-        toast.error(error.message);
-      })
-      .finally(() => {
-        // update the selected project
-        if ($currentRollout) {
-          updateDataStores({
-            filter: UpdateFilterEnum.ALL,
-            projectId: $currentRollout.project
-          });
-        }
-        modalBluprintOpen = false;
-      });
-  }
-
-  async function handleSaveManifest() {
-    if (!$selectedProject) return;
-
-    if (!advancedManifest) {
-      toast.error("Manifest is required");
-      return;
-    }
-
-    // TODO: Validate the manifest
-
-    if (!$currentRollout) return;
-    if (!$selectedProject) return;
-
-    // parse the manifest yaml to json
-    const parsedManifest = yaml.load(advancedManifest);
-
-    const data: RolloutsRecord = {
-      manifest: parsedManifest,
-      startDate: $currentRollout.startDate,
-      endDate: "",
-      project: $selectedProject.id,
-      user: client.authStore.model?.id
-    };
-
-    toast.promise(
-      client
-        .collection("rollouts")
-        .create(data)
-        .then(() => {
-          updateDataStores({
-            filter: UpdateFilterEnum.ALL,
-            projectId: $selectedProject?.id ?? ""
-          });
-          modalAdvancedOpen = false;
-        }),
-      {
-        loading: "Creating rollout...",
-        success: "Rollout created.",
-        error: "Error creating rollout."
-      }
-    );
-  }
 </script>
 
 <div class="flex items-start justify-between">
   <div class="flex flex-col">
-    <Heading tag="h2">Settings</Heading>
+    <Heading tag="h2">Project Settings</Heading>
     <P class="text-gray-500 dark:text-gray-400 text-sm">Settings of your project.</P>
   </div>
 </div>
@@ -352,13 +224,12 @@
     {#if localTags.size > 0}
       <div class="flex flex-wrap mt-2">
         {#each [...localTags] as tag (tag)}
-          <div
-            class="group relative bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-1 text-sm font-semibold mr-2 mb-2"
-          >
-            {tag}
+          <Badge color={getTagColor(tag)} class="mr-2 mb-2 relative group">
+            <Tag class="w-3 h-3 inline-block mr-1" />{tag}
+
             <button
               type="button"
-              class="absolute top-0 left-0 right-0 bottom-0 w-full rounded-lg opacity-0 -z-10 group-hover:z-10 group-hover:opacity-100 bg-red-500 transition-opacity text-white"
+              class="absolute top-0 left-0 right-0 bottom-0 w-full rounded-md opacity-0 -z-10 group-hover:z-10 group-hover:opacity-100 bg-red-500 transition-opacity text-white"
               on:click={() => {
                 localTags.delete(tag);
                 localTags = localTags;
@@ -368,7 +239,7 @@
                 class="w-4 h-4 inline-block ml-20 group-hover:ml-0 duration-150 transition-all ease-in-out"
               />
             </button>
-          </div>
+          </Badge>
         {/each}
       </div>
     {/if}
@@ -391,68 +262,6 @@
       />
     </label>
   </div>
-</div>
-
-<!-- Advanced Editing -->
-
-<div class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-white">
-  <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
-    <tbody class="divide-y divide-gray-200 dark:divide-gray-600 dark:bg-transparent">
-      <tr class="">
-        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
-          <Heading tag="h5" color="text-black">Advanced Editing</Heading>
-          <P color="text-black" class="text-xs">Edit the manifest of your project.</P>
-        </td>
-        <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
-          <!-- Modified: Added 'text-right' class -->
-          <Button
-            color="light"
-            size="xs"
-            class="whitespace-nowrap"
-            on:click={() => {
-              if (!$selectedProject) return;
-
-              modalAdvancedOpen = true;
-            }}
-          >
-            <Code2 class="w-4 h-4 inline-block mr-1" />
-            Edit manifest
-          </Button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Create a blueprint -->
-
-<div class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-primary-500">
-  <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
-    <tbody class="divide-y divide-gray-200 dark:divide-gray-600 dark:bg-transparent">
-      <tr class="">
-        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
-          <Heading tag="h5" color="text-white">Blueprint</Heading>
-          <P color="text-white" class="text-xs">Create a blueprint from your project.</P>
-        </td>
-        <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
-          <!-- Modified: Added 'text-right' class -->
-          <Button
-            color="light"
-            size="xs"
-            class="whitespace-nowrap"
-            on:click={() => {
-              if (!$selectedProject) return;
-
-              modalBluprintOpen = true;
-            }}
-          >
-            <BookDashed class="w-4 h-4 inline-block mr-1" />
-            New blueprint
-          </Button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
 <!-- Danger Zone -> Delete Project -->
@@ -488,30 +297,6 @@
   </table>
 </div>
 
-<Modal bind:open={modalAdvancedOpen} size="lg">
-  <div class="text-center">
-    <Code2 class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
-    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      <!-- Refer to https://docs.one-click.dev for advanced documentation about the manifest values -->
-      Refer to
-      <a href="https://docs.one-click.dev" target="_blank" class="text-primary-500"
-        >docs.one-click.dev</a
-      >
-    </h3>
-  </div>
-  <div class=" h-96 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
-    <MonacoEditor
-      bind:value={advancedManifest}
-      options={{ language: "yaml", automaticLayout: true, minimap: { enabled: false } }}
-      theme="vs-dark"
-    />
-  </div>
-  <div class="flex justify-between">
-    <Button color="primary" class="me-2" on:click={() => handleSaveManifest()}>Save</Button>
-    <Button color="alternative" on:click={() => (modalAdvancedOpen = false)}>Cancel</Button>
-  </div>
-</Modal>
-
 <Modal bind:open={modalDeleteOpen} size="xs" autoclose>
   <div class="text-center">
     <Trash class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
@@ -520,53 +305,6 @@
     </h3>
     <Button color="red" class="me-2" on:click={() => handleDelete()}>Yes, I'm sure</Button>
     <Button color="alternative">No, cancel</Button>
-  </div>
-</Modal>
-
-<Modal bind:open={modalBluprintOpen} size="lg">
-  <div class="text-center">
-    <BookDashed class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
-    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      Create a blueprint from this project
-    </h3>
-  </div>
-  <div class="space-y-2">
-    <Label class="">Name*</Label>
-    <Input bind:value={blueprintName} required />
-    <Label class="">Description*</Label>
-    <Input bind:value={blueprintDescription} required />
-    <Label class="">Avatar*</Label>
-    <Fileupload
-      bind:value={blueprintAvatar}
-      on:change={(event) => {
-        // @ts-ignore
-        blueprintAvatarFile = event.target.files[0];
-      }}
-    />
-
-    <Label class="">Manifest</Label>
-    <span class="text-xs text-gray-500 dark:text-gray-400">
-      The manifest is a YAML file that describes the blueprint. <br />
-      On project creation, the ingress resources won't be created.
-    </span>
-    <div class="h-64 overflow-y-auto rounded-lg p-2" style="background-color: #1E1E1E;">
-      <MonacoEditor
-        bind:value={blueprintManifest}
-        options={{ language: "yaml", automaticLayout: true, minimap: { enabled: false } }}
-        theme="vs-dark"
-      />
-    </div>
-  </div>
-  <div class="flex justify-between">
-    <Button color="primary" class="me-2" on:click={() => handleCreateBlueprint()}
-      >Yes, I'm sure</Button
-    >
-    <Button
-      color="alternative"
-      on:click={() => {
-        modalBluprintOpen = false;
-      }}>No, cancel</Button
-    >
   </div>
 </Modal>
 

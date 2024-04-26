@@ -4,34 +4,20 @@
   import { client, logout } from "$lib/pocketbase";
   import { currentRolloutStatus, projects } from "$lib/stores/data";
   import selectedProjectId from "$lib/stores/project";
+  import { selectedProject } from "$lib/stores/data";
   import {
     Avatar,
     Dropdown,
     DropdownItem,
     DropdownHeader,
     DropdownDivider,
-    Tooltip
+    Indicator
   } from "flowbite-svelte";
   import { recordLogoUrl } from "$lib/utils/blueprint.utils";
-  import type { ProjectsResponse } from "$lib/pocketbase/generated-types";
   import { fade } from "svelte/transition";
   import { FileQuestion } from "lucide-svelte";
   import { avatarUrlString } from "$lib/stores/avatar";
-
-  const determineRolloutColor = (status?: string) => {
-    switch (status) {
-      case "Pending":
-        return "yellow";
-      case "Not Ready":
-        return "yellow";
-      case "Error":
-        return "red";
-      case "OK":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
+  import { determineRolloutColor } from "$lib/utils/color";
 
   $: {
     if ($page.url.pathname.startsWith("/app/projects/")) {
@@ -48,11 +34,9 @@
     }
   }
 
-  let selectedProject: ProjectsResponse | undefined = $projects.find(
-    (p) => p.id === $selectedProjectId
-  );
+  $selectedProject = $projects.find((p) => p.id === $selectedProjectId);
 
-  $: selectedProject = $projects.find((p) => p.id === $selectedProjectId);
+  $: $selectedProject = $projects.find((p) => p.id === $selectedProjectId);
 </script>
 
 <nav class="bg-primary-600 dark:bg-primary-600 flex py-2">
@@ -60,40 +44,37 @@
     <a href="/app" class="justify-start">
       <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
     </a>
-    {#if $page.url.pathname.startsWith("/app/projects/")}
+    <!-- only /app/projects/${id}/deployments/ -->
+    {#if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
       <div in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
         {#key $selectedProjectId}
           <div class="flex items-center">
-            <div
-              class="relative border-2 rounded-lg border-{determineRolloutColor(
-                $currentRolloutStatus?.deployment?.status ?? ''
-              )}-500"
-            >
-              {#if selectedProject?.avatar}
-                <img
-                  src={recordLogoUrl(selectedProject)}
-                  alt="Tuple"
-                  class="h-9 w-9 flex-none rounded-lg object-cover p-1"
+            <div class="relative border-2 rounded-lg">
+              {#if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}/deployments`)}
+                <Indicator
+                  color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "none")}
+                  size="md"
+                  class="text-xs font-bold text-white cursor-default absolute -top-1 -right-1"
                 />
-              {:else if selectedProject?.expand?.blueprint}
+                <Indicator
+                  color={determineRolloutColor($currentRolloutStatus?.deployment?.status ?? "none")}
+                  size="md"
+                  class="text-xs font-bold text-white cursor-default animate-ping absolute -top-1 -right-1"
+                />
+              {/if}
+              {#if $page.url.pathname.startsWith(`/app/projects/${$selectedProjectId}`)}
                 <img
-                  src={recordLogoUrl(selectedProject?.expand.blueprint)}
+                  src={recordLogoUrl($selectedProject)}
                   alt="Tuple"
                   class="h-9 w-9 flex-none rounded-lg object-cover p-1"
                 />
               {:else}
                 <FileQuestion class="h-9 w-9 flex-none text-white rounded-lg object-cover p-1" />
               {/if}
-              <Tooltip
-                class="cursor-default bg-{determineRolloutColor(
-                  $currentRolloutStatus?.deployment?.status ?? ''
-                )}-500"
-              >
-                Status:
-                {$currentRolloutStatus?.deployment?.status ?? "Unknown"}
-              </Tooltip>
             </div>
-            <div class="text-sm font-medium leading-6 text-white ml-4">{selectedProject?.name}</div>
+            <div class="text-sm font-medium leading-6 text-white ml-4">
+              {$selectedProject?.name}
+            </div>
           </div>
         {/key}
       </div>

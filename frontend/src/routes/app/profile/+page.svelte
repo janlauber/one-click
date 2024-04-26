@@ -4,6 +4,7 @@
   import { avatarUrl } from "$lib/utils/user.utils";
   import { Card, Avatar, Button, Input } from "flowbite-svelte";
   import toast from "svelte-french-toast";
+
   let fileInput: any; // This will be used to store the file input element
   let displayName: string = client.authStore.model?.name ?? "";
 
@@ -53,14 +54,16 @@
       if (!client.authStore.model) {
         throw new Error("No user found");
       }
-
-      console.log(displayName)
       await client.collection("users").update(client.authStore.model?.id, { name: displayName });
       await client.collection("users").authRefresh();
       toast.success("Successfully updated display name");
     } catch (error: any) {
       toast.error(error.message);
     }
+  }
+
+  function getValueFromEvent(e: Event) {
+    return (e.target as HTMLInputElement).value;
   }
 </script>
 
@@ -104,7 +107,7 @@
             placeholder="Your display name"
             class="mt-1"
             value={displayName}
-            on:input={(e) => (displayName = e.target?.value)}
+            on:input={(e) => (displayName = getValueFromEvent(e))}
           />
           <Button color="primary" size="sm" class="mt-4" on:click={updateDisplayName}>Save</Button>
         </div>

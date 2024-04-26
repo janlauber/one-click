@@ -1,12 +1,11 @@
 // Interface for rollout events
-interface Event {
+export interface Event {
     reason: string;
     message: string;
     typus: string;
 }
 
 // Interface for rollout events response
-
-interface RolloutEventsResponse {
+export interface RolloutEventsResponse {
     events: Event[];
 }
