@@ -19,6 +19,7 @@
   import MetricsChart from "$lib/components/deployments/MetricsChart.svelte";
   import RolloutChart from "$lib/components/deployments/RolloutChart.svelte";
   import { determineRolloutColor } from "$lib/utils/color";
+  import selectedDeploymentId from "$lib/stores/deployment";
 
   let cpuRequests = 0;
   let cpuUsage = 0;
@@ -86,7 +87,7 @@
     size="xs"
     class="whitespace-nowrap self-start"
     on:click={() => {
-      goto(`/app/projects/${$selectedProjectId}/rollouts`);
+      goto(`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/rollouts`);
     }}
   >
     <div class="relative">
@@ -110,7 +111,10 @@
 
 <div class=" gap-4 space-y-4 mt-4">
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-    <a href={`/app/projects/${$selectedProjectId}/rollouts`} class="flex flex-col justify-between">
+    <a
+      href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/rollouts`}
+      class="flex flex-col justify-between"
+    >
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
@@ -127,7 +131,7 @@
         </div>
       </Card>
     </a>
-    <a href={`/app/projects/${$selectedProjectId}/instances`}>
+    <a href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/scale`}>
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
@@ -146,7 +150,7 @@
         </div>
       </Card>
     </a>
-    <a href={`/app/projects/${$selectedProjectId}/network`}>
+    <a href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/network`}>
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-primary-500"
@@ -163,7 +167,10 @@
         </div>
       </Card>
     </a>
-    <a href={`/app/projects/${$selectedProjectId}/volumes`} class="flex flex-col justify-between">
+    <a
+      href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/volumes`}
+      class="flex flex-col justify-between"
+    >
       <Card size="xl" class="flex flex-row p-2 bg-primary-500 text-white" padding="none">
         <div class="flex items-center justify-center w-10 h-10 bg-white rounded-lg text-black">
           <Database
@@ -183,7 +190,10 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4" style="grid-template-rows: auto 1fr">
-    <a href={`/app/projects/${$selectedProjectId}/image`} class="col-span-2">
+    <a
+      href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/image`}
+      class="col-span-2"
+    >
       <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
@@ -204,7 +214,10 @@
         </div>
       </Card>
     </a>
-    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
+    <a
+      href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/envs`}
+      class="flex flex-col justify-between"
+    >
       <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"
@@ -223,7 +236,10 @@
         </div>
       </Card>
     </a>
-    <a href={`/app/projects/${$selectedProjectId}/envs`} class="flex flex-col justify-between">
+    <a
+      href={`/app/projects/${$selectedProjectId}/deployments/${$selectedDeploymentId}/envs`}
+      class="flex flex-col justify-between"
+    >
       <Card size="xl" class="flex flex-row p-2 text-primary-500" padding="none">
         <div
           class="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-lg text-white"

@@ -181,9 +181,13 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
 }
 
 export async function updateCurrentRolloutStatus() {
+    const tempProjectId = get(selectedProjectId);
+    const tempDeploymentId = get(selectedDeploymentId);
+
     const response: RolloutStatusResponse | undefined = await getRolloutStatus(
-        get(selectedProjectId),
-        get(selectedDeploymentId)
+        tempProjectId,
+        tempDeploymentId
     );
+
     currentRolloutStatus.set(response);
 }
