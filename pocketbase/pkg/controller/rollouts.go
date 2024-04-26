@@ -171,19 +171,19 @@ func HandleRolloutDelete(e *core.RecordDeleteEvent, app *pocketbase.PocketBase) 
 	// Get rollout
 	rollout, err := app.Dao().FindRecordById("rollouts", e.Record.GetString("id"))
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	// Get project
 	project, err := app.Dao().FindRecordById("projects", rollout.GetString("project"))
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	// Get deployment
 	deployment, err := app.Dao().FindRecordById("deployments", rollout.GetString("deployment"))
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	// Check if endDate is set, if no, delete rollout

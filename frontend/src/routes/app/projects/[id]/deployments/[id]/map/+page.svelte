@@ -198,7 +198,7 @@
     // Calculate the position of the nodes
     // left to right: ingress -> service -> pod -> secret
     const BASE_X_POSITIONS = {
-      ingress: 0,
+      ingress: -150,
       service: 250,
       pod: 600,
       secret: 1050,

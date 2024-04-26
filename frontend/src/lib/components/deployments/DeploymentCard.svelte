@@ -121,7 +121,6 @@
           <Badge color="dark" class="text-xs ">
             <Hash class="w-3 h-3 inline-block mr-1" />{deployment.id}
           </Badge>
-          <span class="absolute inset-0"></span>
         </a>
       </h2>
     </div>
