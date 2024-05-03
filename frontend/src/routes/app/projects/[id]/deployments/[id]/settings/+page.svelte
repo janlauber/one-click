@@ -297,7 +297,7 @@
       <tr class="">
         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
           <Heading tag="h5" color="text-black">Advanced Editing</Heading>
-          <P color="text-black" class="text-xs">Edit the manifest of your project.</P>
+          <P color="text-black" class="text-xs">Edit the manifest of your deployment.</P>
         </td>
         <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
           <!-- Modified: Added 'text-right' class -->
@@ -328,7 +328,7 @@
       <tr class="">
         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
           <Heading tag="h5" color="text-white">Blueprint</Heading>
-          <P color="text-white" class="text-xs">Create a blueprint from your project.</P>
+          <P color="text-white" class="text-xs">Create a blueprint from your deployment.</P>
         </td>
         <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
           <!-- Modified: Added 'text-right' class -->
@@ -351,7 +351,7 @@
   </table>
 </div>
 
-<!-- Danger Zone -> Delete Project -->
+<!-- Danger Zone -> Delete Deployment -->
 
 <div
   class="mt-4 p-0.5 shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-red-100 dark:bg-red-800"
@@ -361,7 +361,7 @@
       <tr class="">
         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium sm:pl-6">
           <Heading tag="h5" color="text-red-600 dark:text-red-100">Danger Zone</Heading>
-          <P color="text-red-600 dark:text-red-100" class="text-xs">Delete your project.</P>
+          <P color="text-red-600 dark:text-red-100" class="text-xs">Delete your deployment.</P>
         </td>
         <td class="whitespace-nowrap px-3 py-4 text-xs text-right">
           <!-- Modified: Added 'text-right' class -->
@@ -376,7 +376,7 @@
             }}
           >
             <Trash class="w-4 h-4 inline-block mr-1" />
-            Delete project
+            Delete deployment
           </Button>
         </td>
       </tr>
@@ -412,7 +412,7 @@
   <div class="text-center">
     <Trash class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      Are you sure you want to delete this project?
+      Are you sure you want to delete this deployment?
     </h3>
     <Button color="red" class="me-2" on:click={() => handleDelete()}>Yes, I'm sure</Button>
     <Button color="alternative">No, cancel</Button>
@@ -423,7 +423,7 @@
   <div class="text-center">
     <BookDashed class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      Create a blueprint from this project
+      Create a blueprint from this deployment
     </h3>
   </div>
   <div class="space-y-2">
