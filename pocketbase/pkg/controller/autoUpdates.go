@@ -105,7 +105,7 @@ func ParseDuration(duration string) (time.Duration, error) {
 }
 
 func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
-	expr := dbx.NewExp("project = {:project}", dbx.Params{"project": autoUpdate.GetString("project")})
+	expr := dbx.NewExp("deployment = {:deployment}", dbx.Params{"deployment": autoUpdate.GetString("deployment")})
 	rollouts, err := app.Dao().FindRecordsByExpr("rollouts", expr)
 	if err != nil {
 		log.Printf("Error querying rollouts: %v\n", err)
@@ -216,8 +216,8 @@ func UpdateImage(autoUpdate *models.Record, app *pocketbase.PocketBase) error {
 				log.Printf("Error creating or updating rollout: %v\n", err)
 				return err
 			}
-
-			log.Printf("Updated image for project: %s, rollout: %s\n", record.GetString("project"), record.Id)
+			// log the update with the new tag, deployment and project
+			log.Printf("Updated image tag to %s for deployment %s in project %s\n", tags[0], record.GetString("deployment"), record.GetString("project"))
 		}
 	}
 
