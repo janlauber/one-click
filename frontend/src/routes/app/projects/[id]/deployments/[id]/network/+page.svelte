@@ -14,6 +14,7 @@
   import {
     Accordion,
     AccordionItem,
+    Badge,
     Button,
     Heading,
     Input,
@@ -23,7 +24,7 @@
     Select,
     Toggle
   } from "flowbite-svelte";
-  import { CircleAlert, ExternalLink, Lock, Network, Plus } from "lucide-svelte";
+  import { CircleAlert, Copy, ExternalLink, Lock, Network, Plus } from "lucide-svelte";
   import toast from "svelte-french-toast";
 
   export let modal: boolean;
@@ -289,10 +290,10 @@
   </Button>
 </div>
 
-<Accordion class="gap-2 grid mt-10" flush>
+<Accordion class="gap-2 grid mt-10 p-1">
   {#key $rollouts}
     {#each interfaces as inf (inf.id)}
-      <AccordionItem class="rounded-lg">
+      <AccordionItem class="">
         <div slot="header" class="flex">
           <div
             class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center relative"
@@ -305,9 +306,26 @@
               />
             {/if}
           </div>
+
           <span class="pt-1 inline">
-            {inf.name} <span class=" font-normal text-sm">:{inf.port}</span></span
-          >
+            {inf.name}
+            <span class=" font-normal text-sm">
+              :{inf.port}
+            </span>
+          </span>
+          <Badge class="ml-2" color="green">
+            DNS:
+            {inf.name}-{$currentRollout?.deployment}-svc
+            <button
+              class="ml-2 hover:scale-105 transition-transform duration-200 ease-in-out"
+              on:click={() => {
+                navigator.clipboard.writeText(`${inf.name}-${$currentRollout?.deployment}-svc`);
+                toast.success("Service name copied to clipboard");
+              }}
+            >
+              <Copy class="w-4 h-4 inline-block" />
+            </button>
+          </Badge>
           {#if inf.host}
             <a
               href={(inf.tls ? "https://" : "http://") + inf.host}
