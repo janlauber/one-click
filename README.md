@@ -9,7 +9,9 @@ It's built with the following technologies:
 - **Backend**: [Go](https://golang.org/) & [Pocketbase](https://pocketbase.io/)
 - **Operator**: [Operator SDK](https://sdk.operatorframework.io/) -> [one-click-operator](https://github.com/janlauber/one-click-operator)
 
-![One-Click](./docs/assets/images/gif/one-click.gif)
+<div align="center">
+	<img src="./docs/assets/images/gif/one-click-new.gif" alt="One-Click">
+</div>
 
 ## Features
 
