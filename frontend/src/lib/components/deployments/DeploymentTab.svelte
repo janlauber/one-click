@@ -38,14 +38,14 @@
       }}
       class={`flex items-center gap-2 px-2 py-2 transition-all group cursor-pointer border-b-2 ${
         currentDeployment?.id === deployment.id
-          ? "border-primary-500"
-          : "hover:border-primary-500 dark:hover:border-white"
+          ? "border-primary-500 dark:border-white"
+          : "hover:border-primary-500 dark:hover:border-white border-transparent"
       }`}
     >
       <div
         class={`relative border-2 rounded-lg group-hover:-translate-y-0.5 transition-all ${
           currentDeployment?.id === deployment.id
-            ? "border-primary-500"
+            ? "border-primary-500 dark:border-white"
             : "group-hover:border-primary-500 dark:group-hover:border-white"
         }`}
       >
