@@ -263,10 +263,10 @@
   </Button>
 </div>
 
-<Accordion class="gap-2 grid mt-10" flush>
+<Accordion class="grid mt-10 p-1">
   {#key $rollouts}
     {#each volumes as volume (volume.id)}
-      <AccordionItem class="rounded-lg">
+      <AccordionItem class="">
         <div slot="header" class="flex">
           <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
             <HardDrive class="w-4 h-4" />

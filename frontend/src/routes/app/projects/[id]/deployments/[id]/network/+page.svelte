@@ -290,7 +290,7 @@
   </Button>
 </div>
 
-<Accordion class="gap-2 grid mt-10 p-1">
+<Accordion class="grid mt-10 p-1">
   {#key $rollouts}
     {#each interfaces as inf (inf.id)}
       <AccordionItem class="">

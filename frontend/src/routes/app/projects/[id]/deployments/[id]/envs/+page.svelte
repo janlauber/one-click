@@ -251,86 +251,6 @@
     }
   }
 
-  // async function handleEnvInputSave(id?: string) {
-  //   // if id is not provided, save all envs
-  //   if (!id) {
-  //     envs.forEach((env) => {
-  //       handleEnvInputSave(env.id);
-  //     });
-  //     return;
-  //   }
-
-  //   const envIndex = envs.findIndex((env) => env.id === id);
-  //   if (!$currentRollout) {
-  //     toast.error("No rollout selected");
-  //     return;
-  //   }
-
-  //   const updatedEnv = envs[envIndex];
-
-  //   if (!updatedEnv) {
-  //     toast.error("No env found");
-  //     return;
-  //   }
-
-  //   if (!updatedEnv.name || !updatedEnv.value) {
-  //     toast.error("Please fill in all fields");
-  //     return;
-  //   }
-
-  //   //@ts-expect-error - TS doesn't like the manifest property
-  //   const currentEnvIndex = $currentRollout.manifest.spec.env.findIndex(
-  //     (env: any) => env.name === updatedEnv.name
-  //   );
-
-  //   if (currentEnvIndex === -1) {
-  //     // Check if there is an existing env with the same name
-  //     // @ts-expect-error - TS doesn't like the manifest property
-  //     const existingEnv = $currentRollout.manifest.spec.env.find(
-  //       (env: any) => env.name === updatedEnv.name
-  //     );
-
-  //     // exclude if the existing env is the same as the updated env
-  //     // and there is only one env in the list
-  //     if (existingEnv && envs.length > 1) {
-  //       toast.error("An env with this name already exists");
-  //       return;
-  //     }
-  //   }
-
-  //   // Update the env in $currentRollout
-  //   // @ts-expect-error - TS doesn't like the manifest property
-  //   const rolloutEnvIndex = $currentRollout.manifest.spec.env.findIndex(
-  //     (env: any) => env.name === updatedEnv.name
-  //   );
-
-  //   if (rolloutEnvIndex !== -1) {
-  //     // @ts-expect-error - TS doesn't like the manifest property
-  //     $currentRollout.manifest.spec.env[rolloutEnvIndex] = {
-  //       name: updatedEnv.name,
-  //       value: updatedEnv.value
-  //     };
-  //   } else {
-  //     // @ts-expect-error - TS doesn't like the manifest property
-  //     $currentRollout.manifest.spec.env.push({
-  //       name: updatedEnv.name,
-  //       value: updatedEnv.value
-  //     });
-  //   }
-
-  //   // Update the manifest
-  //   if (!$currentRollout.manifest) {
-  //     toast.error("No manifest found");
-  //     return;
-  //   }
-
-  //   await updateManifest($currentRollout.manifest);
-
-  //   toast.success("Env updated successfully");
-
-  //   initialLoad = true;
-  // }
-
   async function updateManifest(manifest: any) {
     try {
       if (!$currentRollout) {
@@ -389,8 +309,8 @@
   </div>
 </div>
 
-<Accordion class="gap-2 grid mt-10" flush multiple>
-  <AccordionItem class="rounded-lg" open>
+<Accordion class="grid mt-10 p-1" multiple>
+  <AccordionItem class="" open>
     <div slot="header" class="flex">
       <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
         <Variable class="w-4 h-4" />
@@ -409,7 +329,7 @@
       {/key}
     </div>
   </AccordionItem>
-  <AccordionItem class="rounded-lg">
+  <AccordionItem class="">
     <div slot="header" class="flex">
       <div class="ring-1 p-2 rounded-lg ring-gray-500 mr-2 flex items-center justify-center">
         <Lock class="w-4 h-4" />
