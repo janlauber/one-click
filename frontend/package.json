@@ -58,7 +58,7 @@
     "@xyflow/svelte": "^0.0.40",
     "chart.js": "^4.3.0",
     "diff": "^5.2.0",
-    "diff2html": "^3.4.47",
+    "diff2html": "^3.4.48",
     "js-yaml": "^4.1.0",
     "lucide-svelte": "^0.365.0",
     "monaco-editor": "^0.47.0",
