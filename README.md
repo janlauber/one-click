@@ -1,5 +1,7 @@
 # One-Click OSS Deployment Platform
 
+[![CodeFactor](https://www.codefactor.io/repository/github/janlauber/one-click/badge)](https://www.codefactor.io/repository/github/janlauber/one-click)
+
 ## Introduction
 
 Welcome to the One-Click Deployment Platform. This project aims to provide a user-friendly interface for deploying dockerized containers on a Kubernetes cluster.  
