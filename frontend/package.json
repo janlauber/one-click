@@ -56,7 +56,7 @@
     "@sveltejs/adapter-static": "^3.0.1",
     "@webcontainer/api": "^1.1.4",
     "@xyflow/svelte": "^0.0.40",
-    "chart.js": "^4.3.0",
+    "chart.js": "^4.4.2",
     "diff": "^5.2.0",
     "diff2html": "^3.4.48",
     "js-yaml": "^4.1.0",
