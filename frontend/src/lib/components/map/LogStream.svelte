@@ -1,67 +1,62 @@
 <script lang="ts">
-  import { selectedProject } from "$lib/stores/data";
   import { onDestroy, onMount } from "svelte";
   import MonacoEditor from "svelte-monaco";
+  import { selectedProject } from "$lib/stores/data";
 
   export let podName: string;
-  let logs: string = "";
+  let logs = "";
   let ws: WebSocket;
+  let reconnectInterval: any;
 
-  onMount(() => {
-    // host
-    let host = window.location.host;
+  const reconnectDelay = 5000;
 
-    if (host.includes("localhost")) {
-      host = "localhost:8090";
-    }
-
-    // check for tls
-    let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  function setupWebSocket() {
+    let host = window.location.host.includes("localhost") ? "localhost:8090" : window.location.host;
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
     ws = new WebSocket(`${protocol}://${host}/ws/k8s/logs`);
 
     ws.onopen = () => {
-      type LogMessage = {
-        rolloutId: string;
-        podName: string;
-      };
-      let message: LogMessage = {
+      const message = {
         rolloutId: $selectedProject?.id ?? "",
-        podName: podName
+        podName
       };
-
       ws.send(JSON.stringify(message));
     };
 
     ws.onmessage = (event) => {
-      // event.data is a string
-      logs += event.data;
+      logs += event.data; // Consider debouncing this for performance
     };
+
+    ws.onclose = () => {
+      console.log("WebSocket closed. Attempting to reconnect...");
+      clearTimeout(reconnectInterval);
+      reconnectInterval = setTimeout(setupWebSocket, reconnectDelay);
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  }
+
+  onMount(() => {
+    setupWebSocket();
   });
 
   onDestroy(() => {
-    // Close the WebSocket connection
     ws.close();
-
-    // Reset the logs
-    logs = "";
+    clearTimeout(reconnectInterval);
   });
 
   function handleEditorReady(event: CustomEvent) {
     const editor = event.detail;
-    setTimeout(() => {
-      scrollToBottom(editor);
-    }, 100); // Adjust delay as necessary
+    setTimeout(() => scrollToBottom(editor), 100);
   }
 
   function scrollToBottom(editor: any) {
-    if (editor) {
-      const model = editor.getModel();
-      if (model) {
-        const lastLine = model.getLineCount();
-        editor.revealLine(lastLine);
-      }
-    }
+    const model = editor.getModel();
+    const lastLine = model.getLineCount();
+    editor.revealLine(lastLine);
   }
 </script>
 
