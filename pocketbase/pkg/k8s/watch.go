@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,6 +42,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer podWatchInterface.Stop()
 
@@ -49,6 +51,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer serviceWatchInterface.Stop()
 
@@ -57,6 +60,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer ingressWatchInterface.Stop()
 
@@ -65,6 +69,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer configMapWatchInterface.Stop()
 
@@ -73,6 +78,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer secretWatchInterface.Stop()
 
@@ -81,6 +87,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer pvcWatchInterface.Stop()
 
@@ -89,6 +96,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer pvWatchInterface.Stop()
 
@@ -97,6 +105,7 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer saWatchInterface.Stop()
 
@@ -203,21 +212,25 @@ func sendResourceUpdate(ws *websocket.Conn, event watch.Event, resourceType stri
 }
 
 // Watch the logs of a pod and send updates over WebSocket
-func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName string) {
+func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName string, ctx context.Context) {
 	if projectId == "" || podName == "" {
+		ws.WriteMessage(websocket.TextMessage, []byte("Error: projectId and podName must not be empty"))
 		log.Printf("Error: projectId and podName must not be empty")
 		return
 	}
-	// Start watching logs of the specified pod
+
+	// Start watching logs of the specified pod with the provided context
 	req := Clientset.CoreV1().Pods(projectId).GetLogs(podName, &v1.PodLogOptions{
 		Follow: true,
 	})
-	readCloser, err := req.Stream(Ctx)
+	readCloser, err := req.Stream(ctx)
 	if err != nil {
+		ws.WriteMessage(websocket.TextMessage, []byte("Error getting logs: "+err.Error()))
 		log.Printf("Error getting logs: %v", err)
 		return // Return here to prevent further execution when there's an error
 	}
 	if readCloser == nil {
+		ws.WriteMessage(websocket.TextMessage, []byte("Error: readCloser is nil"))
 		log.Printf("Error: readCloser is nil")
 		return // Prevent nil pointer dereference
 	}
@@ -225,19 +238,27 @@ func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName st
 
 	buf := make([]byte, 1024)
 	for {
-		n, err := readCloser.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				// End of file reached, stop reading
+		select {
+		case <-ctx.Done():
+			ws.WriteMessage(websocket.TextMessage, []byte("Stream closed by context cancellation"))
+			return // Exit if context is cancelled
+		default:
+			n, err := readCloser.Read(buf)
+			if err != nil {
+				if err == io.EOF {
+					// End of file reached, stop reading
+					return
+				}
+				ws.WriteMessage(websocket.TextMessage, []byte("Error reading from readCloser: "+err.Error()))
+				log.Printf("Error reading from readCloser: %v", err)
 				return
 			}
-			log.Printf("Error reading from readCloser: %v", err)
-			return
-		}
 
-		// Send the message over WebSocket
-		if err := ws.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
-			return
+			// Send the message over WebSocket
+			if err := ws.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
+				log.Printf("Error sending logs over WebSocket: %v", err)
+				return
+			}
 		}
 	}
 }
