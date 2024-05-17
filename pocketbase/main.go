@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/janlauber/one-click/hooks"
 	"github.com/janlauber/one-click/pkg/controller"
 	"github.com/janlauber/one-click/pkg/env"
 	"github.com/janlauber/one-click/pkg/k8s"
@@ -60,9 +59,6 @@ func main() {
 		Dir:          migrationsDir,
 		Automigrate:  true,
 	})
-
-	// call this only if you want to use the configurable "hooks" functionality
-	hooks.PocketBaseInit(app)
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)

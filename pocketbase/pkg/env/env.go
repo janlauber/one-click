@@ -7,9 +7,9 @@ import (
 )
 
 type config struct {
-	Local             bool   `env:"LOCAL"`
-	DefaultRolloutDir string `env:"DEFAULT_ROLLOUT_DIR" envDefault:".rollouts"`
-	CronTick          string `env:"CRON_TICK" envDefault:"*/1 * * * *"`
+	Local               bool   `env:"LOCAL"`
+	LocalKubeConfigFile string `env:"LOCAL_KUBECONFIG_FILE" envDefault:"~/.kube/config"`
+	CronTick            string `env:"CRON_TICK" envDefault:"*/1 * * * *"`
 }
 
 var Config config
@@ -20,6 +20,6 @@ func Init() {
 	}
 
 	if Config.Local {
-		log.Println("Running in local mode")
+		log.Println("Running in local mode and kubeconfig located at: " + Config.LocalKubeConfigFile)
 	}
 }
