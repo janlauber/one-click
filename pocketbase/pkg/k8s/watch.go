@@ -256,17 +256,12 @@ func WatchK8sEventsAndSendUpdates(ws *websocket.Conn, projectId string, kind str
 	})
 	if err != nil {
 		log.Printf("Error setting up watch: %v", err)
+		return
 	}
 	defer req.Stop()
 
-	for {
-		select {
-		case event, ok := <-req.ResultChan():
-			if !ok {
-				return
-			}
-			sendEventUpdate(ws, event)
-		}
+	for event := range req.ResultChan() {
+		sendEventUpdate(ws, event)
 	}
 }
 
