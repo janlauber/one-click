@@ -1,7 +1,6 @@
 FROM golang:1.22-alpine AS backend-builder
 WORKDIR /build
 COPY pocketbase/go.mod pocketbase/go.sum pocketbase/main.go ./
-COPY pocketbase/hooks ./hooks
 COPY pocketbase/pkg ./pkg
 RUN apk --no-cache add upx make git gcc libtool musl-dev ca-certificates dumb-init \
   && go mod tidy \
