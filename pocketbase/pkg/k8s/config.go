@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"path/filepath"
 
 	"github.com/janlauber/one-click/pkg/env"
 	"k8s.io/client-go/discovery"
@@ -12,7 +11,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 	metricsv "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
@@ -28,12 +26,7 @@ var (
 func Init() {
 	var err error
 	if env.Config.Local {
-		var kubeconfig *string
-		if home := homedir.HomeDir(); home != "" {
-			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-		} else {
-			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-		}
+		kubeconfig := flag.String("kubeconfig", env.Config.LocalKubeConfigFile, "(optional) absolute path to the kubeconfig file")
 		flag.Parse()
 
 		Kubeconfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
