@@ -47,7 +47,7 @@
   $: if ($autoUpdates.length > 0 && initialLoad) {
     // set the first autoUpdate for tags
     tagAutoUpdateEnabled = true;
-    tagAutoUpdateWebhookPath = "/auto-update/" + $autoUpdates[0].id;
+    tagAutoUpdateWebhookPath = "/pb/auto-update/" + $autoUpdates[0].id;
     tagAutoUpdateInterval = $autoUpdates[0].interval;
     tagAutoUpdatePattern = $autoUpdates[0].pattern;
     tagAutoUpdatePolicy = $autoUpdates[0].policy;
