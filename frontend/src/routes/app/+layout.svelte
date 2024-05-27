@@ -2,7 +2,8 @@
   import { page } from "$app/stores";
   import Nav from "$lib/components/base/Nav.svelte";
   import { breadcrumbItems } from "$lib/stores/breadcrumb";
-  import { Breadcrumb, BreadcrumbItem, Heading } from "flowbite-svelte";
+  import { loading } from "$lib/stores/data";
+  import { Breadcrumb, BreadcrumbItem, Heading, Spinner } from "flowbite-svelte";
   import { ChevronRight } from "lucide-svelte";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
@@ -49,6 +50,15 @@
       </Breadcrumb>
     </div>
 
+    {#if $loading}
+      <div class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center">
+        <span class="">
+          <Spinner />
+        </span>
+      </div>
+    {:else}
+      <slot />
+    {/if}
     <slot />
   </div>
 </div>
