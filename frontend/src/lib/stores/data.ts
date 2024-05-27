@@ -22,6 +22,9 @@ export function createWritableStore<T>(initialValue: T) {
     return writable<T>(initialValue);
 }
 
+// Loading
+export const loading = createWritableStore<boolean>(false);
+
 // Blueprints
 export type Bexpand = {
     owner: UsersResponse;
@@ -137,6 +140,7 @@ export async function updateClusterInfo() {
 }
 
 export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFilterEnum.ALL }) {
+    loading.set(true);
     if (filter.filter === UpdateFilterEnum.ALL) {
         await updateDataStore(
             "projects",
@@ -178,6 +182,9 @@ export async function updateDataStores(filter: UpdateFilter = { filter: UpdateFi
         );
         await updateClusterInfo();
     }
+
+    // wait for all stores to be updated
+    loading.set(false);
 }
 
 export async function updateCurrentRolloutStatus() {

@@ -237,7 +237,7 @@
       {
         loading: "Creating rollout...",
         success: "Rollout created.",
-        error: "Error creating rollout."
+        error: (error) => `Error creating rollout: ${error.message}.`
       }
     );
   }

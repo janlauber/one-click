@@ -125,10 +125,6 @@
     $currentRollout = $rollouts.find((r) => !r.endDate) as
       | ExpandableResponse<RolloutsResponse, Rexpand>
       | undefined;
-    if ($currentRollout == undefined) {
-      toast.error("No rollout selected.");
-      return;
-    }
 
     if (rollout.manifest == undefined) {
       toast.error("This rollout has no manifest.");
@@ -177,7 +173,7 @@
       {
         loading: "Deploying rollout...",
         success: "Rollout deployed.",
-        error: "Error deploying rollout."
+        error: "Error deploying rollout. You need to rollback manually!"
       }
     );
   }
