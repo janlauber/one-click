@@ -1,12 +1,13 @@
 .svelte-flow {
-    --bg-color: #f7f9fc;
-    --text-color: rgb(17, 17, 17);
+    --bg-color: #1f2937;
+    --text-color: #f8f9fc;
     --node-border-radius: 10px;
     --node-box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1), 4px 0 6px -2px rgba(0, 0, 0, 0.05);
     background-color: var(--bg-color) !important;
     border: 2px solid var(--text-color);
     border-radius: 10px;
     color: var(--text-color);
+    cursor: default;
 }
 
 .svelte-flow__node-turbo {
@@ -156,11 +157,8 @@
 }
 
 .svelte-flow__attribution {
-    background: rgba(200, 200, 200, 0.2);
-}
-
-.svelte-flow__attribution a {
-    color: #95679e;
+    /* hide */
+    display: none;
 }
 
 .status-problematic:before {
@@ -206,6 +204,18 @@
     width: calc(100% * 1.41421356237);
     /* gray */
     background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+}
+
+.status-succeeded:before {
+    content: "";
+    position: absolute;
+    padding-bottom: calc(100% * 1.41421356237);
+    width: calc(100% * 1.41421356237);
+    background: linear-gradient(135deg, #81ecec 0%, #00cec9 100%);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);

@@ -37,6 +37,24 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 	// }
 	// defer replicaSetWatchInterface.Stop()
 
+	cronJobWatchInterface, err := Clientset.BatchV1().CronJobs(projectId).Watch(Ctx, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		log.Printf("Error setting up watch: %v", err)
+		return
+	}
+	defer cronJobWatchInterface.Stop()
+
+	jobWatchInterface, err := Clientset.BatchV1().Jobs(projectId).Watch(Ctx, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		log.Printf("Error setting up watch: %v", err)
+		return
+	}
+	defer jobWatchInterface.Stop()
+
 	podWatchInterface, err := Clientset.CoreV1().Pods(projectId).Watch(Ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
@@ -122,6 +140,18 @@ func WatchK8sResourcesAndSendUpdates(ws *websocket.Conn, projectId string, label
 		// 		return
 		// 	}
 		// 	sendResourceUpdate(ws, event, "replicaset")
+
+		case event, ok := <-cronJobWatchInterface.ResultChan():
+			if !ok {
+				return
+			}
+			sendResourceUpdate(ws, event, "cronjob")
+
+		case event, ok := <-jobWatchInterface.ResultChan():
+			if !ok {
+				return
+			}
+			sendResourceUpdate(ws, event, "job")
 
 		case event, ok := <-podWatchInterface.ResultChan():
 			if !ok {

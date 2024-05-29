@@ -40,7 +40,7 @@
 </script>
 
 <nav class="bg-primary-600 dark:bg-primary-600 flex py-2">
-  <div class="flex justify-between w-full max-w-6xl mx-auto px-4">
+  <div class="flex justify-between w-full max-w-screen-2xl mx-auto px-4">
     <a href="/app" class="justify-start">
       <img src="/images/logo_background.png" class="mr-3 h-10" alt="Flowbite Logo" />
     </a>

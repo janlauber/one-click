@@ -12,7 +12,7 @@
 </script>
 
 {#if projectPathRegex.test($page.url.pathname)}
-  <div class="relative h-full max-w-6xl mx-auto top-16">
+  <div class="relative h-full max-w-screen-2xl mx-auto top-16">
     <div class="absolute top-0 left-3 right-3 bottom-0">
       <Modal bind:open={modal} size="lg" autoclose={false} class="w-full">
         <NewDeployment bind:modal />
