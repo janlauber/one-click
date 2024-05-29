@@ -50,8 +50,10 @@
       </Breadcrumb>
     </div>
 
-    {#if $loading}
-      <div class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center">
+    {#if $loading && $page.url.pathname.startsWith("/app/projects/")}
+      <div
+        class="absolute top-16 left-64 right-0 bottom-0 flex justify-center items-center bg-gray-50 dark:bg-slate-800 z-20"
+      >
         <span class="">
           <Spinner />
         </span>
