@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 
 export type NodeObject = {
-    kind: "pod" | "service" | "ingress" | "secret" | "pvc";
+    kind: "pod" | "service" | "ingress" | "secret" | "pvc" | "cronjob" | "job";
     name: string;
     namespace: string;
     labels: Map<string, string>;

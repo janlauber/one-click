@@ -35,7 +35,7 @@
     {/if}
 
     <div class="w-full px-3 pt-3 absolute z-20 bg-transparent">
-      <Breadcrumb class="max-w-6xl mx-auto " solid>
+      <Breadcrumb class="max-w-screen-2xl mx-auto " solid>
         {#each $breadcrumbItems as item, i}
           <BreadcrumbItem href={item.href}>
             <svelte:fragment slot="icon">

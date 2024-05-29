@@ -124,13 +124,13 @@
   function handleInputChange(event: any, field: any) {
     switch (field) {
       case "minInstances":
-        minInstances = event.target.value;
+        minInstances = parseInt(event.target.value);
         break;
       case "maxInstances":
-        maxInstances = event.target.value;
+        maxInstances = parseInt(event.target.value);
         break;
       case "targetCPUUtilizationPercentage":
-        targetCPUUtilizationPercentage = event.target.value;
+        targetCPUUtilizationPercentage = parseInt(event.target.value);
         break;
     }
   }

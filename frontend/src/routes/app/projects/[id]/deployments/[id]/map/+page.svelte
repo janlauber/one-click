@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { writable } from "svelte/store";
-  import { SvelteFlow, type Node, type Edge } from "@xyflow/svelte";
+  import { writable, get } from "svelte/store";
+  import { SvelteFlow, type Node, type Edge, Background, BackgroundVariant } from "@xyflow/svelte";
   import "@xyflow/svelte/dist/style.css";
   import "./turbo.css";
   import { initialNodes, initialEdges } from "./nodes-and-edges";
@@ -47,28 +47,20 @@
   let ws: WebSocket;
 
   onMount(() => {
-    // host
     let host = window.location.host;
-
     if (host.includes("localhost")) {
       host = "localhost:8090";
     }
 
-    // check for tls
     let protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
     ws = new WebSocket(`${protocol}://${host}/ws/k8s/deployments`);
 
     ws.onopen = () => {
-      // Send any initial message if required, for example:
-      // {
-      // deploymentId: "deploymentId"
-      // projectId: "projectId"
-      // }
       ws.send(
         JSON.stringify({
-          deploymentId: $selectedDeploymentId ?? "",
-          projectId: $selectedProject?.id
+          deploymentId: get(selectedDeploymentId) ?? "",
+          projectId: get(selectedProject)?.id
         })
       );
     };
@@ -78,17 +70,13 @@
       updateObjects(data);
     };
 
-    // set initialLoadComplete to true after 0.3s
     setTimeout(() => {
       initialLoadComplete = true;
-    }, 300);
+    }, 500);
   });
 
   onDestroy(() => {
-    // Close the WebSocket connection
     ws.close();
-
-    // Reset the nodes and edges
     nodes.set([]);
     edges.set([]);
   });
@@ -98,96 +86,149 @@
   const ingresses = writable<NodeObject[]>([]);
   const secrets = writable<NodeObject[]>([]);
   const pvc = writable<NodeObject[]>([]);
+  const cronJobs = writable<NodeObject[]>([]);
+  const jobs = writable<NodeObject[]>([]);
+  const jobPods = writable<NodeObject[]>([]);
 
   function updateObjects(data: NodeObject) {
+    const { labels } = data.object.metadata;
+    if (!labels || labels["one-click.dev/projectId"] !== get(selectedProject)?.id) return;
+
+    const deploymentIdLabel = labels["one-click.dev/deploymentId"];
+
+    if (deploymentIdLabel && deploymentIdLabel !== get(selectedDeploymentId)) return;
+
     if (data.status === "ADDED") {
-      if (data.kind === "pod") {
-        pods.update((p) => [...p, data]);
-      } else if (data.kind === "service") {
-        services.update((s) => [...s, data]);
-      } else if (data.kind === "ingress") {
-        ingresses.update((i) => [...i, data]);
-      } else if (data.kind === "secret") {
-        secrets.update((s) => [...s, data]);
-      } else if (data.kind === "pvc") {
-        pvc.update((p) => [...p, data]);
-      }
+      addResource(data);
     } else if (data.status === "MODIFIED") {
       updateNode(data);
-      if (data.kind === "pod") {
-        // update with the uid of object metadata
-        pods.update((p) => {
-          const index = p.findIndex((pod) => pod.object.metadata.uid === data.object.metadata.uid);
-          p[index] = data;
-          return p;
-        });
-      } else if (data.kind === "service") {
-        services.update((s) => {
-          const index = s.findIndex(
-            (service) => service.object.metadata.uid === data.object.metadata.uid
-          );
-          s[index] = data;
-          return s;
-        });
-      } else if (data.kind === "ingress") {
-        ingresses.update((i) => {
-          const index = i.findIndex(
-            (ingress) => ingress.object.metadata.uid === data.object.metadata.uid
-          );
-          i[index] = data;
-          return i;
-        });
-      } else if (data.kind === "secret") {
-        secrets.update((s) => {
-          const index = s.findIndex(
-            (secret) => secret.object.metadata.uid === data.object.metadata.uid
-          );
-          s[index] = data;
-          return s;
-        });
-      } else if (data.kind === "pvc") {
-        pvc.update((p) => {
-          const index = p.findIndex((pvc) => pvc.object.metadata.uid === data.object.metadata.uid);
-          p[index] = data;
-          return p;
-        });
-      }
+      updateResourceList(data);
     } else if (data.status === "DELETED") {
       removeNodeAndEdges(data.name);
-      if (data.kind === "pod") {
-        pods.update((p) => p.filter((pod) => pod.name !== data.name));
-      } else if (data.kind === "service") {
-        services.update((s) => s.filter((service) => service.name !== data.name));
-      } else if (data.kind === "ingress") {
-        ingresses.update((i) => i.filter((ingress) => ingress.name !== data.name));
-      } else if (data.kind === "secret") {
-        secrets.update((s) => s.filter((secret) => secret.name !== data.name));
-      } else if (data.kind === "pvc") {
-        pvc.update((p) => p.filter((pvc) => pvc.name !== data.name));
-      }
+      removeFromResourceList(data);
     } else if (data.status === "ERROR") {
       console.error(data);
     }
   }
 
+  function addResource(data: NodeObject) {
+    switch (data.kind) {
+      case "pod":
+        // if pod is controlled by a replica set add to pods array
+        if (
+          data.object.metadata.ownerReferences &&
+          data.object.metadata.ownerReferences[0].kind === "ReplicaSet"
+        ) {
+          pods.update((p) => [...p, data]);
+        } else {
+          // if pod is controlled by a job add to jobPods array
+          if (
+            data.object.metadata.ownerReferences &&
+            data.object.metadata.ownerReferences[0].kind === "Job"
+          ) {
+            jobPods.update((j) => [...j, data]);
+          }
+        }
+        break;
+      case "service":
+        services.update((s) => [...s, data]);
+        break;
+      case "ingress":
+        ingresses.update((i) => [...i, data]);
+        break;
+      case "secret":
+        secrets.update((s) => [...s, data]);
+        break;
+      case "pvc":
+        pvc.update((p) => [...p, data]);
+        break;
+      case "job":
+        jobs.update((j) => [...j, data]);
+        break;
+      case "cronjob":
+        cronJobs.update((c) => [...c, data]);
+        break;
+    }
+  }
+
+  function updateResourceList(data: NodeObject) {
+    const updateList = (list: any) =>
+      list.update((items: any) => {
+        const index = items.findIndex(
+          (item: any) => item.object.metadata.uid === data.object.metadata.uid
+        );
+        if (index !== -1) {
+          items[index] = data;
+        }
+        return items;
+      });
+
+    switch (data.kind) {
+      case "pod":
+        updateList(pods);
+        break;
+      case "service":
+        updateList(services);
+        break;
+      case "ingress":
+        updateList(ingresses);
+        break;
+      case "secret":
+        updateList(secrets);
+        break;
+      case "pvc":
+        updateList(pvc);
+        break;
+      case "job":
+        updateList(jobs);
+        break;
+      case "cronjob":
+        updateList(cronJobs);
+        break;
+    }
+  }
+
+  function removeFromResourceList(data: NodeObject) {
+    const removeList = (list: any) =>
+      list.update((items: any) => items.filter((item: any) => item.name !== data.name));
+
+    switch (data.kind) {
+      case "pod":
+        removeList(pods);
+        break;
+      case "service":
+        removeList(services);
+        break;
+      case "ingress":
+        removeList(ingresses);
+        break;
+      case "secret":
+        removeList(secrets);
+        break;
+      case "pvc":
+        removeList(pvc);
+        break;
+      case "job":
+        removeList(jobs);
+        break;
+      case "cronjob":
+        removeList(cronJobs);
+        break;
+    }
+  }
+
   function createNode(data: NodeObject): Node {
     return {
-      id: data.name, // Ensure this is unique
-      type: "turbo", // Using the custom node type
+      id: data.name,
+      type: "turbo",
       data: {
-        // kind: "pod" | "service" | "ingress" | "secret" | "pvc";
-        // name: string;
-        // namespace: string;
-        // labels: Map<string, string>;
-        // status: "ADDED" | "MODIFIED" | "DELETED" | "ERROR";
-        // object: any;
         kind: data.kind,
         name: data.name,
         namespace: data.namespace,
         labels: data.labels,
         status: data.kind === "pod" ? data.object.status.phase : "Running",
         object: data.object,
-        icon: data.kind.toLowerCase(), // Adjust icon based on kind,
+        icon: data.kind.toLowerCase(),
         containerStatuses: data.kind === "pod" ? data.object.status.containerStatuses : []
       },
       position: calculatePosition(data)
@@ -195,86 +236,55 @@
   }
 
   function calculatePosition(data: NodeObject): { x: number; y: number } {
-    // Calculate the position of the nodes
-    // left to right: ingress -> service -> pod -> secret
     const BASE_X_POSITIONS = {
-      ingress: -150,
-      service: 250,
-      pod: 600,
-      secret: 1050,
-      pvc: 1050
+      ingress: 0,
+      service: 450,
+      pod: 900,
+      secret: 1400,
+      pvc: 1400,
+      cronjob: 0,
+      job: 450,
+      jobPod: 900
     };
 
     const Y_OFFSET = 100;
 
-    if (data.kind === "pod") {
-      let tempPosition = { x: BASE_X_POSITIONS.pod, y: 0 };
-      // check if there is a node with the same position and kind in $nodes
-      nodes.subscribe((n) => {
-        n.forEach((node) => {
-          if (node.position.x === tempPosition.x && node.position.y === tempPosition.y) {
-            if (node.data.icon === "pod") {
-              tempPosition = { x: BASE_X_POSITIONS.pod, y: tempPosition.y + Y_OFFSET };
-            }
-          }
-        });
-      });
-      return tempPosition;
-    } else if (data.kind === "service") {
-      let tempPosition = { x: BASE_X_POSITIONS.service, y: 0 };
-      // check if there is a node with the same position and kind in $nodes
-      nodes.subscribe((n) => {
-        n.forEach((node) => {
-          if (node.position.x === tempPosition.x && node.position.y === tempPosition.y) {
-            if (node.data.icon === "service") {
-              tempPosition = { x: BASE_X_POSITIONS.service, y: tempPosition.y + Y_OFFSET };
-            }
-          }
-        });
-      });
-      return tempPosition;
-    } else if (data.kind === "ingress") {
-      let tempPosition = { x: BASE_X_POSITIONS.ingress, y: 0 };
-      // check if there is a node with the same position and kind in $nodes
-      nodes.subscribe((n) => {
-        n.forEach((node) => {
-          if (node.position.x === tempPosition.x && node.position.y === tempPosition.y) {
-            if (node.data.icon === "ingress") {
-              tempPosition = { x: BASE_X_POSITIONS.ingress, y: tempPosition.y + Y_OFFSET };
-            }
-          }
-        });
-      });
-      return tempPosition;
-    } else if (data.kind === "secret") {
-      let tempPosition = { x: BASE_X_POSITIONS.secret, y: 0 };
-      // check if there is a node with the same position and kind in $nodes
-      nodes.subscribe((n) => {
-        n.forEach((node) => {
-          if (node.position.x === tempPosition.x && node.position.y === tempPosition.y) {
-            if (node.data.icon === "secret" || node.data.icon === "pvc") {
-              tempPosition = { x: BASE_X_POSITIONS.secret, y: tempPosition.y + Y_OFFSET };
-            }
-          }
-        });
-      });
-      return tempPosition;
-    } else if (data.kind === "pvc") {
-      let tempPosition = { x: BASE_X_POSITIONS.secret, y: 0 };
-      // check if there is a node with the same position and kind in $nodes
-      nodes.subscribe((n) => {
-        n.forEach((node) => {
-          if (node.position.x === tempPosition.x && node.position.y === tempPosition.y) {
-            if (node.data.icon === "pvc" || node.data.icon === "secret") {
-              tempPosition = { x: BASE_X_POSITIONS.secret, y: tempPosition.y + Y_OFFSET };
-            }
-          }
-        });
-      });
-      return tempPosition;
+    let basePosition = BASE_X_POSITIONS[data.kind] || 0;
+    if (data.kind === "pod" && data.object.metadata.ownerReferences[0].kind === "Job") {
+      basePosition = BASE_X_POSITIONS.jobPod;
     }
 
-    return { x: 0, y: 0 };
+    let tempPosition = { x: basePosition, y: 0 };
+    if (
+      data.kind === "job" ||
+      data.kind === "cronjob" ||
+      (data.kind === "pod" && data.object.metadata.ownerReferences[0].kind === "Job")
+    ) {
+      tempPosition.y = 500;
+    }
+
+    nodes.subscribe((n) => {
+      n.forEach((node) => {
+        if (
+          node.position.x === tempPosition.x &&
+          node.position.y === tempPosition.y &&
+          node.data.kind === data.kind
+        ) {
+          tempPosition.y += Y_OFFSET;
+        }
+        // kind secret and pvc can have the same x position and need a y offset
+        if (
+          (node.position.x === BASE_X_POSITIONS.secret ||
+            node.position.x === BASE_X_POSITIONS.pvc) &&
+          node.position.y === tempPosition.y &&
+          (data.kind === "secret" || data.kind === "pvc")
+        ) {
+          tempPosition.y += Y_OFFSET;
+        }
+      });
+    })();
+
+    return tempPosition;
   }
 
   function addNode(data: NodeObject) {
@@ -289,10 +299,10 @@
 
   function createEdge(source: string, target: string): Edge {
     return {
-      id: `${source}-${target}`, // Ensure this is unique
+      id: `${source}-${target}`,
       source,
       target,
-      type: "turbo", // Using the custom edge type
+      type: "turbo",
       markerEnd: "edge-arrow",
       animated: source.includes("ingress") || source.includes("svc") ? true : false
     };
@@ -309,82 +319,54 @@
   }
 
   function removeNodeAndEdges(objectName: string) {
-    // Remove the node
     nodes.update((n) => n.filter((node) => node.id !== objectName));
-
-    // Optionally, remove edges connected to the node
     edges.update((e) =>
       e.filter((edge) => edge.source !== objectName && edge.target !== objectName)
     );
+    // remove also nodes if it's from jobPods
+    jobPods.update((j) => j.filter((jobPod) => jobPod.name !== objectName));
   }
 
   function updateNode(data: NodeObject) {
     nodes.update((n) => {
       const nodeIndex = n.findIndex((node) => node.id === data.name);
       if (nodeIndex !== -1) {
-        // Assuming the structure of your data object matches the node data structure
         const updatedNode = {
           ...n[nodeIndex],
           data: { ...n[nodeIndex].data, ...createNode(data).data }
         };
         return [...n.slice(0, nodeIndex), updatedNode, ...n.slice(nodeIndex + 1)];
       }
-      return n; // Return the original nodes array if the node wasn't found
+      return n;
     });
   }
 
-  async function handleDeletePod(podName: string) {
+  async function handleDelete(name: string, kind: string) {
     const token = localStorage.getItem("pocketbase_auth");
     if (!token) {
       return;
     }
     const authHeader = { Authorization: `Bearer ${JSON.parse(token).token}` };
-
-    // if localhost, use localhost:8090 as base url
-    // POST /pb/:projectId/:podName
-    if (window.location.hostname === "localhost") {
-      try {
-        const response = await fetch(
-          `http://localhost:8090/pb/${$selectedProject?.id}/${podName}`,
-          {
-            method: "DELETE",
-            headers: {
-              ...authHeader,
-              "Content-Type": "application/json"
-            }
-          }
-        );
-        if (response.status === 200) {
-          toast.success("Pod terminating...");
-          $drawerHidden = true;
-        } else {
-          console.error("Error deleting pod", response);
-          toast.error("Error deleting pod");
+    const url =
+      window.location.hostname === "localhost"
+        ? `http://localhost:8090/pb/${get(selectedProject)?.id}/${kind}/${name}`
+        : `/pb/${get(selectedProject)?.id}/${kind}/${name}`;
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          ...authHeader,
+          "Content-Type": "application/json"
         }
-      } catch (error) {
-        console.error("Error deleting pod", error);
-        toast.error("Error deleting pod");
+      });
+      if (response.status === 200) {
+        toast.success(`${kind} ${name} deleted`);
+        drawerHidden.set(true);
+      } else {
+        toast.error(`Failed to delete ${kind} ${name}`);
       }
-    } else {
-      try {
-        const response = await fetch(`/pb/${$selectedProject?.id}/${podName}`, {
-          method: "DELETE",
-          headers: {
-            ...authHeader,
-            "Content-Type": "application/json"
-          }
-        });
-        if (response.status === 200) {
-          toast.success("Pod terminating...");
-          $drawerHidden = true;
-        } else {
-          console.error("Error deleting pod", response);
-          toast.error("Error deleting pod");
-        }
-      } catch (error) {
-        console.error("Error deleting pod", error);
-        toast.error("Error deleting pod");
-      }
+    } catch (error) {
+      toast.error(`Failed to delete ${kind} ${name}`);
     }
   }
 
@@ -395,66 +377,116 @@
     $ingresses = $ingresses ?? [];
     $secrets = $secrets ?? [];
     $pvc = $pvc ?? [];
+    $cronJobs = $cronJobs ?? [];
+    $jobs = $jobs ?? [];
+    $jobPods = $jobPods ?? [];
 
-    // connect secrets to pods left (pod) to right (secret)
-    $pods.forEach((pod) => {
-      addNode(pod);
-      $secrets.forEach((secret) => {
-        if (pod.object.metadata.labels && secret.object.metadata.labels) {
-          if (
-            pod.object.metadata.labels["app.kubernetes.io/name"] ===
-            secret.object.metadata.labels["app.kubernetes.io/name"]
-          ) {
-            addNode(secret);
-            addEdge(pod.name, secret.name);
-          }
+    // get all cronjobs (left) connect to jobs (right) if the job has the name of the cronjob as ownerReference
+    $cronJobs.forEach((cronJob) => {
+      addNode(cronJob);
+      $jobs.forEach((job) => {
+        if (
+          job.object.metadata.ownerReferences &&
+          job.object.metadata.ownerReferences[0].kind === "CronJob" &&
+          job.object.metadata.ownerReferences[0].name === cronJob.name
+        ) {
+          addNode(job);
+          addEdge(cronJob.name, job.name);
         }
       });
     });
 
-    // connect pvcs to pods left (pod) to right (pvc)
-    $pods.forEach((pod) => {
-      addNode(pod);
-      $pvc.forEach((pvc) => {
-        if (pod.object.metadata.labels && pvc.object.metadata.labels) {
-          if (
-            pod.object.metadata.labels["app.kubernetes.io/name"] ===
-            pvc.object.metadata.labels["app.kubernetes.io/name"]
-          ) {
-            addNode(pvc);
-            addEdge(pod.name, pvc.name);
-          }
+    // add pods which are generated by jobs and connect to the job
+    // example metadata
+    // ownerReferences:
+    // - apiVersion: batch/v1
+    //   kind: Job
+    //   name: some-bash-job-28613928
+    //   uid: 69727eb6-d3a7-4f6e-84aa-30947103431a
+    //   controller: true
+    //   blockOwnerDeletion: true
+    $jobs.forEach((job) => {
+      // pods which are controlled by a job add to the jobPods array
+      $jobPods.forEach((jobPod) => {
+        if (
+          jobPod.object.metadata.ownerReferences &&
+          jobPod.object.metadata.ownerReferences[0].kind === "Job" &&
+          jobPod.object.metadata.ownerReferences[0].name === job.name
+        ) {
+          addNode(jobPod);
+          addEdge(job.name, jobPod.name);
         }
       });
     });
 
-    // connect pods to services left (service) to right (pod)
+    // add pods which are controlled by a replica set
+    // ownerReferences:
+    // - apiVersion: apps/v1
+    //   kind: ReplicaSet
+    //   name: ipt658nmh93f0sj-7c8bbb88c6
+    //   uid: 37aa0d69-f5c1-4f20-943e-1353b2c317a3
+    //   controller: true
+    //   blockOwnerDeletion: true
     $pods.forEach((pod) => {
-      addNode(pod);
-      $services.forEach((service) => {
-        if (pod.object.metadata.labels && service.object.metadata.labels) {
-          if (
-            pod.object.metadata.labels["app.kubernetes.io/name"] ===
-            service.object.metadata.labels["app.kubernetes.io/name"]
-          ) {
-            addNode(service);
-            addEdge(service.name, pod.name);
-          }
-        }
-      });
+      if (
+        pod.object.metadata.ownerReferences &&
+        pod.object.metadata.ownerReferences[0].kind === "ReplicaSet"
+      ) {
+        addNode(pod);
+        addEdge(pod.object.metadata.ownerReferences[0].name, pod.name);
+      }
     });
 
-    // connect services to ingresses left (ingress) to right (service) but only if they have the same prefix until "-ingress" & "-svc" suffix
+    // add services on the left and connect to pods which are controlled by the replica set
     $services.forEach((service) => {
       addNode(service);
-      // get the prefix of the service name
-      const servicePrefix = service.object.metadata.name.split("-svc")[0];
+      $pods.forEach((pod) => {
+        if (
+          pod.object.metadata.ownerReferences &&
+          pod.object.metadata.ownerReferences[0].kind === "ReplicaSet"
+        ) {
+          addEdge(service.name, pod.name);
+        }
+      });
+    });
+
+    // add ingresses on the left and connect to services on the right
+    // connect services to ingresses left (ingress) to right (service) but only if they have the same prefix until "-ingress" & "-svc" suffix
+    $services.forEach((service) => {
       $ingresses.forEach((ingress) => {
-        // get the prefix of the ingress name
-        const ingressPrefix = ingress.object.metadata.name.split("-ingress")[0];
-        if (servicePrefix === ingressPrefix) {
+        if (
+          service.name.includes("-svc") &&
+          ingress.name.includes("-ingress") &&
+          service.name.split("-svc")[0] === ingress.name.split("-ingress")[0]
+        ) {
           addNode(ingress);
           addEdge(ingress.name, service.name);
+        }
+      });
+    });
+
+    // add secrets next to the pods which are controlled by the replica set
+    $secrets.forEach((secret) => {
+      addNode(secret);
+      $pods.forEach((pod) => {
+        if (
+          pod.object.metadata.ownerReferences &&
+          pod.object.metadata.ownerReferences[0].kind === "ReplicaSet"
+        ) {
+          addEdge(pod.name, secret.name);
+        }
+      });
+    });
+
+    // add pvc next to the pods which are controlled by the replica set
+    $pvc.forEach((pvc) => {
+      addNode(pvc);
+      $pods.forEach((pod) => {
+        if (
+          pod.object.metadata.ownerReferences &&
+          pod.object.metadata.ownerReferences[0].kind === "ReplicaSet"
+        ) {
+          addEdge(pod.name, pvc.name);
         }
       });
     });
@@ -468,10 +500,10 @@
   </div>
 </div>
 
-<!-- load 1s -->
 {#if initialLoadComplete}
-  <div class="mt-8" style="height: 50vh;">
+  <div class="absolute left-0 right-0 top-36 bottom-10">
     <SvelteFlow {nodes} {nodeTypes} {edges} {edgeTypes} {defaultEdgeOptions} fitView>
+      <Background variant={BackgroundVariant.Dots} />
       <svg>
         <defs>
           <linearGradient id="edge-gradient">
@@ -494,21 +526,20 @@
     </SvelteFlow>
   </div>
 {:else}
-  <div class="flex items-center justify-center h-96">
-    <div class="flex items-center justify-center">
-      <div
-        class="w-8 h-8 border-2 border-t-primary-500 border-b-primary-500 rounded-full animate-spin"
-      ></div>
-    </div>
+  <div class="absolute left-0 right-0 top-36 bottom-10 flex items-center justify-center">
+    <div
+      class="w-8 h-8 border-2 border-t-primary-500 border-b-primary-500 rounded-full animate-spin"
+    ></div>
   </div>
 {/if}
 
 <Drawer
   placement="right"
   transitionType="fly"
-  width="w-1/2"
+  width="w-full sm:w-2/3 lg:w-1/2"
   transitionParams={transitionParamsRight}
   bind:hidden={$drawerHidden}
+  activateClickOutside={false}
 >
   <div class="flex items-center h-full relative">
     <div class="absolute top-2 left-2">
@@ -523,8 +554,11 @@
           <Lock class="inline" size="16" />
         {:else if $selectedNode?.icon === "pvc"}
           <Database class="inline" size="16" />
+        {:else if $selectedNode?.icon === "job"}
+          <FileCode class="inline" size="16" />
+        {:else if $selectedNode?.icon === "cronjob"}
+          <ScrollText class="inline" size="16" />
         {/if}
-
         {$selectedNode?.kind ?? "Node"}
       </p>
       <h5
@@ -534,16 +568,15 @@
         {$selectedNode?.name ?? "Node"}
       </h5>
     </div>
-    <div class="mb-4 dark:text-gray-400 absolute top-2 right-2 z-50 space-x-2">
-      {#if $selectedNode?.kind == "pod"}
+    <div class="mb-4 dark:text-gray-400 absolute top-2 right-2 space-x-2 z-50">
+      {#if $selectedNode?.kind == "pod" || $selectedNode?.kind == "job"}
         <Button
           color="red"
           size="xs"
-          on:click={() => {
-            // api call to delete the object
-            handleDeletePod($selectedNode?.name ?? "");
-          }}><Trash class="inline" size="16" /></Button
+          on:click={() => handleDelete($selectedNode?.name ?? "", $selectedNode.kind)}
         >
+          <Trash class="inline" size="16" />
+        </Button>
       {/if}
       <Button color="none" size="xs" on:click={() => ($drawerHidden = true)}>
         <X class="inline" size="16" />

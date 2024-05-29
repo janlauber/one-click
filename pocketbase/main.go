@@ -150,11 +150,19 @@ func main() {
 		})
 
 		// delete a pod of a rollout by pod name
-		e.Router.DELETE("/pb/:projectId/:podName", func(c echo.Context) error {
+		e.Router.DELETE("/pb/:projectId/pod/:podName", func(c echo.Context) error {
 			projectId := c.PathParam("projectId")
 			podName := c.PathParam("podName")
 
 			return controller.HandlePodDelete(c, app, projectId, podName)
+		}, apis.RequireRecordAuth("users"))
+
+		// delete a job
+		e.Router.DELETE("/pb/:projectId/job/:jobId", func(c echo.Context) error {
+			projectId := c.PathParam("projectId")
+			jobId := c.PathParam("jobId")
+
+			return controller.HandleJobDelete(c, app, projectId, jobId)
 		}, apis.RequireRecordAuth("users"))
 
 		// websocket for deployments status

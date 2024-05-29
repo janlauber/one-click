@@ -12,7 +12,7 @@
 
 {#if $page.url.pathname.startsWith("/app/blueprints/") && !$page.url.pathname.startsWith("/app/blueprints/shared/")}
   <div
-    class="relative h-full max-w-6xl mx-auto"
+    class="relative h-full max-w-screen-2xl mx-auto"
     in:slide={{ duration: 200, easing: cubicOut }}
     out:slide={{ duration: 200, easing: cubicOut }}
   >

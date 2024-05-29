@@ -76,7 +76,7 @@
     <NewProject bind:projectModal />
   </Modal>
 
-  <div class="max-w-6xl mx-auto pb-5 flex flex-col">
+  <div class="max-w-screen-2xl mx-auto pb-5 flex flex-col">
     <div class="flex mb-5">
       <Heading tag="h5" class="flex font-normal items-center w-auto"
         >Your Projects ({$projects.length})</Heading
