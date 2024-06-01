@@ -67,7 +67,7 @@
   }
 </script>
 
-<div class="relative h-full max-w-screen-2xl mx-auto p-5">
+<div class="relative h-full max-w-7xl mx-auto mt-20">
   <div class="flex flex-col h-full w-full space-y-4">
     <Card size="xl">
       <div class="flex flex-col space-y-4">
