@@ -280,13 +280,11 @@ func WatchK8sLogsAndSendUpdates(ws *websocket.Conn, projectId string, podName st
 					return
 				}
 				ws.WriteMessage(websocket.TextMessage, []byte("Error reading from readCloser: "+err.Error()))
-				log.Printf("Error reading from readCloser: %v", err)
 				return
 			}
 
 			// Send the message over WebSocket
 			if err := ws.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
-				log.Printf("Error sending logs over WebSocket: %v", err)
 				return
 			}
 		}
