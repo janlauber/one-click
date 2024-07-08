@@ -29,7 +29,7 @@
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-svelte": "^2.37.0",
+    "eslint-plugin-svelte": "^2.41.0",
     "flowbite": "^2.3.0",
     "flowbite-svelte": "^0.46.1",
     "pocketbase": "^0.21.2",
