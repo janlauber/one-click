@@ -1,6 +1,7 @@
 <script lang="ts">
-  import "../app.postcss";
-  import "../app.css";
+  import "../styles/app.postcss";
+  import "../styles/app.css";
+  import "../styles/xterm.css";
   import { metadata } from "$lib/stores/metadata";
   import { site } from "$lib/config";
   import { beforeNavigate } from "$app/navigation";

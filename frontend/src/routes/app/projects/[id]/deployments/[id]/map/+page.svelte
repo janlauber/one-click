@@ -21,6 +21,7 @@
     Lock,
     NetworkIcon,
     ScrollText,
+    TerminalSquare,
     Trash,
     X
   } from "lucide-svelte";
@@ -29,6 +30,8 @@
   import EventStream from "$lib/components/map/EventStream.svelte";
   import toast from "svelte-french-toast";
   import selectedDeploymentId from "$lib/stores/deployment";
+  import ShellObject from "$lib/components/map/ShellObject.svelte";
+  import selectedProjectId from "$lib/stores/project";
 
   let transitionParamsRight = {
     x: 320,
@@ -598,6 +601,13 @@
               Logs
             </div>
             <LogStream podName={$selectedNode?.name ?? ""} />
+          </TabItem>
+          <TabItem>
+            <div slot="title" class="flex items-center gap-2">
+              <TerminalSquare />
+              Shell
+            </div>
+            <ShellObject podName={$selectedNode?.name ?? ""} projectId={$selectedProjectId} />
           </TabItem>
           <TabItem>
             <div slot="title" class="flex items-center gap-2">
