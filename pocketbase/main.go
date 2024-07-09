@@ -174,6 +174,9 @@ func main() {
 		// websocket for rollout events
 		e.Router.GET("/ws/k8s/events", watcher.WsK8sRolloutEventsHandler)
 
+		// websocket for terminal of a pod attached
+		e.Router.GET("/ws/k8s/terminal", watcher.WsK8sTerminalHandler)
+
 		return nil
 	})
 

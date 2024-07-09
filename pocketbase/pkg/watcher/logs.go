@@ -50,7 +50,6 @@ func WsK8sRolloutLogsHandler(c echo.Context) error {
 	// Await for close event in the main function to properly manage connection lifecycle
 	_, _, err = ws.ReadMessage() // This blocks until client disconnects or errors out
 	if err != nil {
-		log.Println("WebSocket connection closed with error:", err)
 	}
 
 	return nil
