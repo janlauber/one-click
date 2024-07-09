@@ -125,7 +125,6 @@
 </div>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore missing-declaration -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
   class="wrapper {statusClass}"
