@@ -133,8 +133,8 @@ require (
 	google.golang.org/api v0.194.0 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
-	k8s.io/client-go v0.31.0
-	k8s.io/metrics v0.31.0
+	k8s.io/client-go v0.31.1
+	k8s.io/metrics v0.31.1
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
