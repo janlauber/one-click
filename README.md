@@ -88,3 +88,53 @@ Contributions are what make the open-source community such an amazing place to b
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Submit your PR
+
+### Custom CA Certificates
+
+If you need to connect to services with custom/self-signed SSL certificates (like private S3 storage for Pocketbase backups), you can add your CA certificates in two ways:
+
+1. **Using Environment Variable:**
+   ```bash
+   # Add your CA certificate through environment variable
+   docker run -e CUSTOM_CA_CERT="$(cat your-ca-cert.pem)" -p 8090:8090 one-click
+   ```
+
+   For Kubernetes deployment, add this to your deployment manifest:
+   ```yaml
+   spec:
+     template:
+       spec:
+         containers:
+         - name: one-click
+           env:
+           - name: CUSTOM_CA_CERT
+             valueFrom:
+               secretKeyRef:
+                 name: ca-cert-secret
+                 key: ca.crt
+   ```
+
+2. **Using Volume Mount:**
+   ```bash
+   # Mount your certificates directory
+   docker run -v /path/to/your/certs:/usr/local/share/ca-certificates:ro -p 8090:8090 one-click
+   ```
+
+   For Kubernetes deployment, use a volume mount:
+   ```yaml
+   spec:
+     template:
+       spec:
+         volumes:
+         - name: ca-certs
+           secret:
+             secretName: ca-cert-secret
+         containers:
+         - name: one-click
+           volumeMounts:
+           - name: ca-certs
+             mountPath: /usr/local/share/ca-certificates
+             readOnly: true
+   ```
+
+This is particularly useful when setting up Pocketbase backups to an S3 storage with self-signed or private CA certificates. The certificates will be automatically added to the system's certificate store when the container starts.
