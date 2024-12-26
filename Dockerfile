@@ -23,9 +23,10 @@ RUN npm run build
 FROM alpine AS runtime
 WORKDIR /app/one-click
 
-# Install ca-certificates package and create directory for custom certificates
+# Install ca-certificates package and create directories
 RUN apk --no-cache add ca-certificates \
-    && mkdir -p /usr/local/share/ca-certificates
+    && mkdir -p /usr/local/share/ca-certificates \
+    && mkdir -p /tmp/certs
 
 # Copy application files
 COPY --from=backend-builder /build/one-click /app/one-click/one-click
@@ -37,7 +38,8 @@ COPY <<EOF /entrypoint.sh
 #!/bin/sh
 # If CUSTOM_CA_CERT environment variable is set, add the certificate
 if [ -n "\${CUSTOM_CA_CERT}" ]; then
-    echo "\${CUSTOM_CA_CERT}" > /usr/local/share/ca-certificates/custom-ca.crt
+    echo "\${CUSTOM_CA_CERT}" > /tmp/certs/custom-ca.crt
+    cp /tmp/certs/custom-ca.crt /usr/local/share/ca-certificates/
     update-ca-certificates
 fi
 
