@@ -5,7 +5,7 @@ services:
       - "8090:8090"
     environment:
       - LOCAL=true
-      - LOCAL_KUBECONFIG_FILE=/home/natroot/one-click/config-unbr.yaml
+      - LOCAL_KUBECONFIG_FILE=~/.kube/config
       # Note: Replace the values from the actual configMap `one-click-config` or provide the env variables directly here
     volumes:
       - one-click-data:/app/one-click/pb_data
