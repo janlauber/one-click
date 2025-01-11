@@ -406,7 +406,7 @@
                           if (url.includes("localhost")) {
                             url = "http://localhost:8090";
                           }
-                          navigator.clipboard.writeText(url + tagAutoUpdateWebhookPath ?? "");
+                          navigator.clipboard.writeText(url + tagAutoUpdateWebhookPath);
                           toast.success("Copied to clipboard.");
                         }}
                       >
