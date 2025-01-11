@@ -1,5 +1,5 @@
 # Stage 1: Build backend
-FROM golang:1.22-alpine AS backend-builder
+FROM golang:1.23-alpine AS backend-builder
 WORKDIR /build
 COPY pocketbase/go.mod pocketbase/go.sum pocketbase/main.go ./
 COPY pocketbase/pkg ./pkg
