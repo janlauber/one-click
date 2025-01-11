@@ -64,7 +64,7 @@
     const project: ProjectsRecord = {
       name: name,
       description: description,
-      user: client.authStore.model?.id,
+      user: client.authStore?.record?.id ?? "",
       tags: setToString(localTags)
     };
 

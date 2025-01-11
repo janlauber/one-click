@@ -6,7 +6,7 @@ import type { PageLoad } from "../$types";
 
 export const load: PageLoad = async () => {
     if (browser) {
-        if (client.authStore.model) {
+        if (client.authStore.record) {
             await updateDataStores().catch((error) => {
                 toast.error(error);
             });

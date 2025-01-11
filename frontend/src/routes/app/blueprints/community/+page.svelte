@@ -8,7 +8,7 @@
   let filteredBlueprints: BlueprintsResponse[] = [];
 
   $: filteredBlueprints = $blueprints.filter((blueprint) =>
-    blueprint.users.some((user) => user === client.authStore?.model?.id)
+    blueprint.users.some((user) => user === client.authStore?.record?.id)
   );
 </script>
 

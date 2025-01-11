@@ -22,11 +22,11 @@
     });
   }
 
-  let authProviders: AuthProviderInfo[];
+  let authProviders: AuthProviderInfo[] = [];
 
   async function getAuthMethods() {
-    const response = await client.collection("users").listAuthMethods();
-    authProviders = response.authProviders;
+    const response = (await client.collection("users").listAuthMethods()) as any;
+    authProviders = response.authProviders ?? [];
   }
 
   onMount(() => {
@@ -39,7 +39,7 @@
 
       const meta: any = response.meta;
 
-      if (meta.isNew) {
+      if (meta.isNew && client.authStore.record?.id) {
         const formData = new FormData();
 
         const response = await fetch(meta.avatarUrl);
@@ -51,7 +51,7 @@
 
         formData.append("name", meta.name);
 
-        await client.collection("users").update(client.authStore.model?.id, formData);
+        await client.collection("users").update(client.authStore.record.id, formData);
       }
 
       toast.success("Logged in successfully!");
@@ -97,7 +97,7 @@
         </div>
       </form>
 
-      {#if authProviders?.length > 0}
+      {#if authProviders.length > 0}
         <div>
           <div class="relative mt-10">
             <div class="absolute inset-0 flex items-center" aria-hidden="true">

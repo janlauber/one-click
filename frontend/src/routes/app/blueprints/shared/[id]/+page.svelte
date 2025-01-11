@@ -87,12 +87,12 @@
       </span>
       {#if blueprint !== undefined}
         <div class="flex mt-4 space-x-3 rtl:space-x-reverse lg:mt-6">
-          {#if blueprint?.owner == client.authStore?.model?.id}
+          {#if blueprint?.owner == client.authStore?.record?.id}
             <Button on:click={() => goto(`/app/blueprints/my-blueprints`)}>
               Edit
               <ArrowRight class="w-5 h-5 ml-2 inline" />
             </Button>
-          {:else if blueprint?.users.includes(client.authStore?.model?.id)}
+          {:else if blueprint?.users.includes(client.authStore?.record?.id ?? "")}
             <Button
               on:click={() => {
                 goto(`/app/blueprints/community`);

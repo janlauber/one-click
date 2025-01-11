@@ -231,8 +231,8 @@
         startDate: $currentRollout?.startDate,
         endDate: "",
         project: $currentRollout?.project,
-        deployment: $currentRollout?.deployment,
-        user: client.authStore.model?.id
+        deployment: $currentRollout?.deployment ?? "",
+        user: client.authStore.record?.id ?? ""
       };
 
       client

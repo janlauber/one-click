@@ -86,8 +86,8 @@
     </div>
     <Dropdown placement="bottom" triggeredBy="#avatar-menu">
       <DropdownHeader>
-        <span class="block text-sm">{client.authStore.model?.name}</span>
-        <span class="block truncate text-sm font-medium">{client.authStore.model?.email}</span>
+        <span class="block text-sm">{client.authStore.record?.name}</span>
+        <span class="block truncate text-sm font-medium">{client.authStore.record?.email}</span>
       </DropdownHeader>
       <DropdownItem
         on:click={() => {

@@ -6,7 +6,7 @@ import type { TypedPocketBase } from "./generated-types";
 
 export const client = new PocketBase() as TypedPocketBase;
 
-export const currentUser = writable(client.authStore.model);
+export const currentUser = writable(client.authStore.record);
 
 export async function login(
     email: string,
