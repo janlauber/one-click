@@ -16,7 +16,7 @@ jobs:
         working-directory: pocketbase
     strategy:
       matrix:
-        goVer: [1.22]
+        goVer: [1.23]
 
     steps:
     - name: Set up Go ${{ matrix.goVer }}
