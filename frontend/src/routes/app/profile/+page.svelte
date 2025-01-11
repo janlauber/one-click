@@ -5,8 +5,8 @@
   import { Card, Avatar, Button, Input } from "flowbite-svelte";
   import toast from "svelte-french-toast";
 
-  let fileInput: any; // This will be used to store the file input element
-  let displayName: string = client.authStore.model?.name ?? "";
+  let fileInput: any; // This will be used to srecordtore the file input element
+  let displayName: string = client.authStore.record?.name ?? "";
 
   function triggerFileSelect(node: any) {
     // This function is an action that will be attached to the Avatar
@@ -36,10 +36,10 @@
     formData.append("avatar", file);
 
     try {
-      if (!client.authStore.model) {
+      if (!client.authStore.record) {
         throw new Error("No user found");
       }
-      await client.collection("users").update(client.authStore.model?.id, formData);
+      await client.collection("users").update(client.authStore.record?.id, formData);
       await client.collection("users").authRefresh();
 
       toast.success("Successfully updated profile");
@@ -51,10 +51,10 @@
 
   async function updateDisplayName() {
     try {
-      if (!client.authStore.model) {
+      if (!client.authStore.record) {
         throw new Error("No user found");
       }
-      await client.collection("users").update(client.authStore.model?.id, { name: displayName });
+      await client.collection("users").update(client.authStore.record?.id, { name: displayName });
       await client.collection("users").authRefresh();
       toast.success("Successfully updated display name");
     } catch (error: any) {

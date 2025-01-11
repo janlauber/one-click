@@ -124,7 +124,7 @@
       endDate: "",
       project: $selectedProjectId,
       deployment: $currentRollout.deployment,
-      user: client.authStore.model?.id
+      user: client.authStore?.record?.id ?? ""
     };
 
     toast.promise(

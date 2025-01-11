@@ -148,7 +148,7 @@
           policy: tagAutoUpdatePolicy,
           project: $selectedProjectId,
           deployment: $selectedDeploymentId,
-          user: client.authStore.model?.id
+          user: client.authStore?.record?.id ?? ""
         };
 
         // only if $autoUpdates is empty, create a new autoUpdate
@@ -236,7 +236,7 @@
         endDate: "",
         project: $selectedProjectId,
         deployment: current_rollout.deployment,
-        user: client.authStore.model?.id
+        user: client.authStore?.record?.id ?? ""
       };
 
       toast.promise(

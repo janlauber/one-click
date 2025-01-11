@@ -21,7 +21,7 @@ export const load = async ({ url }) => {
     await updateBreadcrumb();
 
     if (browser) {
-        if (client.authStore.model && client.authStore.isValid) {
+        if (client.authStore.record && client.authStore.isValid) {
             if (pathname === "/login/" || pathname === "/signup/") {
                 redirect(307, "/app");
             }

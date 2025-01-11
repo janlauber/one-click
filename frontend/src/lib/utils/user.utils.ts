@@ -4,11 +4,11 @@ export function avatarUrl(): string {
     if (client.authStore) {
         return (
             "/api/files/" +
-            client.authStore.model?.collectionId +
+            client.authStore.record?.collectionId +
             "/" +
-            client.authStore.model?.id +
+            client.authStore.record?.id +
             "/" +
-            client.authStore.model?.avatar
+            client.authStore.record?.avatar
         );
     }
     return "";

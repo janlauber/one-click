@@ -205,7 +205,7 @@
         endDate: "",
         project: $selectedProjectId,
         deployment: current_rollout.deployment,
-        user: client.authStore.model?.id
+        user: client.authStore?.record?.id ?? ""
       };
 
       if (JSON.stringify(new_manifest) === JSON.stringify(current_rollout.manifest)) {

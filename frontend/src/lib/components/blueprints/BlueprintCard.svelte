@@ -69,7 +69,7 @@
     client
       .collection("blueprints")
       .update(blueprint.id, {
-        users: blueprint.users.filter((user) => user !== client.authStore?.model?.id)
+        users: blueprint.users.filter((user) => user !== client.authStore?.record?.id)
       })
       .then(() => {
         toast.success("Unsubscribed from blueprint");

@@ -155,7 +155,7 @@
       endDate: "",
       project: $selectedProjectId,
       deployment: rollout.deployment,
-      user: client.authStore.model?.id,
+      user: client.authStore?.record?.id ?? "",
       hide: false
     };
 

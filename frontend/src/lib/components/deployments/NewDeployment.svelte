@@ -21,7 +21,7 @@
   let selectedBlueprint: BlueprintsResponse;
 
   $: filteredBlueprints = $blueprints.filter(
-    (blueprint) => blueprint.owner === client.authStore.model?.id
+    (blueprint) => blueprint.owner === client.authStore.record?.id
   );
   $: selectedBlueprint = filteredBlueprints[0];
 
@@ -41,7 +41,7 @@
     const deployment: DeploymentsRecord = {
       name: name,
       blueprint: selectedBlueprint.id,
-      user: client.authStore.model?.id,
+      user: client.authStore?.record?.id ?? "",
       project: $selectedProjectId
     };
 
@@ -68,7 +68,7 @@
           endDate: "",
           project: $selectedProjectId,
           deployment: response.id,
-          user: client.authStore.model?.id
+          user: client.authStore?.record?.id ?? ""
         };
 
         client
@@ -149,7 +149,7 @@
                 </span>
 
                 <span id="server-size-1-description-0" class=" hover:text-gray-600 mt-1">
-                  {#if blueprint?.owner === client.authStore.model?.id}
+                  {#if blueprint?.owner === client.authStore.record?.id}
                     <BookLock class="w-4 h-4 mr-1 inline-block" />
                   {:else}
                     <BookUser class="w-4 h-4 mr-1 inline-block" />

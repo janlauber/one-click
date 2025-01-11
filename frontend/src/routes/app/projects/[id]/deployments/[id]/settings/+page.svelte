@@ -164,7 +164,7 @@
       name: blueprintName,
       description: blueprintDescription,
       manifest: parsedManifest,
-      owner: client.authStore?.model?.id
+      owner: client.authStore?.record?.id ?? ""
     };
 
     client
@@ -219,7 +219,7 @@
       endDate: "",
       project: $selectedProject.id,
       deployment: $currentRollout.deployment,
-      user: client.authStore.model?.id
+      user: client.authStore.record?.id ?? ""
     };
 
     toast.promise(

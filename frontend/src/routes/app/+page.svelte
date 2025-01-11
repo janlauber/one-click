@@ -55,15 +55,15 @@
 
   function getOwnedBlueprints() {
     return $blueprints.filter(
-      (blueprint) => blueprint.owner === (client.authStore?.model?.id ?? null)
+      (blueprint) => blueprint.owner === (client.authStore?.record?.id ?? null)
     );
   }
 
   function getCommunityBlueprints() {
     return $blueprints.filter(
       (blueprint) =>
-        blueprint.owner !== client.authStore?.model?.id &&
-        blueprint.users.some((user) => user === client.authStore?.model?.id)
+        blueprint.owner !== client.authStore?.record?.id &&
+        blueprint.users.some((user) => user === client.authStore?.record?.id)
     );
   }
 
