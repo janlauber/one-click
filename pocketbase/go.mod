@@ -11,7 +11,7 @@ require (
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.22.26
 	k8s.io/api v0.32.0
-	k8s.io/apimachinery v0.32.0
+	k8s.io/apimachinery v0.32.1
 )
 
 require (
