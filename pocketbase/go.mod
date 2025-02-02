@@ -10,8 +10,8 @@ require (
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.22.26
-	k8s.io/api v0.32.0
-	k8s.io/apimachinery v0.32.0
+	k8s.io/api v0.32.1
+	k8s.io/apimachinery v0.32.1
 )
 
 require (
@@ -132,8 +132,8 @@ require (
 	google.golang.org/api v0.194.0 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
-	k8s.io/client-go v0.32.0
-	k8s.io/metrics v0.32.0
+	k8s.io/client-go v0.32.1
+	k8s.io/metrics v0.32.1
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
