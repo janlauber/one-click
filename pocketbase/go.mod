@@ -2,7 +2,7 @@ module github.com/janlauber/one-click
 
 go 1.23.0
 
-toolchain go1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/caarlos0/env/v8 v8.0.0
@@ -10,8 +10,8 @@ require (
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.22.26
-	k8s.io/api v0.32.0
-	k8s.io/apimachinery v0.32.0
+	k8s.io/api v0.32.3
+	k8s.io/apimachinery v0.32.3
 )
 
 require (
@@ -132,7 +132,7 @@ require (
 	google.golang.org/api v0.194.0 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
-	k8s.io/client-go v0.32.0
+	k8s.io/client-go v0.32.3
 	k8s.io/metrics v0.32.0
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
