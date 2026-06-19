@@ -1,5 +1,26 @@
 # One-Click OSS Deployment Platform
 
+> [!IMPORTANT]
+> ## 🌅 This project is winding down — something better is coming
+>
+> One-Click proved the idea: deploying containers to Kubernetes should be a
+> single click, not a stack of YAML. But it only ever scratched the surface of
+> what a real Container-as-a-Service platform can be.
+>
+> We're channeling everything we learned here into **klickops** — a
+> batteries-included CaaS platform for Kubernetes. Containers, secrets,
+> networking, scaling, backups, managed databases and more, all from one clean
+> UI (plus a CLI, an MCP server for AI agents, and a full REST API). No
+> operator, no CRDs to babysit — just deploy.
+>
+> klickops is **not open source yet**, but it's coming. Bookmark it and watch
+> the repo:
+>
+> ### 👉 [github.com/natrontech/klickops](https://github.com/natrontech/klickops)
+>
+> This repository is now in maintenance mode and will be archived. Thanks to
+> everyone who used and contributed to One-Click. 🙏
+
 [![CodeFactor](https://www.codefactor.io/repository/github/janlauber/one-click/badge)](https://www.codefactor.io/repository/github/janlauber/one-click)
 
 ## Introduction
